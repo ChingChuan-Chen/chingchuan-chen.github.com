@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-tw,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans TC:300,300italic,400,400italic,700,700italic|DM Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chingchuan-chen.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"buttons","active":"disqus","storage":true,"lazyload":false,"nav":null,"activeClass":"disqus"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="SQL on Hadoop不外乎Apache Drill, Hive, Hive on Tez, Phoenix,  Cloudera Impala (正在孵化為Apache專案), Presto, Pivotal HAWQ, IBM BigSQL, Apache Tajo, Apache Kylin等 在這麼多選擇中，我選擇用Drill，以下闡述我的原因">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Apache Drill">
+<meta property="og:url" content="http://chingchuan-chen.github.io/posts/201609/2016-09-20-apache-drill.html">
+<meta property="og:site_name" content="Ching-Chuan Chen&#39;s Blogger">
+<meta property="og:description" content="SQL on Hadoop不外乎Apache Drill, Hive, Hive on Tez, Phoenix,  Cloudera Impala (正在孵化為Apache專案), Presto, Pivotal HAWQ, IBM BigSQL, Apache Tajo, Apache Kylin等 在這麼多選擇中，我選擇用Drill，以下闡述我的原因">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/drill_test_df.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/drill_test_widecol.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/drill_jdbc_1.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/drill_jdbc_2.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/drill_jdbc_3.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/drill_jdbc_4.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/drill_rest_1.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/drill_rest_2.png">
+<meta property="article:published_time" content="2016-09-19T16:00:00.000Z">
+<meta property="article:modified_time" content="2018-03-14T16:45:38.000Z">
+<meta property="article:author" content="Ching-Chuan Chen">
+<meta property="article:tag" content="BigData">
+<meta property="article:tag" content="Drill">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chingchuan-chen.github.io/images/drill_test_df.png">
+
+<link rel="canonical" href="http://chingchuan-chen.github.io/posts/201609/2016-09-20-apache-drill.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-tw'
+  };
+</script>
+
+  <title>Apache Drill | Ching-Chuan Chen's Blogger</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72564040-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-72564040-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ching-Chuan Chen's Blogger</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Statistics, Machine Learning and Programming</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/ChingChuan-Chen" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-tw">
+    <link itemprop="mainEntityOfPage" href="http://chingchuan-chen.github.io/posts/201609/2016-09-20-apache-drill.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ching-Chuan Chen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ching-Chuan Chen's Blogger">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Apache Drill
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-09-20 00:00:00" itemprop="dateCreated datePublished" datetime="2016-09-20T00:00:00+08:00">2016-09-20</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2018-03-15 00:45:38" itemprop="dateModified" datetime="2018-03-15T00:45:38+08:00">2018-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/BigData/" itemprop="url" rel="index"><span itemprop="name">BigData</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/posts/201609/2016-09-20-apache-drill.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="posts/201609/2016-09-20-apache-drill.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>SQL on Hadoop不外乎Apache Drill, Hive, Hive on Tez, Phoenix, </p>
+<p>Cloudera Impala (正在孵化為Apache專案), Presto,</p>
+<p>Pivotal HAWQ, IBM BigSQL, Apache Tajo, Apache Kylin等</p>
+<p>在這麼多選擇中，我選擇用Drill，以下闡述我的原因</p>
+<a id="more"></a>
+
+<p>Drill是一套SQL on Hadoop的解決方案</p>
+<p>一個Schema-free的data model，這意思代表說不在受限於data model限制而無法查詢</p>
+<p>但是他不能用index，所以在有些查詢上會比有schema的data model來的慢</p>
+<p>儘管如此，Drill在query的表現仍然相當優秀，勝過Hive with MapReduce, Hive on Tez,</p>
+<p>Spark SQL, Presto，跟Impala互有上下 (<a target="_blank" rel="noopener" href="http://allegro.tech/2015/06/fast-data-hackathon.html">reference 1</a>, <a target="_blank" rel="noopener" href="https://www.mapr.com/blog/comparing-sql-functions-and-performance-apache-spark-and-apache-drill">reference 2</a>)</p>
+<p>不過問題來了，Drill要base什麼去建立？ hdfs? hbase? hive? 還是其他nosql的架構？</p>
+<p>這個就depends on每個人的需求了，因為我需要一個Loader去同步在Oracle的資料</p>
+<p>而這loader最簡單的方式就是使用Spark SQL去做(因為Drill沒辦法直接讀寫hive, hbase等資料庫)</p>
+<p>所以這裡我採用hive當做表格儲存的位置，能讓Spark SQL直接做table的存寫</p>
+<p>而且Drill直接搜尋hive的速度相當快，不需要透過hive下的engine(mapredure, tez or spark)去處理</p>
+<p>我原本傾向使用有schema的hbase跟hive，可以直接透過Spark SQL去存讀資料</p>
+<p>但是又想到我需要一個Loader去同步在Oracle的資料，不過Drill無法提供直接使用DataFrame存寫的功能</p>
+<p>做了一點功課之後，決定直接使用HDFS存JSON檔案</p>
+<p>在Spark SQL可以透過JDBC接口直接使用Spark SQL去處理資料再存新的json回去</p>
+<ol>
+<li>下載檔案並部署</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">curl -v -j -k -L http://apache.stu.edu.tw/drill/drill-1.8.0/apache-drill-1.8.0.tar.gz -o apache-drill-1.8.0.tar.gz</span><br><span class="line">tar -xzvf apache-drill-1.8.0.tar.gz</span><br><span class="line">mv apache-drill-1.8.0 /usr/<span class="built_in">local</span>/bigdata/drill</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>配置</li>
+</ol>
+<p>使用<code>vi /usr/local/bigdata/drill/conf/drill-override.conf</code>去configure Drill</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">drill.exec: &#123;</span><br><span class="line">  cluster-id: &quot;drillcluster&quot;,</span><br><span class="line">  zk.connect: &quot;192.168.0.121:2181,192.168.0.122:2181,192.168.0.123:2181&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>如果記憶體不多的話建議下面配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">tee -a /usr/<span class="built_in">local</span>/bigdata/drill/conf/drill-env.sh &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line"><span class="comment"># 這一行一定要留著</span></span><br><span class="line">DRILL_MAX_DIRECT_MEMORY=<span class="string">&quot;2G&quot;</span></span><br><span class="line">DRILL_MAX_HEAP=<span class="string">&quot;1G&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">export</span> DRILL_JAVA_OPTS=<span class="string">&quot;-Xms1G -Xmx<span class="variable">$DRILL_MAX_HEAP</span> -XX:MaxDirectMemorySize=<span class="variable">$DRILL_MAX_DIRECT_MEMORY</span> -XX:MaxPermSize=512M -XX:ReservedCodeCacheSize=1G -ea&quot;</span></span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>複製到各台node</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">scp -r &#x2F;usr&#x2F;local&#x2F;bigdata&#x2F;drill tester@cassSpark2:&#x2F;usr&#x2F;local&#x2F;bigdata</span><br><span class="line">scp -r &#x2F;usr&#x2F;local&#x2F;bigdata&#x2F;drill tester@cassSpark3:&#x2F;usr&#x2F;local&#x2F;bigdata</span><br></pre></td></tr></table></figure>
+
+<p>使用<code>/usr/local/bigdata/drill/bin/drillbit.sh start</code>去啟動Drill</p>
+<p>就可以用<code>http://192.168.0.121:8047/</code>連到Drill的web UI了</p>
+<p>可以再Storage Page看到dfs的Option，按下Update即可更新(更新下面的值即可)：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&quot;connection&quot;: &quot;hdfs://hc1&quot;,</span><br><span class="line">&quot;workspaces&quot;: &#123;</span><br><span class="line">  &quot;root&quot;: &#123;</span><br><span class="line">    &quot;location&quot;: &quot;/drill&quot;,</span><br><span class="line">    &quot;writable&quot;: true,</span><br><span class="line">    &quot;defaultInputFormat&quot;: null</span><br><span class="line">  &#125;,</span><br><span class="line">  &quot;tmp&quot;: &#123;</span><br><span class="line">    &quot;location&quot;: &quot;/drill/tmp&quot;,</span><br><span class="line">    &quot;writable&quot;: true,</span><br><span class="line">    &quot;defaultInputFormat&quot;: null</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>按下Update，然後Close</p>
+<p>再來是上傳一些資料吧</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">tee ~/test_df.json &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">[&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.01991423&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;e&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.73282957&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.00552144&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.83103357&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:-0.79378789&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;e&quot;</span>,<span class="string">&quot;v3&quot;</span>:-0.36969293&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:-1.66246829&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:-0.73893442&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:-0.49832169&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;e&quot;</span>,<span class="string">&quot;v3&quot;</span>:-0.83277815&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;e&quot;</span>,<span class="string">&quot;v3&quot;</span>:-0.10230033&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.14617246&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:-0.50122879&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:-1.01900482&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;e&quot;</span>,<span class="string">&quot;v3&quot;</span>:-0.08073591&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:-1.02780559&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:-1.28585578&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;e&quot;</span>,<span class="string">&quot;v3&quot;</span>:2.19115715&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.22095974&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.98055576&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.92121262&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.43742128&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.1683678&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;e&quot;</span>,<span class="string">&quot;v3&quot;</span>:-1.31987619&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:1.0675091&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;e&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.49024668&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;e&quot;</span>,<span class="string">&quot;v3&quot;</span>:-1.65978632&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:-0.1294416&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:1.00880932&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.27295147&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:-0.1935518&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.92765404&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:-0.49652849&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.11603917&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:1.00496088&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;e&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.5742589&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:-0.07431593&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;e&quot;</span>,<span class="string">&quot;v3&quot;</span>:1.91539019&#125;,&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.07681478&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:0.69678599&#125;]</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line">tee ~/test_widecol.json &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">[&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:[0.01991423,0.83103357,-1.28585578,0.92121262,-0.1935518,-0.49652849]&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;e&quot;</span>,<span class="string">&quot;v3&quot;</span>:[0.73282957,-0.83277815,-0.08073591,0.49024668]&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;b&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:[0.00552144,-0.73893442,0.22095974,1.0675091,-0.1294416,1.00880932,0.11603917,0.69678599]&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;d&quot;</span>,<span class="string">&quot;v3&quot;</span>:[-0.79378789,-0.50122879,-1.01900482,-1.02780559,0.98055576,0.1683678,0.27295147,0.92765404,1.00496088]&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;e&quot;</span>,<span class="string">&quot;v3&quot;</span>:[-0.36969293,-0.10230033,2.19115715,-1.31987619,-1.65978632,0.5742589,1.91539019]&#125;,</span><br><span class="line">&#123;<span class="string">&quot;v1&quot;</span>:<span class="string">&quot;a&quot;</span>,<span class="string">&quot;v2&quot;</span>:<span class="string">&quot;c&quot;</span>,<span class="string">&quot;v3&quot;</span>:[-1.66246829,-0.49832169,0.14617246,0.43742128,-0.07431593,0.07681478]&#125;]</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>上傳到hdfs去：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">hdfs dfs -mkdir /drill</span><br><span class="line">hdfs dfs -mkdir /drill/tmp</span><br><span class="line">hdfs dfs -put ~/test_df.json /drill</span><br><span class="line">hdfs dfs -put ~/test_widecol.json /drill</span><br><span class="line"><span class="comment"># 確定資料有上去</span></span><br><span class="line">hdfs dfs -ls /drill</span><br><span class="line"><span class="comment"># Found 3 items</span></span><br><span class="line"><span class="comment"># -rw-r--r--   3 tester supergroup       1456 2016-09-19 23:49 /drill/test_df.json</span></span><br><span class="line"><span class="comment"># -rw-r--r--   3 tester supergroup        618 2016-09-19 23:49 /drill/test_widecol.json</span></span><br><span class="line"><span class="comment"># drwxr-xr-x   - tester supergroup          0 2016-09-19 23:46 /drill/tmp</span></span><br></pre></td></tr></table></figure>
+
+<p>執行下面的SQL可以得到下圖的結果</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> dfs.<span class="string">`/drill/test_df.json`</span>;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/drill_test_df.png"></p>
+<p>執行下面的SQL可以得到下圖的結果</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> dfs.<span class="string">`/drill/test_widecol.json`</span>;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/drill_test_widecol.png"></p>
+<p>使用<a target="_blank" rel="noopener" href="http://squirrel-sql.sourceforge.net/">SQuirreL SQL Client</a>透過JDBC去操作Drill</p>
+<p>先點擊左邊的Driver按鈕，然後按下左上角藍色的+去新增Driver</p>
+<p>其中Example URL填<code>jdbc:drill:zk=cassSpark1:2181</code></p>
+<p>Extra Class Path新增Drill binary tar裡面<code>jars/jdbc-driver/drill-jdbc-all-1.8.0.jar</code></p>
+<p>Driver就可以選<code>org.apache.drill.jdbc.Driver</code>了，如同下圖的設定</p>
+<p><img src="/images/drill_jdbc_1.png"></p>
+<p>接著點擊左邊的<code>Alias</code>，一樣按下藍色的+去新增，其中URL的填法如下：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jdbc:drill:zk&#x3D;&lt;zookeeper_quorum&gt;&#x2F;&lt;drill_directory_in_zookeeper&gt;&#x2F;&lt;cluster_ID&gt;;schema&#x3D;&lt;schema_to_use_as_default&gt;</span><br></pre></td></tr></table></figure>
+
+<p>像是我的是<code>jdbc:drill:zk=cassSpark1:2181/drill/drillcluster;schema=dfs</code></p>
+<p><code>cassSpark1:2181</code>是我的zookeeper地址，<code>drillcluster</code>是我在conf裡面設定的cluster name</p>
+<p>使用的預設schema就dfs (請看Drill網頁UI裡面的Storage那頁)，設定會如下圖：</p>
+<p><img src="/images/drill_jdbc_2.png"></p>
+<p>然後就可以連線了！如下圖：</p>
+<p><img src="/images/drill_jdbc_3.png"></p>
+<p><img src="/images/drill_jdbc_4.png"></p>
+<p>再來是Drill的REST接口</p>
+<p>這裡分別用linux的curl指令跟R httr套件的POST去做：</p>
+<p><img src="/images/drill_rest_1.png"></p>
+<p><img src="/images/drill_rest_2.png"></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span>(httr)</span><br><span class="line"></span><br><span class="line">POST(<span class="string">&quot;http://192.168.0.121:8047/query.json&quot;</span>, </span><br><span class="line">     body = list(queryType = <span class="string">&quot;SQL&quot;</span>, </span><br><span class="line">     query = <span class="string">&quot;SELECT v1,v2,v3 FROM dfs.`/drill/test_df.json`&quot;</span>),</span><br><span class="line">     encode = <span class="string">&quot;json&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+
+<p>另外，也可以用jdbc去連Oracle，先從Oracle官方網站下載到ojdbc7.jar</p>
+<p>將ojdbc7.jar放到<code>/usr/local/bigdata/drill/lib/3party</code>裡面，然後重開drill (記得是每一台都要放)</p>
+<p>(如果有用我之前Spark在Oracle的配置，可以直接下<code>cp $SPARK_HOME/extraClass/ojdbc7.jar /usr/local/bigdata/drill/jars/3rdparty/</code>)</p>
+<p>然後在web UI的Storage增加一個New Storage Plugin，叫做oracle：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  type: &quot;jdbc&quot;,</span><br><span class="line">  enabled: true,</span><br><span class="line">  driver: &quot;oracle.jdbc.OracleDriver&quot;,</span><br><span class="line">  url:&quot;jdbc:oracle:thin:system/qscf12356@192.168.0.120:1521/orcl&quot;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>就可以使用<code>select * from oracle.&lt;user_name&gt;.&lt;table_name&gt;</code>去做查詢了</p>
+<p>最後附上supervisor的config</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">sudo tee -a &#x2F;etc&#x2F;supervisor&#x2F;supervisord.conf &lt;&lt; &quot;EOF&quot;</span><br><span class="line">[program:drill]</span><br><span class="line">command&#x3D;&#x2F;bin&#x2F;bash -c &quot;&#x2F;usr&#x2F;local&#x2F;bigdata&#x2F;drill&#x2F;bin&#x2F;drillbit.sh run&quot;</span><br><span class="line">stdout_logfile&#x3D;&#x2F;var&#x2F;log&#x2F;supervisor&#x2F;drill-stdout.out</span><br><span class="line">stderr_logfile&#x3D;&#x2F;var&#x2F;log&#x2F;supervisor&#x2F;drill-stderr.out</span><br><span class="line">autostart&#x3D;true</span><br><span class="line">startsecs&#x3D;5</span><br><span class="line">priority&#x3D;95</span><br><span class="line">EOF</span><br><span class="line">sudo systemctl restart supervisor</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/BigData/" rel="tag"># BigData</a>
+              <a href="/tags/Drill/" rel="tag"># Drill</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/201609/2016-09-19-return-hadoop-architecture.html" rel="prev" title="重返Hadoop Architecture (設定HA群集)">
+      <i class="fa fa-chevron-left"></i> 重返Hadoop Architecture (設定HA群集)
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/201609/2016-09-21-apache-hive-with-apache-drill.html" rel="next" title="Apache Hive with Apache Drill">
+      Apache Hive with Apache Drill <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ching-Chuan Chen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">156</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ChingChuan-Chen" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ChingChuan-Chen" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zw12356@gmail.com" title="E-Mail → mailto:zw12356@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/celestial0230/" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;celestial0230&#x2F;" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ching-Chuan Chen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://celestial0230.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://chingchuan-chen.github.io/posts/201609/2016-09-20-apache-drill.html";
+    this.page.identifier = "posts/201609/2016-09-20-apache-drill.html";
+    this.page.title = "Apache Drill";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://celestial0230.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

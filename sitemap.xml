@@ -1,0 +1,2290 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/index.html</loc>
+    
+    <lastmod>2020-09-04</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/index.html</loc>
+    
+    <lastmod>2020-09-04</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201909/2019-09-28-installation-in-centos-8.html</loc>
+    
+    <lastmod>2020-08-09</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201902/2019-02-27-nginx-reverse-proxy-for-rstudio-server-and-jupyterhub-with-ssl.html</loc>
+    
+    <lastmod>2019-10-15</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201909/2019-09-29-setup-nfs-in-centos-8.html</loc>
+    
+    <lastmod>2019-09-29</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201804/2018-04-25-installation-of-python-3.5.5-in-centos-7.4.html</loc>
+    
+    <lastmod>2019-09-28</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201703/2017-03-11-installation-mxnet-gpu-version-in-windows.html</loc>
+    
+    <lastmod>2019-07-15</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/about/index.html</loc>
+    
+    <lastmod>2019-07-15</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201902/2019-02-03-Julia-MKL-build-in-docker.html</loc>
+    
+    <lastmod>2019-02-05</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201809/2018-09-11-compile-julia-in-centos-7.html</loc>
+    
+    <lastmod>2019-02-03</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201812/2018-12-21-SLURM-cluster-in-docker.html</loc>
+    
+    <lastmod>2018-12-30</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201812/2018-12-16-how-does-R-process-existed-connections-when-exit.html</loc>
+    
+    <lastmod>2018-12-20</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201812/2018-12-04-Rstudio-server-in-docker.html</loc>
+    
+    <lastmod>2018-12-20</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201807/2018-07-26-installation-of-vms.html</loc>
+    
+    <lastmod>2018-12-20</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201809/2018-09-18-write-A-general-plot-function-with-R.html</loc>
+    
+    <lastmod>2018-09-18</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201808/2018-08-16-build-gpu-version-of-lightgbm-in-centos-7.html</loc>
+    
+    <lastmod>2018-09-18</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201807/2018-07-14-compile-julia-in-windows.html</loc>
+    
+    <lastmod>2018-09-11</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201808/2018-08-15-build-gpu-version-of-lightgbm-in-windows.html</loc>
+    
+    <lastmod>2018-08-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201807/2018-07-27-installation-of-slurm.html</loc>
+    
+    <lastmod>2018-08-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201502/2015-02-20-excel-and-winbash.html</loc>
+    
+    <lastmod>2018-08-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201807/2018-07-13-npm-mirror.html</loc>
+    
+    <lastmod>2018-07-13</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201807/2018-07-13-extend-disk-space-centos-7-vm.html</loc>
+    
+    <lastmod>2018-07-13</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201804/2018-04-25-pyspark-with-mongodb.html</loc>
+    
+    <lastmod>2018-07-06</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201804/2018-04-14-Python-installation.html</loc>
+    
+    <lastmod>2018-04-26</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201804/2018-04-25-installation-of-go-1.10-in-centos-7.4.html</loc>
+    
+    <lastmod>2018-04-25</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201804/2018-04-24-python-call-go-part2.html</loc>
+    
+    <lastmod>2018-04-24</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201607/2016-07-26-use-cx_Oracle-to-manipulate-oracle-database-in-Python.html</loc>
+    
+    <lastmod>2018-04-21</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201607/2016-07-25-use-ROracle-to-manipulate-oracle-database-in-R.html</loc>
+    
+    <lastmod>2018-04-18</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201607/2016-07-24-deployment-of-oracle-database.html</loc>
+    
+    <lastmod>2018-04-18</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201804/2018-04-16-python-call-go.html</loc>
+    
+    <lastmod>2018-04-17</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201804/2018-04-16-kivy.html</loc>
+    
+    <lastmod>2018-04-16</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201804/2018-04-15-PyCharm-and-Cython.html</loc>
+    
+    <lastmod>2018-04-16</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201803/2018-03-15-R-call-javascript.html</loc>
+    
+    <lastmod>2018-03-15</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201711/2017-11-19-Swish-Beta-Function-In-Keras.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201504/2015-04-20-shiny-app-for-ising-model.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201504/2015-04-27-how-to-use-xelatex-in-sublime-text.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201504/2015-04-19-Implementation-for-summing-a-list-of-matrices-part-2.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201504/2015-04-19-bsxfun-in-R.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201504/2015-04-14-Using-Rcpp-function-in-doSNOW-and-snowfall.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201504/2015-04-10-hadoop-and-python.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201504/2015-04-09-installation-of-spyder2-and-spyder3.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201504/2015-04-08-installations-of-rhdfs-rmr2-plyrmr-and-hbase.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201504/2015-04-06-installation-of-hbase-and-hive-in-mint-17.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201504/2015-04-06-build-hadoop-environment-in-mint-17.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201503/2015-03-30-combinations-of-protein-in-Rcpp.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201503/2015-03-27-drawing-planes-in-R.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201503/2015-03-28-the-length-of-runs-of-equal-values-in-a-vector.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201503/2015-03-26-regular-expression-in-R.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201503/2015-03-18-splitting-characters-in-R.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201503/2015-03-20-processing-string-in-R.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201503/2015-03-14-Computing-the-transition-matrix-for-multi-state-id.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201503/2015-03-04-Taking-average-%20every-k-periods.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201502/2015-02-28-hotkeys-in-sublime-text.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201502/2015-02-15-pasrsing-html-with-javascript.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201502/2015-02-12-Faster-R-in-windows.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201501/2015-01-18-Implementation-for-summing-a-list-of-matrices.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201501/2015-01-14-unique-rows-of-matrix-in-mex.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201408/2014-09-02-grouping-in-a-fixed-time-interval.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201408/2014-08-20-tables-combining.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201408/2014-08-03-R-with-GPU-performance-of-HiPLARM.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201408/2014-08-03-R-with-GPU-performance-of-gputools.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201408/2014-08-03-R-with-GPU.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201407/2014-07-30-Rcpp-Attributes-for-Sparse-Matrix.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201408/2014-08-02-Search-Maximum-Point-by-Point.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201407/2014-07-29-R-data-table-sum-by-groups.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201407/2014-07-29-R-data-table-subsets.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201407/2014-07-29-R-data-table-melt-and-cast.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201407/2014-07-29-R-data-table-collating-data.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201407/2014-07-22-R-performance.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201507/2015-07-02-data-table.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201507/2015-07-01-magrittr.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201507/2015-07-03-dplyr.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201507/2015-07-04-tidyr.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201601/2016-01-18-RcppParallel_and_RRO_about_intel_MKL_multithread.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201604/2016-04-11-initialization_of_ubuntu.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201604/2016-04-22-Installation_of_mongodb_in_ubuntu.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201604/2016-04-22-Installation_of_RRO_in_ubuntu.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201605/2016-05-10-centos-fakeraid.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201605/2016-05-11-initialization_of_centos.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201607/2016-07-10-pipe-operators-in-R.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201607/2016-07-23-deployment-spark-phoenix-hbase-yarn-zookeeper-hadoop.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201607/2016-07-30-deployment-of-cassandra-in-centos.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201607/2016-07-28-test-on-apache-sqoop.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201608/2016-08-01-export-oracle-data-to-cassandra-using-python.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201608/2016-08-05-deployment-of-spark-based-on-cassandra.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201608/2016-08-10-nexus-local-maven-repository.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201608/2016-08-12-deployment-of-spark-2_0_0-based-on-cassandra.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201608/2016-08-13-use-scala-migrate-oracle-data-to-cassandra-through-sparksql.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201608/2016-08-23-deployment-of-mesos-spark.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201609/2016-09-07-simple-file-server-centos.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201608/2016-08-26-spark-on-mesos-dynamic-resource-allocation.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201609/2016-09-08-sparklyr-and-use-it-with-cassandra.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201609/2016-09-09-sparkr.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201609/2016-09-10-sparkrlyr-extensions.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201609/2016-09-14-python-supervisor-monitor.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201609/2016-09-15-spark-assembly.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201609/2016-09-19-return-hadoop-architecture.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201609/2016-09-20-apache-drill.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201609/2016-09-21-apache-hive-ACID.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201609/2016-09-21-apache-hive-with-apache-drill.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201609/2016-09-22-spark-on-hive.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201609/2016-09-23-performance-benchmark-of-the-sql-tools-on-Hadoop.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201609/2016-09-26-spark-and-hive.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201610/2016-10-04-library-R-packages-with-install-automatically.md.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201610/2016-10-14-buildup-mongodb-sharding-server.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201610/2016-10-15-using-R-to-load-data-into-mongodb-from-oracle.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201610/2016-10-19-unnest-in-R-datatable.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201610/2016-10-20-R-web-service.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201610/2016-10-21-R-web-service-with-opencpu.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201610/2016-10-25-installation-of-opencpu-in-centos.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201610/2016-10-28-gitlab-with-rstudio.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201611/2016-11-05-ddply-vs-rbindlist.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201611/2016-11-26-R-parallel-pkgs.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201612/2016-12-10-locally-quantile-regression-in-R.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201612/2016-12-31-Differences-between-RcppEigen-and-RcppArmadillo.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201612/2016-12-31-RcppEigen-Work-With-RcppParall.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201612/2016-12-31-RcppEigen-Work-With-RcppParall-part-2.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201612/2016-12-31-weighted-least-square-algorithm.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201405/2014-05-14-how-to-build-blog-by-using-jekyll.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201701/2017-01-01-kernal-matrix-computation-in-Rcpp.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201701/2017-01-01-kernal-matrix-computation-in-Rcpp-continued.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201701/2017-01-01-Rcpp-call-F77-blas-lapack.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201701/2017-01-01-Rcpp-call-F77-blas-lapack-continued.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201701/2017-01-02-Rcpp-link-blaze.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201701/2017-01-02-Rcpp-link-blaze-part-2.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201701/2017-01-02-update-RcppEigen-to-3-3-1.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201701/2017-01-04-using-gcc-5.3-with-R-in-centos-7.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201702/2017-02-15-use-ambari-and-hdp-deploy-hadoop-cluster.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201703/2017-03-10-wrapr-examples.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201703/2017-03-12-Rcpp-type-template.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201703/2017-03-14-using-caret-to-tune-model-parameters.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201703/2017-03-31-Rcpp-object-check.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201704/2017-04-10-grid-search-in-data.table.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201704/2017-04-14-transform-variables-of-data-frame.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201704/2017-04-16-mxnet-io-csviter.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201704/2017-04-23-introduce-to-foreach-and-iterators.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201704/2017-04-23-RcppArmadillo-call-F77-blas-lapacl.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201704/2017-04-24-building-gpu-version-of-mxnet-in-windows.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201705/2017-05-25-use-R-to-construct-web-service.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201707/2017-07-20-inconsolata-in-centos.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201708/2017-08-12-Rcpp-link-system-library.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201710/2017-10-06-RcppArmadillo-Use-NVBLAS.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201405/2014-05-16-how-to-compile-R-with-mkl.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201407/2014-07-10-Some-tips-on-linux.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201405/2014-05-20-how-to-build-numpy-and-scipy-with-MKL.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201405/2014-05-19-syntax-highlight-in-jekyll.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201405/2014-05-18-sublime-text-in-linux.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201407/2014-07-19-Rcpp-Attributes.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201407/2014-07-19-Rcpp-Attributes-with-lasso.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/posts/201407/2014-07-20-Rcpp-Attributes-for-kernelMatrix-with-openmp.html</loc>
+    
+    <lastmod>2018-03-14</lastmod>
+    
+  </url>
+  
+
+  <url>
+    <loc>http://chingchuan-chen.github.io/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/jekyll/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Linux/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Sublime-Text-3/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/R/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Rcpp/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/MKL/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Intel-C/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Python/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/numpy/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/scipy/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Jekyll/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Syntax-Highlight/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/RcppArmadillo/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/LASSO/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Ubuntu/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Mint/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Rcpp-Attributes/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/openmp/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/kernel-matrix/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/data-table/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Sparse-Matrix/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/GPU/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/ubuntu/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/cuda/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/HiPLARM/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/dplyr/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/reshape2/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/magrittr/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/MatLab/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/mex/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/unique-row/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Reduce/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/do-call/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/BLAS/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Revolution-R-Open/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/windows-bat/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/excel/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/copy/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/crawler/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/RSelenium/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/javascript/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/plyr/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Sublime-Text/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/split/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/regex/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/rJava/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/3D-plot/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Running-Length/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/BigData/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Hadoop/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/HBase/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Hive/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Spyder/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/rhdfs/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/rmr2/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/plyrmr/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/rhbase/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/MapReduce/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/parallel/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/snowfall/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/foreach/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/bsxfun/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/sweep/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/xelatex/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/shiny/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/ptt/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/RcppParallel/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Microsoft-R-Open/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/tidyr/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/CentOS/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Pipe-Operator/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/pipeR/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/raid/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/mongodb/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Oracle/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/ROracle/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/cx-Oracle/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Sqoop/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Cassandra/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Spark/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Maven/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/sbt/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/proxy/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Nexus/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Mesos/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Scala/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/sparkly/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/SparkR/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/File-Server/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/supervisor/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/monitor/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/assembly/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/ACID/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Drill/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/library/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/unnest/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/opencpu/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Web-Service/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/httpuv/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/GitLab/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Git/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/private/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/list/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/data-frame/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Locally-Quantile-Regression/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/RcppEigen/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/WLS/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Least-Square/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/LAPACK/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Kernel-Matrix/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Blaze/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Ambari/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/HDP/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/gcc/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/wrapr/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/MxNet/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Windows/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Deep-Learning/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Type-checking/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Grid-Search/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/RcppBlaze/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Rcpp-Types/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/variable-transformation/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/caret/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/parameters-tuning/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Data-Iterator/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/iterators/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/apply/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/NVBLAS/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/TexLive/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/inconsolata/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Keras/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Swish/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/PyCharm/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Kivy/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/PyTorch/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Tensorflow/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Intel/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/deep-learning/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Golang/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Cython/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Go/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/MongoDB/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/julia/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/nodejs/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/SLURM/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/LightGBM/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Liunx/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/ggplot2/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/docker/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/linux/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/NFS/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Phoenix/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Yarn/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/Zookeeper/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/SQL/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/jekyll/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/Linux/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/R/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/Python/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/Jekyll/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/MatLab/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/windows-bat/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/Sublime-Text/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/BigData/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/Oracle/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/mongodb/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/MxNet/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/Go/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/MongoDB/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/julia/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/nodejs/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/SLURM/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/LightGBM/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/CentOS/</loc>
+    <lastmod>2020-09-20</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+</urlset>

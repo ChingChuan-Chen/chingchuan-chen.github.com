@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="zh-tw,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans TC:300,300italic,400,400italic,700,700italic|DM Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chingchuan-chen.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"buttons","active":"disqus","storage":true,"lazyload":false,"nav":null,"activeClass":"disqus"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="RStudio推出了一個感覺很厲害的套件sparklyr 可以讓dplyr變得lazy，然後去即時的操作Spark中的dataFrame">
+<meta property="og:type" content="article">
+<meta property="og:title" content="sparklyr初探，並連接Cassandra使用">
+<meta property="og:url" content="http://chingchuan-chen.github.io/posts/201609/2016-09-08-sparklyr-and-use-it-with-cassandra.html">
+<meta property="og:site_name" content="Ching-Chuan Chen&#39;s Blogger">
+<meta property="og:description" content="RStudio推出了一個感覺很厲害的套件sparklyr 可以讓dplyr變得lazy，然後去即時的操作Spark中的dataFrame">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2016-09-07T16:00:00.000Z">
+<meta property="article:modified_time" content="2018-03-14T16:53:21.000Z">
+<meta property="article:author" content="Ching-Chuan Chen">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="BigData">
+<meta property="article:tag" content="Cassandra">
+<meta property="article:tag" content="Spark">
+<meta property="article:tag" content="sparkly">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://chingchuan-chen.github.io/posts/201609/2016-09-08-sparklyr-and-use-it-with-cassandra.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-tw'
+  };
+</script>
+
+  <title>sparklyr初探，並連接Cassandra使用 | Ching-Chuan Chen's Blogger</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72564040-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-72564040-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ching-Chuan Chen's Blogger</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Statistics, Machine Learning and Programming</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/ChingChuan-Chen" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-tw">
+    <link itemprop="mainEntityOfPage" href="http://chingchuan-chen.github.io/posts/201609/2016-09-08-sparklyr-and-use-it-with-cassandra.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ching-Chuan Chen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ching-Chuan Chen's Blogger">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          sparklyr初探，並連接Cassandra使用
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-09-08 00:00:00" itemprop="dateCreated datePublished" datetime="2016-09-08T00:00:00+08:00">2016-09-08</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2018-03-15 00:53:21" itemprop="dateModified" datetime="2018-03-15T00:53:21+08:00">2018-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/R/" itemprop="url" rel="index"><span itemprop="name">R</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/posts/201609/2016-09-08-sparklyr-and-use-it-with-cassandra.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="posts/201609/2016-09-08-sparklyr-and-use-it-with-cassandra.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>RStudio推出了一個感覺很厲害的套件<code>sparklyr</code></p>
+<p>可以讓dplyr變得lazy，然後去即時的操作Spark中的dataFrame</p>
+<a id="more"></a>
+
+<p>先從安裝R, RStudio Server開始：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">curl -v -j -k -L https://mran.microsoft.com/install/mro/3.3.1/microsoft-r-open-3.3.1.tar.gz -o microsoft-r-open-3.3.1.tar.gz</span><br><span class="line">tar -zxvf microsoft-r-open-3.3.1.tar.gz</span><br><span class="line"><span class="built_in">cd</span> microsoft-r-open/rpm</span><br><span class="line">su -c <span class="string">&#x27;rpm -Uvh https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm&#x27;</span></span><br><span class="line"><span class="comment"># for offline installation</span></span><br><span class="line">sudo yum install R R-devel R-java --downloadonly --downloaddir=r_deps</span><br><span class="line">sudo yum install openssl-devel libcurl-devel --downloadonly --downloaddir=r_deps</span><br><span class="line">sudo yum install *.rpm --downloadonly --downloaddir=r_deps</span><br><span class="line"><span class="comment"># install R, R-devel and R-java and deps</span></span><br><span class="line">sudo yum install -y r_deps/*.rpm</span><br><span class="line"><span class="comment"># remove R</span></span><br><span class="line">sudo rm -rf /usr/lib64/R</span><br><span class="line">sudo rm -rf /usr/bin/R</span><br><span class="line">sudo rm -rf /usr/bin/Rscript</span><br><span class="line"><span class="comment"># install MRO and MKL</span></span><br><span class="line">sudo yum install -y *.rpm</span><br><span class="line"></span><br><span class="line">sudo chown -R tester:tester /usr/lib64/microsoft-r/3.3/lib64/R</span><br><span class="line">sudo chmod -R 775 /usr/lib64/microsoft-r/3.3/lib64/R</span><br><span class="line"></span><br><span class="line"><span class="comment"># for offline installation</span></span><br><span class="line">sudo chown -R tester:tester r_deps</span><br><span class="line">mv r_deps ~/</span><br><span class="line"></span><br><span class="line"><span class="comment"># 這裡下載preview版本，是為了可以直接有UI操作spark</span></span><br><span class="line">curl -v -j -k -L https://s3.amazonaws.com/rstudio-dailybuilds/rstudio-server-rhel-1.0.8-x86_64.rpm -o rstudio-server-rhel-1.0.8-x86_64.rpm</span><br><span class="line">sudo yum install --nogpgcheck rstudio-server-rhel-1.0.8-x86_64.rpm</span><br><span class="line"><span class="comment">## start the rstudio-server</span></span><br><span class="line">sudo rstudio-server start</span><br><span class="line"><span class="comment">## start rstudio-server on boot</span></span><br><span class="line">sudo cp /usr/lib/rstudio-server/extras/init.d/redhat/rstudio-server /etc/init.d/</span><br><span class="line">sudo chmod 755 /etc/init.d/rstudio-server</span><br><span class="line">sudo chkconfig --add rstudio-server</span><br></pre></td></tr></table></figure>
+
+<p>為了測試，我先用scala在spark-shell上塞了一些資料進去</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">spark.stop()</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.net.<span class="type">InetAddress</span>._</span><br><span class="line"><span class="keyword">import</span> com.datastax.spark.connector._</span><br><span class="line"><span class="keyword">import</span> org.apache.spark.sql.&#123;<span class="type">SparkSession</span>, <span class="type">SaveMode</span>&#125;</span><br><span class="line"><span class="keyword">import</span> com.datastax.spark.connector.cql.&#123;<span class="type">CassandraConnector</span>, <span class="type">CassandraConnectorConf</span>&#125;</span><br><span class="line"><span class="keyword">import</span> org.apache.spark.sql.functions._</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> cassIps = <span class="type">Set</span>(<span class="string">&quot;192.168.0.121&quot;</span>, <span class="string">&quot;192.168.0.122&quot;</span>, <span class="string">&quot;192.168.0.123&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> spark = <span class="type">SparkSession</span>.builder().appName(<span class="string">&quot;test&quot;</span>)</span><br><span class="line">  .config(<span class="string">&quot;spark.cassandra.connection.host&quot;</span>, cassIps.mkString(<span class="string">&quot;,&quot;</span>))</span><br><span class="line">  .config(<span class="string">&quot;spark.sql.warehouse.dir&quot;</span>, <span class="string">&quot;file:///home/tester&quot;</span>).getOrCreate()</span><br><span class="line">  </span><br><span class="line"><span class="keyword">import</span> spark.implicits._</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> cassConf = <span class="keyword">new</span> <span class="type">CassandraConnectorConf</span>(cassIps.map(getByName(_)))</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> exeRes = <span class="keyword">new</span> <span class="type">CassandraConnector</span>(cassConf).withSessionDo &#123; session =&gt;</span><br><span class="line">  session.execute(<span class="string">&quot;CREATE KEYSPACE IF NOT EXISTS test &quot;</span> +</span><br><span class="line">    <span class="string">&quot;WITH REPLICATION = &#123;&#x27;class&#x27;: &#x27;SimpleStrategy&#x27;, &#x27;replication_factor&#x27;: 3 &#125;&quot;</span>)</span><br><span class="line">  session.execute(<span class="string">&quot;DROP TABLE IF EXISTS test.kv2&quot;</span>)</span><br><span class="line">  session.execute(<span class="string">&quot;CREATE TABLE test.kv2 (var0 text, var1 text, var2 double, PRIMARY KEY(var0, var1))&quot;</span>)</span><br><span class="line">  session.execute(<span class="string">&quot;INSERT INTO test.kv2(var0, var1, var2) VALUES (&#x27;T&#x27;, &#x27;A&#x27;, 23.1)&quot;</span>)</span><br><span class="line">  session.execute(<span class="string">&quot;INSERT INTO test.kv2(var0, var1, var2) VALUES (&#x27;T&#x27;, &#x27;B&#x27;, 17.5)&quot;</span>)</span><br><span class="line">  session.execute(<span class="string">&quot;INSERT INTO test.kv2(var0, var1, var2) VALUES (&#x27;U&#x27;, &#x27;B&#x27;, 11.9)&quot;</span>)</span><br><span class="line">  session.execute(<span class="string">&quot;INSERT INTO test.kv2(var0, var1, var2) VALUES (&#x27;U&#x27;, &#x27;A&#x27;, 25.3)&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> collection = spark.sparkContext.parallelize(<span class="type">Seq</span>((<span class="string">&quot;T&quot;</span>, <span class="string">&quot;C&quot;</span>, <span class="number">17.0</span>), (<span class="string">&quot;U&quot;</span>, <span class="string">&quot;C&quot;</span>, <span class="number">5.0</span>)))</span><br><span class="line">collection.saveToCassandra(<span class="string">&quot;test&quot;</span>, <span class="string">&quot;kv2&quot;</span>, <span class="type">SomeColumns</span>(<span class="string">&quot;var0&quot;</span>, <span class="string">&quot;var1&quot;</span>, <span class="string">&quot;var2&quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> cass_tbl = spark.read.format(<span class="string">&quot;org.apache.spark.sql.cassandra&quot;</span>)</span><br><span class="line">  .option(<span class="string">&quot;keyspace&quot;</span>, <span class="string">&quot;test&quot;</span>).option(<span class="string">&quot;table&quot;</span>, <span class="string">&quot;kv2&quot;</span>).load()</span><br><span class="line"></span><br><span class="line"><span class="keyword">val</span> concatMap = udf((maps: <span class="type">Seq</span>[<span class="type">Map</span>[<span class="type">String</span>, <span class="type">Double</span>]]) =&gt; maps.flatten.toMap)</span><br><span class="line"><span class="keyword">val</span> cass_tbl_agg = cass_tbl.withColumn(<span class="string">&quot;var2_map&quot;</span>, map($<span class="string">&quot;var1&quot;</span>, $<span class="string">&quot;var2&quot;</span>)).groupBy($<span class="string">&quot;var0&quot;</span>).agg(concatMap(collect_list($<span class="string">&quot;var2_map&quot;</span>)).alias(<span class="string">&quot;var2&quot;</span>))</span><br><span class="line"></span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">  cass_tbl_agg.createCassandraTable(<span class="string">&quot;test&quot;</span>, <span class="string">&quot;kv2_trans&quot;</span>)</span><br><span class="line">&#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">  <span class="keyword">case</span> e1: com.datastax.driver.core.exceptions.<span class="type">AlreadyExistsException</span> =&gt; <span class="type">None</span></span><br><span class="line">  <span class="keyword">case</span> e2: <span class="type">Exception</span> =&gt; <span class="keyword">throw</span> e2</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">cass_tbl_agg.write.format(<span class="string">&quot;org.apache.spark.sql.cassandra&quot;</span>).options(<span class="type">Map</span>(<span class="string">&quot;table&quot;</span> -&gt; <span class="string">&quot;kv2_trans&quot;</span>, <span class="string">&quot;keyspace&quot;</span> -&gt; <span class="string">&quot;test&quot;</span>)).mode(<span class="type">SaveMode</span>.<span class="type">Append</span>).save()</span><br></pre></td></tr></table></figure>
+
+<p>裡面的<code>test.kv2</code>會長下面這樣：</p>
+<table>
+<thead>
+<tr>
+<th>var0</th>
+<th>var1</th>
+<th>var2</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>T</td>
+<td>A</td>
+<td>23.1</td>
+</tr>
+<tr>
+<td>T</td>
+<td>B</td>
+<td>17.5</td>
+</tr>
+<tr>
+<td>T</td>
+<td>C</td>
+<td>17</td>
+</tr>
+<tr>
+<td>U</td>
+<td>A</td>
+<td>25.3</td>
+</tr>
+<tr>
+<td>U</td>
+<td>B</td>
+<td>11.9</td>
+</tr>
+<tr>
+<td>U</td>
+<td>C</td>
+<td>5</td>
+</tr>
+</tbody></table>
+<p>裡面的<code>test.kv2_trans</code>會長下面這樣：</p>
+<p>| var0 | var2                            |<br>|——+———————————|<br>|    T | {‘A’: 23.1, ‘B’: 17.5, ‘C’: 17} |<br>|    U |  {‘A’: 25.3, ‘B’: 11.9, ‘C’: 5} |</p>
+<p>可以看到<code>test.kv2</code>是一般長相的table</p>
+<p><code>test.kv2_trans</code>則是包含了Map這個資料格式</p>
+<p>接下來安裝<code>sparklyr</code></p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">install.packages(<span class="string">&quot;devtools&quot;</span>)</span><br><span class="line">devtools::install_github(<span class="string">&quot;rstudio/sparklyr&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>如果照我之前文章跟我設定一樣Spark的路徑的話</p>
+<p>下面的R script就可以直接執行看到結果了：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 設定spark home的位置</span></span><br><span class="line">Sys.setenv(SPARK_HOME = <span class="string">&quot;/usr/local/bigdata/spark&quot;</span>)</span><br><span class="line"><span class="comment"># library sparklyr跟dplyr</span></span><br><span class="line"><span class="keyword">library</span>(sparklyr)</span><br><span class="line"><span class="keyword">library</span>(dplyr)</span><br><span class="line"></span><br><span class="line"><span class="comment"># library pipeR跟stringr</span></span><br><span class="line"><span class="keyword">library</span>(pipeR)</span><br><span class="line"><span class="keyword">library</span>(stringr)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 讀取spark的設定</span></span><br><span class="line">spark_settings &lt;- readLines(paste0(Sys.getenv(<span class="string">&quot;SPARK_HOME&quot;</span>), <span class="string">&quot;/conf/spark-defaults.conf&quot;</span>)) %&gt;&gt;%</span><br><span class="line">  `[`(!str_detect(., <span class="string">&quot;^#&quot;</span>)) %&gt;&gt;% `[`(nchar(.) &gt; <span class="number">0</span>) %&gt;&gt;% str_split(<span class="string">&quot;\\s&quot;</span>)</span><br><span class="line"><span class="comment"># 複製sparklyr的預設config檔案</span></span><br><span class="line">file.copy(system.file(file.path(<span class="string">&quot;conf&quot;</span>, <span class="string">&quot;config-template.yml&quot;</span>), </span><br><span class="line">          package = <span class="string">&quot;sparklyr&quot;</span>), <span class="string">&quot;config.yml&quot;</span>, <span class="literal">TRUE</span>)</span><br><span class="line"><span class="comment"># 把spark的設定寫進config去</span></span><br><span class="line">sink(<span class="string">&quot;config.yml&quot;</span>, <span class="literal">TRUE</span>)</span><br><span class="line">sapply(spark_settings %&gt;&gt;% sapply(paste, collapse = <span class="string">&quot;: &quot;</span>), </span><br><span class="line">       <span class="keyword">function</span>(x) cat(<span class="string">&quot; &quot;</span>, x, <span class="string">&quot;\n&quot;</span>)) %&gt;&gt;% invisible</span><br><span class="line">sink()</span><br><span class="line"></span><br><span class="line"><span class="comment"># 開啟spark connection</span></span><br><span class="line">spark_master &lt;- <span class="string">&quot;mesos://zk://192.168.0.121:2181,192.168.0.122:2181,192.168.0.123:2181/mesos&quot;</span></span><br><span class="line">sc &lt;- spark_connect(master = spark_master, config = spark_config(<span class="string">&quot;config.yml&quot;</span>, <span class="literal">FALSE</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 開啟spark session</span></span><br><span class="line">sparkSession &lt;- invoke_static(sc2, <span class="string">&quot;org.apache.spark.sql.SparkSession&quot;</span>, <span class="string">&quot;builder&quot;</span>) %&gt;&gt;%</span><br><span class="line">  invoke(<span class="string">&quot;config&quot;</span>, <span class="string">&quot;spark.cassandra.connection.host&quot;</span>, </span><br><span class="line">         <span class="string">&quot;192.168.0.121,192.168.0.122,192.168.0.123&quot;</span>) %&gt;&gt;%</span><br><span class="line">  invoke(<span class="string">&quot;getOrCreate&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 讀取Cassandra table，可以看到讀進來是Dataset，還是一個java的物件</span></span><br><span class="line">cass_df &lt;- invoke(sparkSession, <span class="string">&quot;read&quot;</span>) %&gt;&gt;% </span><br><span class="line">  invoke(<span class="string">&quot;format&quot;</span>, <span class="string">&quot;org.apache.spark.sql.cassandra&quot;</span>) %&gt;&gt;%</span><br><span class="line">  invoke(<span class="string">&quot;option&quot;</span>, <span class="string">&quot;keyspace&quot;</span>, <span class="string">&quot;test&quot;</span>) %&gt;&gt;% invoke(<span class="string">&quot;option&quot;</span>, <span class="string">&quot;table&quot;</span>, <span class="string">&quot;kv2&quot;</span>) %&gt;&gt;%</span><br><span class="line">  invoke(<span class="string">&quot;load&quot;</span>) %&gt;&gt;% (~ print(cass_df))</span><br><span class="line"><span class="comment"># &lt;jobj[32]&gt;</span></span><br><span class="line"><span class="comment">#   class org.apache.spark.sql.Dataset</span></span><br><span class="line"><span class="comment">#   [var0: string, var1: string ... 1 more field]</span></span><br><span class="line"> </span><br><span class="line"><span class="comment"># register Spark dataframe，註冊後，就可以在R裡面看到部分資料，並且可以使用dplyr</span></span><br><span class="line">cass_df_tbl &lt;- sparklyr:::spark_partition_register_df(sc2, cass_df, <span class="string">&quot;test_kv2&quot;</span>, <span class="number">0</span>, <span class="literal">TRUE</span>)</span><br><span class="line">print(cass_df_tbl)</span><br><span class="line"><span class="comment"># Source:   query [?? x 3]</span></span><br><span class="line"><span class="comment"># Database: spark connection master=mesos://zk://192.168.0.121:2181,192.168.0.122:2181,192.168.0.123:2181/mesos app=sparklyr local=FALSE</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line"><span class="comment">#    var0  var1  var2</span></span><br><span class="line"><span class="comment">#   &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;</span></span><br><span class="line"><span class="comment"># 1     T     A  23.1</span></span><br><span class="line"><span class="comment"># 2     T     B  17.5</span></span><br><span class="line"><span class="comment"># 3     T     C  17.0</span></span><br><span class="line"><span class="comment"># 4     U     A  25.3</span></span><br><span class="line"><span class="comment"># 5     U     B  11.9</span></span><br><span class="line"><span class="comment"># 6     U     C   5.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 測試一下filter，可以發現結果還 ?? x 3，因為dplyr這裡還是lazy，還沒做回收的動作</span></span><br><span class="line">cass_df_tbl %&gt;&gt;% filter(var2 &gt; <span class="number">5</span>)</span><br><span class="line"><span class="comment"># Source:   query [?? x 3]</span></span><br><span class="line"><span class="comment"># Database: spark connection master=mesos://zk://192.168.0.121:2181,192.168.0.122:2181,192.168.0.123:2181/mesos app=sparklyr local=FALSE</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line"><span class="comment">#    var0  var1  var2</span></span><br><span class="line"><span class="comment">#   &lt;chr&gt; &lt;chr&gt; &lt;dbl&gt;</span></span><br><span class="line"><span class="comment"># 1     T     A  23.1</span></span><br><span class="line"><span class="comment"># 2     T     B  17.5</span></span><br><span class="line"><span class="comment"># 3     T     C  17.0</span></span><br><span class="line"><span class="comment"># 4     U     A  25.3</span></span><br><span class="line"><span class="comment"># 5     U     B  11.9</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用as.data.frame就會變成local了</span></span><br><span class="line">cass_df_tbl %&gt;&gt;% filter(var2 &gt; <span class="number">5</span>) %&gt;&gt;% as.data.frame</span><br><span class="line"><span class="comment">#   var0 var1 var2</span></span><br><span class="line"><span class="comment"># 1    T    A 23.1</span></span><br><span class="line"><span class="comment"># 2    T    B 17.5</span></span><br><span class="line"><span class="comment"># 3    T    C 17.0</span></span><br><span class="line"><span class="comment"># 4    U    A 25.3</span></span><br><span class="line"><span class="comment"># 5    U    B 11.9</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 這裡也可以使用很多org.apache.spark.sql.functions中的函數</span></span><br><span class="line"><span class="comment"># 最簡單的如abs, min, max, sin, cos, sqrt等</span></span><br><span class="line"><span class="comment"># 到比較少見的如map, collect_list, unix_timestamp等</span></span><br><span class="line"><span class="comment"># 下面示範把column在spark裡面bind成map</span></span><br><span class="line">cass_df_tbl_agg &lt;- cass_df_tbl %&gt;&gt;% mutate(var2_map = map(var1, var2)) %&gt;&gt;% </span><br><span class="line">  group_by(var0) %&gt;&gt;% summarise(var2 = collect_list(var2_map)) %&gt;&gt;% as.data.frame</span><br><span class="line">  </span><br><span class="line"><span class="comment"># print data.frame，看不到map的key</span></span><br><span class="line">print(cass_df_tbl_agg)</span><br><span class="line"><span class="comment">#   var0             var2</span></span><br><span class="line"><span class="comment"># 1    T 23.1, 17.5, 17.0</span></span><br><span class="line"><span class="comment"># 2    U  25.3, 11.9, 5.0</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 用str看，可以看到key還是有被留下來</span></span><br><span class="line"><span class="comment"># 只是要在R裡面再做一點處理而已，這部分就越過</span></span><br><span class="line">str(cass_df_tbl_agg)</span><br><span class="line"><span class="string">&#x27;data.frame&#x27;</span>:	<span class="number">2</span> obs. of  <span class="number">2</span> variables:</span><br><span class="line"> $ var0: chr  <span class="string">&quot;T&quot;</span> <span class="string">&quot;U&quot;</span></span><br><span class="line"> $ var2:List of <span class="number">2</span></span><br><span class="line">  ..$ :List of <span class="number">3</span></span><br><span class="line">  .. ..$ :List of <span class="number">1</span></span><br><span class="line">  .. .. ..$ A: num <span class="number">23.1</span></span><br><span class="line">  .. ..$ :List of <span class="number">1</span></span><br><span class="line">  .. .. ..$ B: num <span class="number">17.5</span></span><br><span class="line">  .. ..$ :List of <span class="number">1</span></span><br><span class="line">  .. .. ..$ C: num <span class="number">17</span></span><br><span class="line">  ..$ :List of <span class="number">3</span></span><br><span class="line">  .. ..$ :List of <span class="number">1</span></span><br><span class="line">  .. .. ..$ A: num <span class="number">25.3</span></span><br><span class="line">  .. ..$ :List of <span class="number">1</span></span><br><span class="line">  .. .. ..$ B: num <span class="number">11.9</span></span><br><span class="line">  .. ..$ :List of <span class="number">1</span></span><br><span class="line">  .. .. ..$ C: num <span class="number">5</span></span><br><span class="line">  </span><br><span class="line"><span class="comment"># 再來是直接從Cassandra讀入那張含有map欄位的表，一樣是Dataset</span></span><br><span class="line">cass_df_2 &lt;- invoke(sparkSession, <span class="string">&quot;read&quot;</span>) %&gt;&gt;% </span><br><span class="line">  invoke(<span class="string">&quot;format&quot;</span>, <span class="string">&quot;org.apache.spark.sql.cassandra&quot;</span>) %&gt;&gt;%</span><br><span class="line">  invoke(<span class="string">&quot;option&quot;</span>, <span class="string">&quot;keyspace&quot;</span>, <span class="string">&quot;test&quot;</span>) %&gt;&gt;% invoke(<span class="string">&quot;option&quot;</span>, <span class="string">&quot;table&quot;</span>, <span class="string">&quot;kv2_trans&quot;</span>) %&gt;&gt;%</span><br><span class="line">  invoke(<span class="string">&quot;load&quot;</span>) %&gt;&gt;% (~print(.))</span><br><span class="line"><span class="comment"># &lt;jobj[51]&gt;</span></span><br><span class="line"><span class="comment">#   class org.apache.spark.sql.Dataset</span></span><br><span class="line"><span class="comment">#   [var0: string, var2: map&lt;string,double&gt;]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 一樣做register的動作</span></span><br><span class="line">cass_df_tbl_2 &lt;- sparklyr:::spark_partition_register_df(sc2, cass_df_2, <span class="string">&quot;test_kv2_trans&quot;</span>, <span class="number">0</span>, <span class="literal">TRUE</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment"># print出來看看，是變成list了，只是不知道有沒有抓到key</span></span><br><span class="line">print(cass_df_tbl_2)</span><br><span class="line"><span class="comment"># Source:   query [?? x 2]</span></span><br><span class="line"><span class="comment"># Database: spark connection master=mesos://zk://192.168.0.121:2181,192.168.0.122:2181,192.168.0.123:2181/mesos app=sparklyr local=FALSE</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line"><span class="comment">#    var0       var2</span></span><br><span class="line"><span class="comment">#   &lt;chr&gt;     &lt;list&gt;</span></span><br><span class="line"><span class="comment"># 1     T &lt;list [3]&gt;</span></span><br><span class="line"><span class="comment"># 2     U &lt;list [3]&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 拉回local瞧瞧，可以看到變成很漂亮的format</span></span><br><span class="line">as.data.frame(cass_df_tbl_2) %&gt;&gt;% str</span><br><span class="line"><span class="comment"># &#x27;data.frame&#x27;:	2 obs. of  2 variables:</span></span><br><span class="line"><span class="comment">#  $ var0: chr  &quot;T&quot; &quot;U&quot;</span></span><br><span class="line"><span class="comment">#  $ var2:List of 2</span></span><br><span class="line"><span class="comment">#   ..$ :List of 3</span></span><br><span class="line"><span class="comment">#   .. ..$ A: num 23.1</span></span><br><span class="line"><span class="comment">#   .. ..$ B: num 17.5</span></span><br><span class="line"><span class="comment">#   .. ..$ C: num 17</span></span><br><span class="line"><span class="comment">#   ..$ :List of 3</span></span><br><span class="line"><span class="comment">#   .. ..$ A: num 25.3</span></span><br><span class="line"><span class="comment">#   .. ..$ B: num 11.9</span></span><br><span class="line"><span class="comment">#   .. ..$ C: num 5</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 這裡拉回local，用data.table稍微整一下就可以回到test.kv2的樣子了</span></span><br><span class="line">cass_df_tbl_2_r &lt;- as.data.frame(cass_df_tbl_2) %&gt;&gt;% data.table %&gt;&gt;%</span><br><span class="line">  `[`( , `:=`(var2_v = lapply(var2, unlist), var2_k = lapply(var2, names))) %&gt;&gt;%</span><br><span class="line">  `[`( , .(var2_value = unlist(var2_v), var2_key = unlist(var2_k)), by = <span class="string">&quot;var0&quot;</span>) %&gt;&gt;%</span><br><span class="line">  (~ print(.))</span><br><span class="line"><span class="comment">#    var0 var2_value var2_key</span></span><br><span class="line"><span class="comment"># 1:    T       23.1        A</span></span><br><span class="line"><span class="comment"># 2:    T       17.5        B</span></span><br><span class="line"><span class="comment"># 3:    T       17.0        C</span></span><br><span class="line"><span class="comment"># 4:    U       25.3        A</span></span><br><span class="line"><span class="comment"># 5:    U       11.9        B</span></span><br><span class="line"><span class="comment"># 6:    U        5.0        C</span></span><br></pre></td></tr></table></figure>
+
+<p>以上是sparklyr的初探，並嘗試Cassandra的結果</p>
+<p>一些小心得：</p>
+<p>沒有辦法直接udf，無法直接套用R函數是致命傷</p>
+<p>幾乎都要去翻spark.sql.functions的document</p>
+<p>能用的操作少之又少，又懶得去寫extension</p>
+<p>希望這部分能趕快有enhancement，滿期待這個出現<a target="_blank" rel="noopener" href="https://github.com/rstudio/sparklyr/issues/191">Github issue</a></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/BigData/" rel="tag"># BigData</a>
+              <a href="/tags/Cassandra/" rel="tag"># Cassandra</a>
+              <a href="/tags/Spark/" rel="tag"># Spark</a>
+              <a href="/tags/sparkly/" rel="tag"># sparkly</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/201609/2016-09-07-simple-file-server-centos.html" rel="prev" title="simple file server in centos">
+      <i class="fa fa-chevron-left"></i> simple file server in centos
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/201609/2016-09-09-sparkr.html" rel="next" title="SparkR初探">
+      SparkR初探 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ching-Chuan Chen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">156</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ChingChuan-Chen" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ChingChuan-Chen" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zw12356@gmail.com" title="E-Mail → mailto:zw12356@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/celestial0230/" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;celestial0230&#x2F;" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ching-Chuan Chen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://celestial0230.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://chingchuan-chen.github.io/posts/201609/2016-09-08-sparklyr-and-use-it-with-cassandra.html";
+    this.page.identifier = "posts/201609/2016-09-08-sparklyr-and-use-it-with-cassandra.html";
+    this.page.title = "sparklyr初探，並連接Cassandra使用";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://celestial0230.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

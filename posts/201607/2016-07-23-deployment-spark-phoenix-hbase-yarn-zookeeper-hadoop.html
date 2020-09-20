@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="zh-tw,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans TC:300,300italic,400,400italic,700,700italic|DM Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chingchuan-chen.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"buttons","active":"disqus","storage":true,"lazyload":false,"nav":null,"activeClass":"disqus"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="之前有一系列文章是在mint 17上部署R-hadoop的環境 這篇主要是在centos 7.2最小安裝下去部署hadoop, yarn, zookeeper, hbase, phoenix以及spark 一樣是透過VM做部署，所以目標是部署好其中一台後 再把那一台的映像檔做clone，變成slaves">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基於Hadoop的Spark, Phoenix, HBase, Yarn, Zookeeper部署">
+<meta property="og:url" content="http://chingchuan-chen.github.io/posts/201607/2016-07-23-deployment-spark-phoenix-hbase-yarn-zookeeper-hadoop.html">
+<meta property="og:site_name" content="Ching-Chuan Chen&#39;s Blogger">
+<meta property="og:description" content="之前有一系列文章是在mint 17上部署R-hadoop的環境 這篇主要是在centos 7.2最小安裝下去部署hadoop, yarn, zookeeper, hbase, phoenix以及spark 一樣是透過VM做部署，所以目標是部署好其中一台後 再把那一台的映像檔做clone，變成slaves">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/sparkSucceeded_1.PNG">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/sparkSucceeded_2.PNG">
+<meta property="article:published_time" content="2016-07-22T16:00:00.000Z">
+<meta property="article:modified_time" content="2018-03-14T16:58:50.000Z">
+<meta property="article:author" content="Ching-Chuan Chen">
+<meta property="article:tag" content="BigData">
+<meta property="article:tag" content="Hadoop">
+<meta property="article:tag" content="HBase">
+<meta property="article:tag" content="CentOS">
+<meta property="article:tag" content="Spark">
+<meta property="article:tag" content="Phoenix">
+<meta property="article:tag" content="Yarn">
+<meta property="article:tag" content="Zookeeper">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chingchuan-chen.github.io/images/sparkSucceeded_1.PNG">
+
+<link rel="canonical" href="http://chingchuan-chen.github.io/posts/201607/2016-07-23-deployment-spark-phoenix-hbase-yarn-zookeeper-hadoop.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-tw'
+  };
+</script>
+
+  <title>基於Hadoop的Spark, Phoenix, HBase, Yarn, Zookeeper部署 | Ching-Chuan Chen's Blogger</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72564040-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-72564040-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ching-Chuan Chen's Blogger</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Statistics, Machine Learning and Programming</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/ChingChuan-Chen" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-tw">
+    <link itemprop="mainEntityOfPage" href="http://chingchuan-chen.github.io/posts/201607/2016-07-23-deployment-spark-phoenix-hbase-yarn-zookeeper-hadoop.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ching-Chuan Chen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ching-Chuan Chen's Blogger">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          基於Hadoop的Spark, Phoenix, HBase, Yarn, Zookeeper部署
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-07-23 00:00:00" itemprop="dateCreated datePublished" datetime="2016-07-23T00:00:00+08:00">2016-07-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2018-03-15 00:58:50" itemprop="dateModified" datetime="2018-03-15T00:58:50+08:00">2018-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/BigData/" itemprop="url" rel="index"><span itemprop="name">BigData</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/posts/201607/2016-07-23-deployment-spark-phoenix-hbase-yarn-zookeeper-hadoop.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="posts/201607/2016-07-23-deployment-spark-phoenix-hbase-yarn-zookeeper-hadoop.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>之前有一系列文章是在mint 17上部署R-hadoop的環境</p>
+<p>這篇主要是在centos 7.2最小安裝下去部署hadoop, yarn, zookeeper, hbase, phoenix以及spark</p>
+<p>一樣是透過VM做部署，所以目標是部署好其中一台後</p>
+<p>再把那一台的映像檔做clone，變成slaves</p>
+<a id="more"></a>
+
+<ol>
+<li><p>準備工作</p>
+<p> i. 安裝好VMware，然後新增一台VM (網路連接方式使用bridged即可)，引進centos 7.2安裝映像檔</p>
+<p> ii. 選擇最小安裝，並新增使用者: tester</p>
+<p> iii. 安裝完後要先configure：</p>
+</li>
+</ol>
+<p>a. 給予使用者sudoer權限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">su <span class="comment"># 切換到root</span></span><br><span class="line">visudo <span class="comment"># 打開設定檔</span></span><br><span class="line"><span class="comment"># 打/root\tALL找到這行 root ALL=(ALL) ALL</span></span><br><span class="line"><span class="comment"># 在下面新增 tester ALL=(ALL) ALL</span></span><br></pre></td></tr></table></figure>
+
+<p>b. 網路設定</p>
+<p>先查看自己電腦的網段是哪一個(使用撥接就無法，要透過IP分享器)</p>
+<p>在cmd上找<code>ipconfig</code>就可以找到，像是我的電腦是192.168.0.111</p>
+<p>預設閘道192.168.0.1，沒有設定DNS</p>
+<p>接著用<code>ip a</code>看VM網路卡的裝置名稱</p>
+<p>我的VM網路卡名稱是eno16777736</p>
+<p>然後就使用<code>sudo ifup eno16777736</code>去啟用網路</p>
+<p>接著使用<code>sudo vi /etc/sysconfig/network-scripts/ifcfg-eno16777736</code>去修改網路設定</p>
+<p>改成下方這樣：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">TYPE=Ethernet</span><br><span class="line">BOOTPROTO=none</span><br><span class="line">DEFROUTE=yes</span><br><span class="line">IPV4_FAILURE_FATAL=no</span><br><span class="line">IPV6INIT=yes</span><br><span class="line">IPV6_AUTOCONF=yes</span><br><span class="line">IPV6_DEFROUTE=yes</span><br><span class="line">IPV6_FAILURE_FATAL=no</span><br><span class="line">NAME=eno16777736</span><br><span class="line">UUID=213f0a79-5d73-45c5-afce-16b48e6c9c65</span><br><span class="line">DEVICE=eno16777736</span><br><span class="line">ONBOOT=yes</span><br><span class="line">IPADDR=192.168.0.161</span><br><span class="line">PREFIX=24</span><br><span class="line">GATEWAY=192.168.0.1</span><br><span class="line">DNS1=192.168.0.1</span><br><span class="line">IPV6_PEERDNS=yes</span><br><span class="line">IPV6_PEERROUTES=yes</span><br><span class="line">IPV6_PRIVACY=no</span><br></pre></td></tr></table></figure>
+
+<p>之後使用<code>sudo service network restart</code>重啟網路服務</p>
+<p>這樣網路設定就完成了。測試方式為：<code>ping 192.168.0.1</code>(DNS)跟</p>
+<p><code>ping www.google.com</code>就可以知道網路有沒有設定成功了。</p>
+<p>c. 安裝ssh跟設定ssh資料夾權限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 安裝SSH</span></span><br><span class="line">sudo yum -y install rsync openssh-server-*</span><br><span class="line"><span class="comment"># 產生SSH Key</span></span><br><span class="line">ssh-keygen -t rsa -P <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="comment"># 授權SSH Key</span></span><br><span class="line">cat ~/.ssh/id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 設定.ssh的權限</span></span><br><span class="line">sudo chmod 700 /home/tester</span><br><span class="line">sudo chmod 700 /home/tester/.ssh</span><br><span class="line">sudo chmod 644 /home/tester/.ssh/authorized_keys</span><br><span class="line">sudo chmod 600 /home/tester/.ssh/id_rsa</span><br><span class="line">sudo service sshd restart</span><br></pre></td></tr></table></figure>
+
+<p>d. 編輯/etc/hosts</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">sudo tee -a /etc/hosts &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">192.168.0.161 sparkServer0</span><br><span class="line">192.168.0.162 sparkServer1</span><br><span class="line">192.168.0.163 sparkServer2</span><br><span class="line">192.168.0.164 sparkServer3</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>e. 編輯/etc/hostname</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo vi /etc/hostname</span><br><span class="line"><span class="comment"># 對應的電腦修改成對應的名稱</span></span><br></pre></td></tr></table></figure>
+
+<p>f. 斷掉防火牆</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo systemctl stop firewalld</span><br><span class="line">sudo systemctl <span class="built_in">disable</span> firewalld  </span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>開始部署<br>i. 關掉ip v6</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">sudo tee -a /etc/sysctl.conf &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">net.ipv6.conf.all.disable_ipv6 = 1</span><br><span class="line">net.ipv6.conf.default.disable_ipv6 = 1</span><br><span class="line">net.ipv6.conf.lo.disable_ipv6 = 1</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>ii. 下載檔案並移到適當位置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 下載並安裝java</span></span><br><span class="line">curl -v -j -k -L -H <span class="string">&quot;Cookie: oraclelicense=accept-securebackup-cookie&quot;</span> http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-x64.rpm -o jdk-8u101-linux-x64.rpm</span><br><span class="line">sudo yum install -y jdk-8u101-linux-x64.rpm</span><br><span class="line"><span class="comment"># 下載並部署Hadoop</span></span><br><span class="line">curl -v -j -k -L http://apache.stu.edu.tw/hadoop/common/hadoop-2.6.4/hadoop-2.6.4.tar.gz -o hadoop-2.6.4.tar.gz</span><br><span class="line">tar -zxvf hadoop-2.6.4.tar.gz</span><br><span class="line">sudo mv hadoop-2.6.4 /usr/<span class="built_in">local</span>/hadoop</span><br><span class="line">sudo chown -R tester /usr/<span class="built_in">local</span>/hadoop</span><br><span class="line"><span class="comment"># 下載並部署zookeeper</span></span><br><span class="line">curl -v -j -k -L http://apache.stu.edu.tw/zookeeper/zookeeper-3.4.8/zookeeper-3.4.8.tar.gz -o zookeeper-3.4.8.tar.gz</span><br><span class="line">tar -zxvf zookeeper-3.4.8.tar.gz</span><br><span class="line">sudo mv zookeeper-3.4.8 /usr/<span class="built_in">local</span>/zookeeper</span><br><span class="line">sudo chown -R tester /usr/<span class="built_in">local</span>/zookeeper</span><br><span class="line"><span class="comment"># 下載並部署HBase</span></span><br><span class="line">curl -v -j -k -L http://apache.stu.edu.tw/hbase/0.98.20/hbase-0.98.20-hadoop2-bin.tar.gz -o hbase-0.98.20-hadoop2-bin.tar.gz</span><br><span class="line">tar -zxvf hbase-0.98.20-hadoop2-bin.tar.gz</span><br><span class="line">sudo mv hbase-0.98.20-hadoop2 /usr/<span class="built_in">local</span>/hbase</span><br><span class="line">sudo chown -R tester /usr/<span class="built_in">local</span>/hbase</span><br><span class="line"><span class="comment"># 下載並部署phoenix</span></span><br><span class="line">curl -v -j -k -L  http://apache.stu.edu.tw/phoenix/phoenix-4.7.0-HBase-1.1/bin/phoenix-4.7.0-HBase-1.1-bin.tar.gz -o phoenix-4.7.0-HBase-1.1-bin.tar.gz</span><br><span class="line">tar -zxvf phoenix-4.7.0-HBase-1.1-bin.tar.gz</span><br><span class="line"><span class="comment">## phoenix部署比較不同，後面再處理</span></span><br><span class="line"><span class="comment"># 下載並部署scala</span></span><br><span class="line">curl -v -j -k -L http://downloads.lightbend.com/scala/2.10.6/scala-2.10.6.tgz -o scala-2.10.6.tgz</span><br><span class="line">tar -zxvf scala-2.10.6.tgz</span><br><span class="line">sudo mv scala-2.10.6 /usr/<span class="built_in">local</span>/scala</span><br><span class="line">sudo chown -R tester /usr/<span class="built_in">local</span>/scala</span><br><span class="line"><span class="comment"># 下載並部署spark</span></span><br><span class="line">curl -v -j -k -L   http://apache.stu.edu.tw/spark/spark-1.6.2/spark-1.6.2-bin-hadoop2.6.tgz -o spark-1.6.2-bin-hadoop2.6.tgz</span><br><span class="line">tar -zxvf spark-1.6.2-bin-hadoop2.6.tgz</span><br><span class="line">sudo mv spark-1.6.2-bin-hadoop2.6 /usr/<span class="built_in">local</span>/spark</span><br><span class="line">sudo chown -R tester /usr/<span class="built_in">local</span>/spark</span><br></pre></td></tr></table></figure>
+
+<p>iii. 環境變數設置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line">sudo tee -a /etc/bashrc &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line"><span class="comment"># JAVA</span></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/java/jdk1.8.0_101</span><br><span class="line"><span class="comment"># HADOOP</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_HOME=/usr/<span class="built_in">local</span>/hadoop</span><br><span class="line"><span class="built_in">export</span> HADOOP_COMMON_HOME=<span class="variable">$HADOOP_HOME</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_MAPRED_HOME=<span class="variable">$HADOOP_HOME</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_HDFS_HOME=<span class="variable">$HADOOP_HOME</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_YARN_HOME=<span class="variable">$HADOOP_HOME</span></span><br><span class="line"><span class="built_in">export</span> YARN_HOME=<span class="variable">$HADOOP_HOME</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_CONF_DIR=<span class="variable">$HADOOP_HOME</span>/etc/hadoop</span><br><span class="line"><span class="built_in">export</span> YARN_CONF_DIR=<span class="variable">$HADOOP_HOME</span>/etc/hadoop</span><br><span class="line"><span class="built_in">export</span> HADOOP_COMMON_LIB_NATIVE_DIR=<span class="variable">$HADOOP_HOME</span>/lib/native</span><br><span class="line"><span class="built_in">export</span> HADOOP_OPTS=<span class="string">&quot;<span class="variable">$HADOOP_OPTS</span> -Djava.library.path=<span class="variable">$HADOOP_HOME</span>/lib/native&quot;</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_PREFIX=<span class="variable">$HADOOP_HOME</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_PID_DIR=<span class="variable">$HADOOP_HOME</span>/pids/</span><br><span class="line"><span class="comment"># ZOOKEEPER</span></span><br><span class="line"><span class="built_in">export</span> ZOOKEEPER_HOME=/usr/<span class="built_in">local</span>/zookeeper</span><br><span class="line"><span class="comment"># HBASE</span></span><br><span class="line"><span class="built_in">export</span> HBASE_HOME=/usr/<span class="built_in">local</span>/hbase</span><br><span class="line"><span class="built_in">export</span> HBASE_CLASSPATH=<span class="variable">$HBASE_HOME</span>/conf</span><br><span class="line"><span class="built_in">export</span> HBASE_PID_DIR=<span class="variable">$HBASE_HOME</span>/pids </span><br><span class="line"><span class="built_in">export</span> HBASE_MANAGES_ZK=<span class="literal">false</span></span><br><span class="line"><span class="comment"># PHOENIX</span></span><br><span class="line"><span class="built_in">export</span> PHOENIX_HOME=/usr/<span class="built_in">local</span>/phoenix</span><br><span class="line"><span class="built_in">export</span> PHOENIX_CLASSPATH=<span class="variable">$PHOENIX_HOME</span>/lib</span><br><span class="line"><span class="built_in">export</span> PHOENIX_LIB_DIR=<span class="variable">$PHOENIX_HOME</span>/lib</span><br><span class="line"><span class="comment"># SCALA</span></span><br><span class="line"><span class="built_in">export</span> SCALA_HOME=/usr/<span class="built_in">local</span>/scala</span><br><span class="line"><span class="comment"># SPARK</span></span><br><span class="line"><span class="built_in">export</span> SPARK_HOME=/usr/<span class="built_in">local</span>/spark</span><br><span class="line"><span class="comment"># PATH</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>:<span class="variable">$HADOOP_HOME</span>/bin:<span class="variable">$HADOOP_HOME</span>/sbin:<span class="variable">$ZOOKEEPER_HOME</span>/bin:<span class="variable">$HBASE_HOME</span>/bin:<span class="variable">$SCALA_HOME</span>/bin:<span class="variable">$SPARK_HOME</span>/bin:<span class="variable">$PHOENIX_HOME</span>/bin</span><br><span class="line">EOF</span><br><span class="line"><span class="built_in">source</span> /etc/bashrc</span><br></pre></td></tr></table></figure>
+
+<p>iv. 配置Hadoop</p>
+<p>a. core-site.xml<br>用<code>vi $HADOOP_CONF_DIR/core-site.xml</code>編輯，改成下面這樣：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.default.name<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://sparkServer0:9000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.tmp.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>/usr/local/hadoop/tmp<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>b. mapred-site.xml<br>先用<code>cp $HADOOP_CONF_DIR/mapred-site.xml.template $HADOOP_CONF_DIR/mapred-site.xml</code>，然後用<code>vi $HADOOP_CONF_DIR/mapred-site.xml</code>編輯，改成下面這樣：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>mapreduce.framework.name<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>yarn<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>c. hdfs-site.xml<br>用<code>vi $HADOOP_CONF_DIR/hdfs-site.xml</code>編輯，改成下面這樣：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.replication<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>3<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.permissions<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>false<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.name.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>file:///usr/local/hadoop/tmp/name<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>file:///usr/local/hadoop/tmp/data<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.checkpoint.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>file:///usr/local/hadoop/tmp/name/chkpt<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>建立node需要的資料夾：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">mkdir -p <span class="variable">$HADOOP_HOME</span>/tmp</span><br><span class="line">mkdir -p <span class="variable">$HADOOP_HOME</span>/tmp/data</span><br><span class="line">mkdir -p <span class="variable">$HADOOP_HOME</span>/tmp/name</span><br></pre></td></tr></table></figure>
+
+<p>d. yarn-site.xml<br>用<code>vi $HADOOP_CONF_DIR/yarn-site.xml</code>編輯，改成下面這樣：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.resourcemanager.hostname<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>sparkServer0<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.aux-services<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>mapreduce_shuffle<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.aux-services.mapreduce.shuffle.class<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.hadoop.mapred.ShuffleHandler<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>e. 配置slaves</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 傳入slaves的電腦名稱</span></span><br><span class="line">tee <span class="variable">$HADOOP_CONF_DIR</span>/slaves &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">sparkServer1</span><br><span class="line">sparkServer2</span><br><span class="line">sparkServer3</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>ii. 配置Zookeeper<br>先用<code>cp $ZOOKEEPER_HOME/conf/zoo_sample.cfg $ZOOKEEPER_HOME/conf/zoo.cfg</code>，然後用<code>vi $ZOOKEEPER_HOME/conf/zoo.cfg</code>編輯，改成下面這樣：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">dataDir=/usr/<span class="built_in">local</span>/zookeeper/data</span><br><span class="line">server.1=sparkServer0:2888:3888</span><br><span class="line">server.1=sparkServer1:2888:3888</span><br><span class="line">server.1=sparkServer2:2888:3888</span><br><span class="line"><span class="comment"># 接著創立需要的資料夾，並新增檔案</span></span><br><span class="line">mkdir <span class="variable">$ZOOKEEPER_HOME</span>/data</span><br><span class="line">tee <span class="variable">$ZOOKEEPER_HOME</span>/data/myid &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">1</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>在sparkServer2跟sparkServer3分別設定為2跟3。</p>
+<p>iii. 配置HBase<br>用<code>vi $HBASE_HOME/conf/hbase-site.xml</code>編輯，改成下面這樣：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.master<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>sparkServer0:60000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.rootdir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://sparkServer0:9000/hbase<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.cluster.distributed<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>true<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.replication<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>3<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.zookeeper.quorum<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>sparkServer0<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.zookeeper.property.clientPort<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>2181<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">name</span>&gt;</span>hbase.zookeeper.property.dataDir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">value</span>&gt;</span>file:///usr/local/zookeeper/data<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>接著，用<code>cp $HADOOP_CONF_DIR/slaves $HBASE_HOME/conf/regionservers</code>複製hadoop的slaves</p>
+<p>iv. 配置phoenix</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 縮短名稱</span></span><br><span class="line">mv phoenix-4.7.0-HBase-1.1-bin phoenix-4.7.0</span><br><span class="line"><span class="comment"># 複製lib檔案到HBase/lib下</span></span><br><span class="line">sudo cp phoenix/phoenix-4.7.0-HBase-1.1-server.jar <span class="variable">$HBASE_HOME</span>/lib</span><br><span class="line"><span class="comment"># 複製hbase設定到phoenix下</span></span><br><span class="line">cp <span class="variable">$HBASE_HOME</span>/conf/hbase-site.xml <span class="variable">$PHOENIX_HOME</span>/bin</span><br><span class="line">cp <span class="variable">$HBASE_HOME</span>/conf/hbase-env.sh <span class="variable">$PHOENIX_HOME</span>/bin</span><br><span class="line"><span class="comment"># 複製lib檔, bin</span></span><br><span class="line">sudo mkdir /usr/<span class="built_in">local</span>/phoenix</span><br><span class="line">sudo chown -R tester <span class="variable">$PHOENIX_HOME</span></span><br><span class="line">mkdir <span class="variable">$PHOENIX_HOME</span>/lib</span><br><span class="line">cp phoenix-4.7.0/phoenix-4.7.0-HBase-1.1-client-spark.jar <span class="variable">$PHOENIX_HOME</span>/lib/phoenix-4.7.0-HBase-1.1-client-spark.jar</span><br><span class="line">cp phoenix-4.7.0/phoenix-4.7.0-HBase-1.1-client.jar <span class="variable">$PHOENIX_HOME</span>/lib/phoenix-4.7.0-HBase-1.1-client.jar</span><br><span class="line">cp -R phoenix-4.7.0/bin <span class="variable">$PHOENIX_HOME</span></span><br><span class="line">cp -R phoenix-4.7.0/examples <span class="variable">$PHOENIX_HOME</span></span><br><span class="line">cp phoenix-4.7.0/LICENSE <span class="variable">$PHOENIX_HOME</span>/LICENSE</span><br><span class="line">chmod +x <span class="variable">$PHOENIX_HOME</span>/bin/*.py</span><br></pre></td></tr></table></figure>
+
+<p>並且在用<code>vi $PHOENIX_HOME/bin/hbase-site.xml</code>加入下面的設定</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.hdfs.impl<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.hadoop.hdfs.DistributedFileSystem<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>v. 配置scala and spark</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 複製hadoop的slaves</span></span><br><span class="line">cp <span class="variable">$HADOOP_CONF_DIR</span>/slaves <span class="variable">$SPARK_HOME</span>/conf/slaves</span><br><span class="line"></span><br><span class="line"><span class="comment"># 複製檔案</span></span><br><span class="line">cp <span class="variable">$SPARK_HOME</span>/conf/spark-env.sh.template <span class="variable">$SPARK_HOME</span>/conf/spark-env.sh</span><br><span class="line"><span class="comment"># 傳入設定</span></span><br><span class="line">sudo tee -a <span class="variable">$SPARK_HOME</span>/conf/spark-env.sh &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line"><span class="built_in">export</span> HADOOP_HOME=/usr/<span class="built_in">local</span>/hadoop</span><br><span class="line"><span class="built_in">export</span> HADOOP_CONF_DIR=<span class="variable">$HADOOP_HOME</span>/etc/hadoop</span><br><span class="line">SPARK_MASTER_IP=sparkServer0</span><br><span class="line">SPARK_LOCAL_DIRS=/usr/<span class="built_in">local</span>/spark</span><br><span class="line">SPARK_DRIVER_MEMORY=2G</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>vi. slaves的部署</p>
+<p>因為是VM，所以剩下的就是把映像檔clone複製成各個nodes，然後針對需要個別配置的地方做配置：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 改hostname</span></span><br><span class="line">sudo vi /etc/hostname</span><br><span class="line"><span class="comment"># 改網路設定</span></span><br><span class="line">sudo vi /etc/sysconfig/network-scripts/ifcfg-eno16777736</span><br><span class="line"><span class="comment"># 配置玩各台電腦，並透過`sudo service network restart`重啟網路服務後</span></span><br><span class="line"><span class="comment"># 生成新的SSH key</span></span><br><span class="line">ssh-keygen -t rsa -P <span class="string">&quot;&quot;</span></span><br><span class="line"><span class="comment"># 在sparkServer0，把他的ssh key傳到各台電腦去</span></span><br><span class="line">tee run.sh &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="keyword">for</span> hostname <span class="keyword">in</span> `cat <span class="variable">$HADOOP_CONF_DIR</span>/slaves`; <span class="keyword">do</span></span><br><span class="line">  ssh-copy-id -i ~/.ssh/id_rsa.pub <span class="variable">$hostname</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>啟動hadoop server / zookeeper server / hbase server / </li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 執行hadoop的namenode format</span></span><br><span class="line">hdfs namenode -format </span><br><span class="line"><span class="comment"># 啟動hadoop server</span></span><br><span class="line">start-dfs.sh &amp; start-yarn.sh</span><br><span class="line"><span class="comment"># 啟動zookeeper server</span></span><br><span class="line">zkServer.sh start</span><br><span class="line">ssh tester@cassSpark2 <span class="string">&quot;zkServer.sh start&quot;</span></span><br><span class="line">ssh tester@cassSpark3 <span class="string">&quot;zkServer.sh start&quot;</span></span><br><span class="line"><span class="comment"># 啟動hbase server</span></span><br><span class="line">start-hbase.sh</span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>測試<br>i. Hadoop MapReduce例子 - pi estimation</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">hadoop jar <span class="variable">$HADOOP_HOME</span>/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.6.4.jar pi 10 1000</span><br><span class="line"><span class="comment"># output會像下面這樣</span></span><br><span class="line"><span class="comment"># Job Finished in 2.413 seconds</span></span><br><span class="line"><span class="comment"># Estimated value of Pi is 3.14800000000000000000</span></span><br></pre></td></tr></table></figure>
+
+<p>ii. zookeeper<br>再來是測試看看zookeeper是否有部署成功，先輸入<code>zkCli.sh -server cassSpark1:2181,cassSpark2:2181,cassSpark3:2181</code>可以登錄到zookeeper的server上，如果是正常運作會看到下面的訊息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[zk: cassSpark1:2181,cassSpark2:2181,cassSpark3:2181(CONNECTED) 0]</span><br></pre></td></tr></table></figure>
+
+<p>此時試著輸入看看<code>create /test01 abcd</code>，然後輸入<code>ls /</code>看看是否會出現<code>[test01, zookeeper]</code></p>
+<p>如果是，zookeeper就是設定成功，如果中間有出現任何錯誤，則否</p>
+<p>最後用<code>delete /test01</code>做刪除即可，然後用<code>quit</code>離開。</p>
+<p>iii. HBase<br>鍵入<code>hbase shell</code>會出現下面的訊息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">SLF4J: Class path contains multiple SLF4J bindings.</span><br><span class="line">SLF4J: Found binding <span class="keyword">in</span> [jar:file:/usr/<span class="built_in">local</span>/hbase/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]</span><br><span class="line">SLF4J: Found binding <span class="keyword">in</span> [jar:file:/usr/<span class="built_in">local</span>/hadoop/share/hadoop/common/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]</span><br><span class="line">SLF4J: See http://www.slf4j.org/codes.html<span class="comment">#multiple_bindings for an explanation.</span></span><br><span class="line">SLF4J: Actual binding is of <span class="built_in">type</span> [org.slf4j.impl.Log4jLoggerFactory]</span><br><span class="line">HBase Shell; enter <span class="string">&#x27;help&lt;RETURN&gt;&#x27;</span> <span class="keyword">for</span> list of supported commands.</span><br><span class="line">Type <span class="string">&quot;exit&lt;RETURN&gt;&quot;</span> to leave the HBase Shell</span><br><span class="line">Version 1.1.5, r239b80456118175b340b2e562a5568b5c744252e, Sun May  8 20:29:26 PDT 2016</span><br><span class="line"></span><br><span class="line">hbase(main):001:0&gt;</span><br></pre></td></tr></table></figure>
+
+<p>測試建表、塞資料、擷取資料跟刪除表(#後面是會出現的訊息)：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 建表</span></span><br><span class="line">create <span class="string">&#x27;testData&#x27;</span>,<span class="string">&#x27;cf&#x27;</span>  </span><br><span class="line"><span class="comment"># 0 row(s) in 1.3420 seconds</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line"><span class="comment"># =&gt; Hbase::Table - testData</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 塞資料</span></span><br><span class="line">put <span class="string">&#x27;testData&#x27;</span>,<span class="string">&#x27;row1&#x27;</span>,<span class="string">&#x27;cf:a&#x27;</span>,<span class="string">&#x27;value1&#x27;</span>  </span><br><span class="line"><span class="comment"># 0 row(s) in 0.1170 seconds</span></span><br><span class="line">put <span class="string">&#x27;testData&#x27;</span>,<span class="string">&#x27;row2&#x27;</span>,<span class="string">&#x27;cf:b&#x27;</span>,<span class="string">&#x27;value2&#x27;</span>  </span><br><span class="line"><span class="comment"># 0 row(s) in 0.0130 seconds</span></span><br><span class="line">put <span class="string">&#x27;testData&#x27;</span>,<span class="string">&#x27;row3&#x27;</span>,<span class="string">&#x27;cf:c&#x27;</span>,<span class="string">&#x27;value3&#x27;</span>  </span><br><span class="line"><span class="comment"># 0 row(s) in 0.0240 seconds</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有表</span></span><br><span class="line">list</span><br><span class="line"><span class="comment"># TABLE</span></span><br><span class="line"><span class="comment"># testData</span></span><br><span class="line"><span class="comment"># 1 row(s) in 0.0040 seconds</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line"><span class="comment"># =&gt; [&quot;testData&quot;]</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出資料</span></span><br><span class="line">scan <span class="string">&#x27;testData&#x27;</span></span><br><span class="line"><span class="comment"># ROW                             COLUMN+CELL</span></span><br><span class="line"><span class="comment">#  row1                           column=cf:a, timestamp=1469372859574, value=value1</span></span><br><span class="line"><span class="comment">#  row2                           column=cf:b, timestamp=1469372859613, value=value2</span></span><br><span class="line"><span class="comment">#  row3                           column=cf:c, timestamp=1469372860195, value=value3</span></span><br><span class="line"><span class="comment"># 3 row(s) in 0.0450 seconds</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 擷取特定資料</span></span><br><span class="line">get <span class="string">&#x27;testData&#x27;</span>,<span class="string">&#x27;row1&#x27;</span>  </span><br><span class="line"><span class="comment"># COLUMN                          CELL</span></span><br><span class="line"><span class="comment">#  cf:a                           timestamp=1469372859574, value=value1</span></span><br><span class="line"><span class="comment"># 1 row(s) in 0.0200 seconds</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 刪除表</span></span><br><span class="line"><span class="comment">## 先無效表</span></span><br><span class="line"><span class="built_in">disable</span> <span class="string">&#x27;testData&#x27;</span></span><br><span class="line"><span class="comment">## 再刪除表</span></span><br><span class="line">drop <span class="string">&#x27;testData&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出所有表</span></span><br><span class="line">list</span><br><span class="line"><span class="comment"># TABLE</span></span><br><span class="line"><span class="comment"># 0 row(s) in 0.0070 seconds</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line"><span class="comment"># =&gt; []</span></span><br></pre></td></tr></table></figure>
+
+<p>最後可以用<code>exit</code>離開hbase shell。</p>
+<p>iv. phoenix</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 創表SQL</span></span><br><span class="line">cat <span class="variable">$PHOENIX_HOME</span>/examples/STOCK_SYMBOL.sql</span><br><span class="line"><span class="comment"># -- creates stock table with single row</span></span><br><span class="line"><span class="comment"># CREATE TABLE IF NOT EXISTS STOCK_SYMBOL (SYMBOL VARCHAR NOT NULL PRIMARY KEY, COMPANY VARCHAR);</span></span><br><span class="line"><span class="comment"># UPSERT INTO STOCK_SYMBOL VALUES (&#x27;CRM&#x27;,&#x27;SalesForce.com&#x27;);</span></span><br><span class="line"><span class="comment"># SELECT * FROM STOCK_SYMBOL;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># create table</span></span><br><span class="line">psql.py sparkServer0:2181 <span class="variable">$PHOENIX_HOME</span>/examples/STOCK_SYMBOL.sql</span><br><span class="line"><span class="comment"># SLF4J: Class path contains multiple SLF4J bindings.</span></span><br><span class="line"><span class="comment"># SLF4J: Found binding in [jar:file:/usr/local/phoenix/lib/phoenix-4.7.0-HBase-1.1-client.jar!/org/slf4j/impl/StaticLoggerBinder.class]</span></span><br><span class="line"><span class="comment"># SLF4J: Found binding in [jar:file:/usr/local/hadoop/share/hadoop/common/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]</span></span><br><span class="line"><span class="comment"># SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.</span></span><br><span class="line"><span class="comment"># 16/07/24 23:25:53 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable</span></span><br><span class="line"><span class="comment"># no rows upserted</span></span><br><span class="line"><span class="comment"># Time: 1.246 sec(s)</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line"><span class="comment"># 1 row upserted</span></span><br><span class="line"><span class="comment"># Time: 0.102 sec(s)</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line"><span class="comment"># SYMBOL                                   COMPANY</span></span><br><span class="line"><span class="comment"># ---------------------------------------- ----------------------------------------</span></span><br><span class="line"><span class="comment"># CRM                                      SalesForce.com</span></span><br><span class="line"><span class="comment"># Time: 0.028 sec(s)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 要插入的資料</span></span><br><span class="line">cat <span class="variable">$PHOENIX_HOME</span>/examples/STOCK_SYMBOL.csv</span><br><span class="line"><span class="comment"># AAPL,APPLE Inc.</span></span><br><span class="line"><span class="comment"># CRM,SALESFORCE</span></span><br><span class="line"><span class="comment"># GOOG,Google</span></span><br><span class="line"><span class="comment"># HOG,Harlet-Davidson Inc.</span></span><br><span class="line"><span class="comment"># HPQ,Hewlett Packard</span></span><br><span class="line"><span class="comment"># INTC,Intel</span></span><br><span class="line"><span class="comment"># MSFT,Microsoft</span></span><br><span class="line"><span class="comment"># WAG,Walgreens</span></span><br><span class="line"><span class="comment"># WMT,Walmart</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># insert data</span></span><br><span class="line">psql.py -t STOCK_SYMBOL sparkServer0:2181 <span class="variable">$PHOENIX_HOME</span>/examples/STOCK_SYMBOL.csv</span><br><span class="line"><span class="comment"># SLF4J: Class path contains multiple SLF4J bindings.</span></span><br><span class="line"><span class="comment"># SLF4J: Found binding in [jar:file:/usr/local/phoenix/lib/phoenix-4.7.0-HBase-1.1-client.jar!/org/slf4j/impl/StaticLoggerBinder.class]</span></span><br><span class="line"><span class="comment"># SLF4J: Found binding in [jar:file:/usr/local/hadoop/share/hadoop/common/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]</span></span><br><span class="line"><span class="comment"># SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.</span></span><br><span class="line"><span class="comment"># 16/07/24 23:32:14 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable</span></span><br><span class="line"><span class="comment"># csv columns from database.</span></span><br><span class="line"><span class="comment"># CSV Upsert complete. 9 rows upserted</span></span><br><span class="line"><span class="comment"># Time: 0.074 sec(s)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 查詢資料</span></span><br><span class="line">sqlline.py sparkServer0:2181</span><br><span class="line"><span class="comment"># Setting property: [incremental, false]</span></span><br><span class="line"><span class="comment"># Setting property: [isolation, TRANSACTION_READ_COMMITTED]</span></span><br><span class="line"><span class="comment"># issuing: !connect jdbc:phoenix:sparkServer0:2181 none none org.apache.phoenix.jdbc.PhoenixDriver</span></span><br><span class="line"><span class="comment"># Connecting to jdbc:phoenix:sparkServer0:2181</span></span><br><span class="line"><span class="comment"># SLF4J: Class path contains multiple SLF4J bindings.</span></span><br><span class="line"><span class="comment"># SLF4J: Found binding in [jar:file:/usr/local/phoenix/lib/phoenix-4.7.0-HBase-1.1-client.jar!/org/slf4j/impl/StaticLoggerBinder.class]</span></span><br><span class="line"><span class="comment"># SLF4J: Found binding in [jar:file:/usr/local/hadoop/share/hadoop/common/lib/slf4j-log4j12-1.7.5.jar!/org/slf4j/impl/StaticLoggerBinder.class]</span></span><br><span class="line"><span class="comment"># SLF4J: See http://www.slf4j.org/codes.html#multiple_bindings for an explanation.</span></span><br><span class="line"><span class="comment"># 16/07/24 23:34:17 WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable</span></span><br><span class="line"><span class="comment"># Connected to: Phoenix (version 4.7)</span></span><br><span class="line"><span class="comment"># Driver: PhoenixEmbeddedDriver (version 4.7)</span></span><br><span class="line"><span class="comment"># Autocommit status: true</span></span><br><span class="line"><span class="comment"># Transaction isolation: TRANSACTION_READ_COMMITTED</span></span><br><span class="line"><span class="comment"># Building list of tables and columns for tab-completion (set fastconnect to true to skip)...</span></span><br><span class="line"><span class="comment"># 85/85 (100%) Done</span></span><br><span class="line"><span class="comment"># Done</span></span><br><span class="line"><span class="comment"># sqlline version 1.1.8</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### 計算COUNT</span></span><br><span class="line"><span class="comment"># 0: jdbc:phoenix:sparkServer0:2181&gt; select count(*) from STOCK_SYMBOL;</span></span><br><span class="line"><span class="comment">## +-----------+</span></span><br><span class="line"><span class="comment">## | COUNT(1)  |</span></span><br><span class="line"><span class="comment">## +-----------+</span></span><br><span class="line"><span class="comment">## | 9         |</span></span><br><span class="line"><span class="comment">## +-----------+</span></span><br><span class="line"><span class="comment">## 1 row selected (0.046 seconds)</span></span><br><span class="line"></span><br><span class="line"><span class="comment">### 拉出表</span></span><br><span class="line"><span class="comment"># 0: jdbc:phoenix:sparkServer0:2181&gt; select * from STOCK_SYMBOL;</span></span><br><span class="line"><span class="comment">## +---------+-----------------------+</span></span><br><span class="line"><span class="comment">## | SYMBOL  |        COMPANY        |</span></span><br><span class="line"><span class="comment">## +---------+-----------------------+</span></span><br><span class="line"><span class="comment">## | AAPL    | APPLE Inc.            |</span></span><br><span class="line"><span class="comment">## | CRM     | SALESFORCE            |</span></span><br><span class="line"><span class="comment">## | GOOG    | Google                |</span></span><br><span class="line"><span class="comment">## | HOG     | Harlet-Davidson Inc.  |</span></span><br><span class="line"><span class="comment">## | HPQ     | Hewlett Packard       |</span></span><br><span class="line"><span class="comment">## | INTC    | Intel                 |</span></span><br><span class="line"><span class="comment">## | MSFT    | Microsoft             |</span></span><br><span class="line"><span class="comment">## | WAG     | Walgreens             |</span></span><br><span class="line"><span class="comment">## | WMT     | Walmart               |</span></span><br><span class="line"><span class="comment">## +---------+-----------------------+</span></span><br><span class="line"><span class="comment">## 9 rows selected (0.03 seconds)</span></span><br></pre></td></tr></table></figure>
+
+<p>離開請按<code>CTRL+Z</code>或是用<code>!quit</code>，輸入<code>exit()</code>是沒用的。接下來，我們試試看在<code>hbase</code>裡面看不看的到我們剛剛插入的表，打<code>hbase shell</code>進入，然後開始測試：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># scan看看就可以發現表已經存進來了</span></span><br><span class="line"><span class="comment"># hbase(main):001:0&gt; scan &#x27;STOCK_SYMBOL&#x27;</span></span><br><span class="line"><span class="comment">## ROW                             COLUMN+CELL</span></span><br><span class="line"><span class="comment">##  AAPL                           column=0:COMPANY, timestamp=1469374336318, value=APPLE Inc.</span></span><br><span class="line"><span class="comment">##  AAPL                           column=0:_0, timestamp=1469374336318, value=x</span></span><br><span class="line"><span class="comment">##  CRM                            column=0:COMPANY, timestamp=1469374336318, value=SALESFORCE</span></span><br><span class="line"><span class="comment">##  CRM                            column=0:_0, timestamp=1469374336318, value=x</span></span><br><span class="line"><span class="comment">##  GOOG                           column=0:COMPANY, timestamp=1469374336318, value=Google</span></span><br><span class="line"><span class="comment">##  GOOG                           column=0:_0, timestamp=1469374336318, value=x</span></span><br><span class="line"><span class="comment">##  HOG                            column=0:COMPANY, timestamp=1469374336318, value=Harlet-Davidson Inc.</span></span><br><span class="line"><span class="comment">##  HOG                            column=0:_0, timestamp=1469374336318, value=x</span></span><br><span class="line"><span class="comment">##  HPQ                            column=0:COMPANY, timestamp=1469374336318, value=Hewlett Packard</span></span><br><span class="line"><span class="comment">##  HPQ                            column=0:_0, timestamp=1469374336318, value=x</span></span><br><span class="line"><span class="comment">##  INTC                           column=0:COMPANY, timestamp=1469374336318, value=Intel</span></span><br><span class="line"><span class="comment">##  INTC                           column=0:_0, timestamp=1469374336318, value=x</span></span><br><span class="line"><span class="comment">##  MSFT                           column=0:COMPANY, timestamp=1469374336318, value=Microsoft</span></span><br><span class="line"><span class="comment">##  MSFT                           column=0:_0, timestamp=1469374336318, value=x</span></span><br><span class="line"><span class="comment">##  WAG                            column=0:COMPANY, timestamp=1469374336318, value=Walgreens</span></span><br><span class="line"><span class="comment">##  WAG                            column=0:_0, timestamp=1469374336318, value=x</span></span><br><span class="line"><span class="comment">##  WMT                            column=0:COMPANY, timestamp=1469374336318, value=Walmart</span></span><br><span class="line"><span class="comment">##  WMT                            column=0:_0, timestamp=1469374336318, value=x</span></span><br><span class="line"><span class="comment">## 9 row(s) in 0.1840 seconds</span></span><br></pre></td></tr></table></figure>
+
+<p>最後是進去<code>sqlline.py</code>去刪掉剛剛建立的表：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">sqlline.py sparkServer0:2181</span><br><span class="line"><span class="comment"># 0: jdbc:phoenix:sparkServer0:2181&gt; DROP TABLE STOCK_SYMBOL;</span></span><br><span class="line"><span class="comment">## No rows affected (3.556 seconds)</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 列出現有的表</span></span><br><span class="line"><span class="comment"># 0: jdbc:phoenix:sparkServer0:2181&gt; !tables </span></span><br><span class="line"><span class="comment">## +------------+--------------+-------------+---------------+----------+------------+----------------------------+----------+</span></span><br><span class="line"><span class="comment">## | TABLE_CAT  | TABLE_SCHEM  | TABLE_NAME  |  TABLE_TYPE   | REMARKS  | TYPE_NAME  | SELF_REFERENCING_COL_NAME  | REF_GENE |</span></span><br><span class="line"><span class="comment">## +------------+--------------+-------------+---------------+----------+------------+----------------------------+----------+</span></span><br><span class="line"><span class="comment">## |            | SYSTEM       | CATALOG     | SYSTEM TABLE  |          |            |                            |          |</span></span><br><span class="line"><span class="comment">## |            | SYSTEM       | FUNCTION    | SYSTEM TABLE  |          |            |                            |          |</span></span><br><span class="line"><span class="comment">## |            | SYSTEM       | SEQUENCE    | SYSTEM TABLE  |          |            |                            |          |</span></span><br><span class="line"><span class="comment">## |            | SYSTEM       | STATS       | SYSTEM TABLE  |          |            |                            |          |</span></span><br><span class="line"><span class="comment">## +------------+--------------+-------------+---------------+----------+------------+----------------------------+----------+</span></span><br></pre></td></tr></table></figure>
+
+<p>v. spark<br>利用spark提供的例子去測試看看 (記得要先開啟hadoop)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">spark-submit --class org.apache.spark.examples.SparkPi \</span><br><span class="line">  --deploy-mode cluster  \</span><br><span class="line">  --master yarn  \</span><br><span class="line">  --num-executors 3 \</span><br><span class="line">  --driver-memory 4g \</span><br><span class="line">  --executor-memory 2g \</span><br><span class="line">  --executor-cores 2 \</span><br><span class="line">   /usr/<span class="built_in">local</span>/spark/lib/spark-examples-1.6.2-hadoop2.6.0.jar</span><br></pre></td></tr></table></figure>
+
+<p>最後就可以看到任務成功，如圖所示：<br><img src="/images/sparkSucceeded_1.PNG"></p>
+<p>用上面的連結就可以看到任務的成功情況：<br><img src="/images/sparkSucceeded_2.PNG"></p>
+<ol start="5">
+<li><p>Reference</p>
+<ol>
+<li><p>vm:</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://dotblogs.com.tw/jhsiao/2013/09/26/120726">https://dotblogs.com.tw/jhsiao/2013/09/26/120726</a></li>
+<li><a target="_blank" rel="noopener" href="https://read01.com/DQO2jg.html">https://read01.com/DQO2jg.html</a></li>
+<li><a target="_blank" rel="noopener" href="https://read01.com/KEQ6GP.html">https://read01.com/KEQ6GP.html</a></li>
+</ol>
+</li>
+<li><p>centos:</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://www.howtoforge.com/creating_a_local_yum_repository_centos">https://www.howtoforge.com/creating_a_local_yum_repository_centos</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.serverlab.ca/tutorials/linux/network-services/creating-a-yum-repository-server-for-red-hat-and-centos/">http://www.serverlab.ca/tutorials/linux/network-services/creating-a-yum-repository-server-for-red-hat-and-centos/</a></li>
+<li><a target="_blank" rel="noopener" href="http://ask.xmodulo.com/change-network-interface-name-centos7.html">http://ask.xmodulo.com/change-network-interface-name-centos7.html</a></li>
+<li><a target="_blank" rel="noopener" href="http://yenpai.idis.com.tw/archives/240-%E6%95%99%E5%AD%B8-centos-6-3-%E5%AE%89%E8%A3%9D-2%E7%B6%B2%E8%B7%AF%E8%A8%AD%E5%AE%9A%E7%AF%87?doing_wp_cron=1468854397.3452270030975341796875">http://yenpai.idis.com.tw/archives/240-%E6%95%99%E5%AD%B8-centos-6-3-%E5%AE%89%E8%A3%9D-2%E7%B6%B2%E8%B7%AF%E8%A8%AD%E5%AE%9A%E7%AF%87?doing_wp_cron=1468854397.3452270030975341796875</a></li>
+</ol>
+</li>
+<li><p>hadoop, hbase, zookeeper:</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="http://tsai-cookie.blogspot.tw/2015/09/hadoop-hbase-hive.html">http://tsai-cookie.blogspot.tw/2015/09/hadoop-hbase-hive.html</a></li>
+<li><a target="_blank" rel="noopener" href="http://lyhpcha.pixnet.net/blog/post/60903916-hadoop%E3%80%81zookeeper%E3%80%81hbase%E5%AE%89%E8%A3%9D%E9%85%8D%E7%BD%AE%E8%AA%AA%E6%98%8E">http://lyhpcha.pixnet.net/blog/post/60903916-hadoop%E3%80%81zookeeper%E3%80%81hbase%E5%AE%89%E8%A3%9D%E9%85%8D%E7%BD%AE%E8%AA%AA%E6%98%8E</a></li>
+<li><a target="_blank" rel="noopener" href="http://blog.csdn.net/smile0198/article/details/17660205">http://blog.csdn.net/smile0198/article/details/17660205</a></li>
+</ol>
+</li>
+<li><p>phoenix:</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="http://www.aboutyun.com/thread-12403-1-1.html">http://www.aboutyun.com/thread-12403-1-1.html</a></li>
+<li><a target="_blank" rel="noopener" href="http://www.zhangshuai.top/2015/09/01/phoenix%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3/">http://www.zhangshuai.top/2015/09/01/phoenix%E5%AE%89%E8%A3%85%E4%B8%8E%E4%BD%BF%E7%94%A8%E6%96%87%E6%A1%A3/</a></li>
+<li><a target="_blank" rel="noopener" href="http://toutiao.com/i6222878197948613122/">http://toutiao.com/i6222878197948613122/</a></li>
+<li><a target="_blank" rel="noopener" href="https://phoenix.apache.org/faq.html">https://phoenix.apache.org/faq.html</a></li>
+<li><a target="_blank" rel="noopener" href="http://ju.outofmemory.cn/entry/237491">http://ju.outofmemory.cn/entry/237491</a></li>
+</ol>
+</li>
+</ol>
+</li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/BigData/" rel="tag"># BigData</a>
+              <a href="/tags/Hadoop/" rel="tag"># Hadoop</a>
+              <a href="/tags/HBase/" rel="tag"># HBase</a>
+              <a href="/tags/CentOS/" rel="tag"># CentOS</a>
+              <a href="/tags/Spark/" rel="tag"># Spark</a>
+              <a href="/tags/Phoenix/" rel="tag"># Phoenix</a>
+              <a href="/tags/Yarn/" rel="tag"># Yarn</a>
+              <a href="/tags/Zookeeper/" rel="tag"># Zookeeper</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/201607/2016-07-10-pipe-operators-in-R.html" rel="prev" title="Pipe Operators in R">
+      <i class="fa fa-chevron-left"></i> Pipe Operators in R
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/201607/2016-07-24-deployment-of-oracle-database.html" rel="next" title="deployment of Oracle database">
+      deployment of Oracle database <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ching-Chuan Chen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">156</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ChingChuan-Chen" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ChingChuan-Chen" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zw12356@gmail.com" title="E-Mail → mailto:zw12356@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/celestial0230/" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;celestial0230&#x2F;" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ching-Chuan Chen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://celestial0230.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://chingchuan-chen.github.io/posts/201607/2016-07-23-deployment-spark-phoenix-hbase-yarn-zookeeper-hadoop.html";
+    this.page.identifier = "posts/201607/2016-07-23-deployment-spark-phoenix-hbase-yarn-zookeeper-hadoop.html";
+    this.page.title = "基於Hadoop的Spark, Phoenix, HBase, Yarn, Zookeeper部署";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://celestial0230.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

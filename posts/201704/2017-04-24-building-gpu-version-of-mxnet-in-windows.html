@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="zh-tw,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans TC:300,300italic,400,400italic,700,700italic|DM Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chingchuan-chen.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"buttons","active":"disqus","storage":true,"lazyload":false,"nav":null,"activeClass":"disqus"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本篇主要介紹如何在Windows環境下編譯GPU版本的mxnet">
+<meta property="og:type" content="article">
+<meta property="og:title" content="在Windows環境下編譯GPU版本的mxnet">
+<meta property="og:url" content="http://chingchuan-chen.github.io/posts/201704/2017-04-24-building-gpu-version-of-mxnet-in-windows.html">
+<meta property="og:site_name" content="Ching-Chuan Chen&#39;s Blogger">
+<meta property="og:description" content="本篇主要介紹如何在Windows環境下編譯GPU版本的mxnet">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/cmake-setup.PNG">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/mxnet-gpu.PNG">
+<meta property="article:published_time" content="2017-04-23T16:00:00.000Z">
+<meta property="article:modified_time" content="2018-03-14T16:23:21.000Z">
+<meta property="article:author" content="Ching-Chuan Chen">
+<meta property="article:tag" content="GPU">
+<meta property="article:tag" content="MxNet">
+<meta property="article:tag" content="Windows">
+<meta property="article:tag" content="Deep Learning">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chingchuan-chen.github.io/images/cmake-setup.PNG">
+
+<link rel="canonical" href="http://chingchuan-chen.github.io/posts/201704/2017-04-24-building-gpu-version-of-mxnet-in-windows.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-tw'
+  };
+</script>
+
+  <title>在Windows環境下編譯GPU版本的mxnet | Ching-Chuan Chen's Blogger</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72564040-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-72564040-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ching-Chuan Chen's Blogger</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Statistics, Machine Learning and Programming</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/ChingChuan-Chen" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-tw">
+    <link itemprop="mainEntityOfPage" href="http://chingchuan-chen.github.io/posts/201704/2017-04-24-building-gpu-version-of-mxnet-in-windows.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ching-Chuan Chen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ching-Chuan Chen's Blogger">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          在Windows環境下編譯GPU版本的mxnet
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2017-04-24 00:00:00" itemprop="dateCreated datePublished" datetime="2017-04-24T00:00:00+08:00">2017-04-24</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2018-03-15 00:23:21" itemprop="dateModified" datetime="2018-03-15T00:23:21+08:00">2018-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/MxNet/" itemprop="url" rel="index"><span itemprop="name">MxNet</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/posts/201704/2017-04-24-building-gpu-version-of-mxnet-in-windows.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="posts/201704/2017-04-24-building-gpu-version-of-mxnet-in-windows.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本篇主要介紹如何在Windows環境下編譯GPU版本的mxnet</p>
+<a id="more"></a>
+
+<p>需要的components有：</p>
+<ol>
+<li>Visual Studio 2015 Update 3以上</li>
+<li>OpenBLAS或是Intel MKL 2017 (我這用Intel MKL 2017)</li>
+<li><a target="_blank" rel="noopener" href="https://developer.nvidia.com/cuda-toolkit">CUDA Toolkit 8.0</a> 下載安裝</li>
+<li><a target="_blank" rel="noopener" href="https://developer.nvidia.com/cudnn">cuDNN</a> 需要登入會員</li>
+<li><a target="_blank" rel="noopener" href="https://cmake.org/download/">CMake</a> 下載Windows win64-x64 ZIP，然後解壓縮</li>
+<li><a target="_blank" rel="noopener" href="http://opencv.org/releases.html">OpenCV</a> 下載最新版本的3.2.0 win pack，然後解壓縮</li>
+</ol>
+<p>為了說明方便，假設在D槽開一個資料夾，叫做mxnet</p>
+<p>先把整個mxnet repository clone到<code>D:\mxnet\mxnet</code>，然後開啟<code>CMake\bin\cmake-gui.exe</code></p>
+<p>(可能開啟會錯誤，先檢查一下bin下面所有檔案，右鍵內容，右下角是否有<code>解除鎖定</code>的按鈕)</p>
+<p>然後where is the source code選<code>D:\mxnet\mxnet</code>，然後按下configure</p>
+<p>他會先問你要用什麼編譯，選VS 2015 Win64，然後問是否要開一個新資料夾for build，按下Yes繼續</p>
+<p>接下來會說找不到BLAS，那我這裡要用MKL，所以BLAS那個選項選MKL，然後再按一次configure</p>
+<p>(如果要用OpenBLAS就直接把<code>OpenBLAS_INCLUDE_DIR</code>跟<code>OpenBLAS_LIB</code>修改上去即可)</p>
+<p>然後會跳出INTEL_ROOT, MKL_INCLUDE, MKL_ROOT這三個選項，設定好相對的路徑後按下configure</p>
+<p>接下來會問OpenCV的位置，一樣設定路徑之後再按一次configure，最後應該會看到下面這樣的配置</p>
+<p><img src="/images/cmake-setup.PNG"></p>
+<p>然後再按一次configure不會跳出任何錯誤後，按下Generate，下方出現<code>Generate Done</code>之後</p>
+<p>按下<code>Open Project</code>就會打開Visual Studio 2015，接下來點<code>方案&#39;mxnet&#39;</code>右鍵選擇<code>建置方案</code></p>
+<p>大概等個一小時之後就build完了</p>
+<p>再來是安裝R套件，請先在<code>D:\mxnet\mxnet\R-package\inst</code>建一個<code>libs</code>資料夾，裡面再建一個<code>x64</code>資料夾</p>
+<p>然後把<code>D:\mxnet\mxnet\Debug\libmxnet.dll</code>, CUDA路徑下bin的<code>cublas64_80.dll</code>, <code>cudart64_80.dll</code>, </p>
+<p><code>cudnn64_5.dll</code>, <code>curand64_80.dll</code>跟<code>nvrtc64_80.dll</code>以及opencv路徑下的<code>bin\opencv_ffmpeg320_64.dll</code>,</p>
+<p><code>x64\vc14\bin\opencv_world320.dll</code>跟<code>x64\vc14\bin\opencv_world320d.dll</code>複製到剛剛建立的<code>R-package\inst\x64</code>裡面</p>
+<p>然後把INTEL ROOT下面的<code>redist\intel64_win\mkl\mkl_rt.dll</code>, <code>redist\intel64_win\mkl\mkl_intel_thread.dll</code>,</p>
+<p><code>redist\intel64_win\mkl\mkl_avx.dll</code>, <code>redist\intel64_win\mkl\mkl_vml_avx.dll</code> (不同電腦用的指令集不同，不一定是用這兩個DLL)</p>
+<p>以及<code>redist\intel64_win\mkl\libimalloc.dll</code>放到R目錄下的<code>bin\x64</code>裡面</p>
+<p>(要抓哪些DLL是根據<code>dependencywalker</code>找的，請查看<a target="_blank" rel="noopener" href="http://dependencywalker.com/">dependencywalker</a>，不過MKL部分是我自己試出來的)</p>
+<p>再來是建立一個<code>R-package\inst\include</code>的資料夾，把<code>D:\mxnet\mxnet\mshadow\mshadow</code>, <code>D:\mxnet\mxnet\dmlc-core\include\dmlc</code>, </p>
+<p><code>D:\mxnet\mxnet\nnvm\include\nnvm</code>, <code>D:\mxnet\mxnet\include\mxnet</code>複製到<code>R-package\inst\include</code></p>
+<p>跑下面這個script</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> import(Rcpp) &gt; R-package/NAMESPACE</span><br><span class="line"><span class="built_in">echo</span> import(methods) &gt;&gt; R-package/NAMESPACE</span><br><span class="line">R CMD INSTALL R-package</span><br><span class="line">Rscript -e <span class="string">&quot;require(mxnet); mxnet:::mxnet.export(\&quot;R-package\&quot;)&quot;</span></span><br><span class="line">rm -rf R-package/NAMESPACE</span><br><span class="line">Rscript -e <span class="string">&quot;require(roxygen2); roxygen2::roxygenise(\&quot;R-package\&quot;)&quot;</span></span><br><span class="line">R CMD INSTALL R-package</span><br></pre></td></tr></table></figure>
+
+<p>安裝之後就到<code>D:\mxnet\mxnet\example\image-classification</code>試跑看看<code>train_mnist.R --network mlp --gpus 0</code></p>
+<p>或是簡單測一下下面的script:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">require</span>(mlbench)</span><br><span class="line"><span class="keyword">require</span>(mxnet)</span><br><span class="line">data(Sonar, package = <span class="string">&quot;mlbench&quot;</span>)</span><br><span class="line"></span><br><span class="line">Sonar[,<span class="number">61</span>] &lt;- as.numeric(Sonar[,<span class="number">61</span>])-<span class="number">1</span></span><br><span class="line">train.ind &lt;- c(<span class="number">1</span>:<span class="number">50</span>, <span class="number">100</span>:<span class="number">150</span>)</span><br><span class="line">train.x &lt;- data.matrix(Sonar[train.ind, <span class="number">1</span>:<span class="number">60</span>])</span><br><span class="line">train.y &lt;- Sonar[train.ind, <span class="number">61</span>]</span><br><span class="line">test.x &lt;- data.matrix(Sonar[-train.ind, <span class="number">1</span>:<span class="number">60</span>])</span><br><span class="line">test.y &lt;- Sonar[-train.ind, <span class="number">61</span>]</span><br><span class="line"></span><br><span class="line">mx.set.seed(<span class="number">0</span>)</span><br><span class="line"><span class="comment"># GPU</span></span><br><span class="line">model &lt;- mx.mlp(train.x, train.y, hidden_node=<span class="number">10</span>, out_node=<span class="number">2</span>, out_activation=<span class="string">&quot;softmax&quot;</span>,</span><br><span class="line">                num.round = <span class="number">20</span>, array.batch.size=<span class="number">15</span>, learning.rate=<span class="number">0.07</span>, momentum=<span class="number">0.9</span>, </span><br><span class="line">                eval.metric=mx.metric.accuracy, device = mx.gpu(<span class="number">0</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment"># CPU</span></span><br><span class="line">model &lt;- mx.mlp(train.x, train.y, hidden_node=<span class="number">10</span>, out_node=<span class="number">2</span>, out_activation=<span class="string">&quot;softmax&quot;</span>,</span><br><span class="line">                num.round = <span class="number">20</span>, array.batch.size=<span class="number">15</span>, learning.rate=<span class="number">0.07</span>, momentum=<span class="number">0.9</span>, </span><br><span class="line">                eval.metric=mx.metric.accuracy, device = lapply(<span class="number">0</span>:<span class="number">1</span>, mx.cpu))</span><br><span class="line"></span><br><span class="line">preds &lt;- predict(model, test.x, mx.gpu(<span class="number">0</span>))</span><br><span class="line">pred.label = max.col(t(preds))-<span class="number">1</span></span><br><span class="line">table(pred.label, test.y)</span><br></pre></td></tr></table></figure>
+
+<p>至於Python套件部分，到<code>python</code>的子資料夾，執行<code>python setup.py install</code></p>
+<p>然後把上面所說的<code>mkl_rt.dll</code>, <code>mkl_core.dll</code>, <code>mkl_intel_thread.dll</code>, <code>pencv_ffmpeg320_64.dll</code>, </p>
+<p><code>opencv_world320.dll</code>以及<code>opencv_world320d.dll</code>放到Python的根目錄，然後到<code>D:\mxnet\mxnet\example\image-classification</code></p>
+<p>試跑下面的命令驗證看看GPU是否正常安裝：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">python train_mnist.py --network mlp --gpus <span class="number">0</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/images/mxnet-gpu.PNG"></p>
+<p>最後用python稍微看一下Performance差異：</p>
+<p>Performance of prebuilt GPU:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"># GPU</span><br><span class="line">INFO:root:Epoch[0] Batch [100]  Speed: 49999.99 samples&#x2F;sec     Train-accuracy&#x3D;0.783261</span><br><span class="line">INFO:root:Epoch[0] Batch [200]  Speed: 49999.99 samples&#x2F;sec     Train-accuracy&#x3D;0.909062</span><br><span class="line">INFO:root:Epoch[0] Batch [300]  Speed: 50393.66 samples&#x2F;sec     Train-accuracy&#x3D;0.931875</span><br><span class="line">INFO:root:Epoch[0] Batch [400]  Speed: 49999.99 samples&#x2F;sec     Train-accuracy&#x3D;0.934375</span><br><span class="line">INFO:root:Epoch[0] Batch [500]  Speed: 51200.00 samples&#x2F;sec     Train-accuracy&#x3D;0.935781</span><br><span class="line">INFO:root:Epoch[0] Batch [600]  Speed: 49999.99 samples&#x2F;sec     Train-accuracy&#x3D;0.950469</span><br><span class="line">INFO:root:Epoch[0] Batch [700]  Speed: 49612.42 samples&#x2F;sec     Train-accuracy&#x3D;0.950469</span><br><span class="line">INFO:root:Epoch[0] Batch [800]  Speed: 50000.08 samples&#x2F;sec     Train-accuracy&#x3D;0.949531</span><br><span class="line">INFO:root:Epoch[0] Batch [900]  Speed: 49612.33 samples&#x2F;sec     Train-accuracy&#x3D;0.957812</span><br><span class="line">INFO:root:Epoch[0] Train-accuracy&#x3D;0.957348</span><br><span class="line">INFO:root:Epoch[0] Time cost&#x3D;1.629</span><br><span class="line">INFO:root:Epoch[0] Validation-accuracy&#x3D;0.959793</span><br><span class="line"># CPU</span><br><span class="line">INFO:root:Epoch[0] Batch [100]  Speed: 42666.71 samples&#x2F;sec     Train-accuracy&#x3D;0.790687</span><br><span class="line">INFO:root:Epoch[0] Batch [200]  Speed: 42105.21 samples&#x2F;sec     Train-accuracy&#x3D;0.906250</span><br><span class="line">INFO:root:Epoch[0] Batch [300]  Speed: 42384.10 samples&#x2F;sec     Train-accuracy&#x3D;0.928438</span><br><span class="line">INFO:root:Epoch[0] Batch [400]  Speed: 41830.03 samples&#x2F;sec     Train-accuracy&#x3D;0.942656</span><br><span class="line">INFO:root:Epoch[0] Batch [500]  Speed: 41025.67 samples&#x2F;sec     Train-accuracy&#x3D;0.946250</span><br><span class="line">INFO:root:Epoch[0] Batch [600]  Speed: 42105.28 samples&#x2F;sec     Train-accuracy&#x3D;0.942344</span><br><span class="line">INFO:root:Epoch[0] Batch [700]  Speed: 42105.28 samples&#x2F;sec     Train-accuracy&#x3D;0.950469</span><br><span class="line">INFO:root:Epoch[0] Batch [800]  Speed: 41025.60 samples&#x2F;sec     Train-accuracy&#x3D;0.955937</span><br><span class="line">INFO:root:Epoch[0] Batch [900]  Speed: 42384.10 samples&#x2F;sec     Train-accuracy&#x3D;0.958594</span><br><span class="line">INFO:root:Epoch[0] Train-accuracy&#x3D;0.953125</span><br><span class="line">INFO:root:Epoch[0] Time cost&#x3D;1.853</span><br><span class="line">INFO:root:Epoch[0] Validation-accuracy&#x3D;0.962082</span><br></pre></td></tr></table></figure>
+
+<p>Performance of built by myself (RelWithDebInfo):</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"># GPU</span><br><span class="line">INFO:root:Epoch[0] Batch [100]  Speed: 52459.03 samples&#x2F;sec     Train-accuracy&#x3D;0.781405</span><br><span class="line">INFO:root:Epoch[0] Batch [200]  Speed: 54700.81 samples&#x2F;sec     Train-accuracy&#x3D;0.907656</span><br><span class="line">INFO:root:Epoch[0] Batch [300]  Speed: 56637.21 samples&#x2F;sec     Train-accuracy&#x3D;0.925000</span><br><span class="line">INFO:root:Epoch[0] Batch [400]  Speed: 55172.44 samples&#x2F;sec     Train-accuracy&#x3D;0.940156</span><br><span class="line">INFO:root:Epoch[0] Batch [500]  Speed: 51200.00 samples&#x2F;sec     Train-accuracy&#x3D;0.941406</span><br><span class="line">INFO:root:Epoch[0] Batch [600]  Speed: 55652.17 samples&#x2F;sec     Train-accuracy&#x3D;0.944063</span><br><span class="line">INFO:root:Epoch[0] Batch [700]  Speed: 54237.27 samples&#x2F;sec     Train-accuracy&#x3D;0.952812</span><br><span class="line">INFO:root:Epoch[0] Batch [800]  Speed: 55172.44 samples&#x2F;sec     Train-accuracy&#x3D;0.954844</span><br><span class="line">INFO:root:Epoch[0] Batch [900]  Speed: 55172.33 samples&#x2F;sec     Train-accuracy&#x3D;0.960313</span><br><span class="line">INFO:root:Epoch[0] Train-accuracy&#x3D;0.949324</span><br><span class="line">INFO:root:Epoch[0] Time cost&#x3D;1.493</span><br><span class="line">INFO:root:Epoch[0] Validation-accuracy&#x3D;0.952130</span><br><span class="line"># CPU</span><br><span class="line">INFO:root:Epoch[0] Batch [100]  Speed: 42105.28 samples&#x2F;sec     Train-accuracy&#x3D;0.790842</span><br><span class="line">INFO:root:Epoch[0] Batch [200]  Speed: 41830.03 samples&#x2F;sec     Train-accuracy&#x3D;0.907813</span><br><span class="line">INFO:root:Epoch[0] Batch [300]  Speed: 41558.43 samples&#x2F;sec     Train-accuracy&#x3D;0.927188</span><br><span class="line">INFO:root:Epoch[0] Batch [400]  Speed: 42105.28 samples&#x2F;sec     Train-accuracy&#x3D;0.934844</span><br><span class="line">INFO:root:Epoch[0] Batch [500]  Speed: 42105.28 samples&#x2F;sec     Train-accuracy&#x3D;0.944531</span><br><span class="line">INFO:root:Epoch[0] Batch [600]  Speed: 42384.10 samples&#x2F;sec     Train-accuracy&#x3D;0.944063</span><br><span class="line">INFO:root:Epoch[0] Batch [700]  Speed: 42384.10 samples&#x2F;sec     Train-accuracy&#x3D;0.950469</span><br><span class="line">INFO:root:Epoch[0] Batch [800]  Speed: 42105.28 samples&#x2F;sec     Train-accuracy&#x3D;0.957812</span><br><span class="line">INFO:root:Epoch[0] Batch [900]  Speed: 42384.10 samples&#x2F;sec     Train-accuracy&#x3D;0.957812</span><br><span class="line">INFO:root:Epoch[0] Train-accuracy&#x3D;0.959882</span><br><span class="line">INFO:root:Epoch[0] Time cost&#x3D;1.789</span><br><span class="line">INFO:root:Epoch[0] Validation-accuracy&#x3D;0.962082</span><br></pre></td></tr></table></figure>
+
+<p>Performance of built by myself (Release with Intel C++ 2017, /O3 flags):</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"># GPU</span><br><span class="line">INFO:root:Epoch[0] Batch [100]  Speed: 60377.39 samples&#x2F;sec     Train-accuracy&#x3D;0.791151</span><br><span class="line">INFO:root:Epoch[0] Batch [200]  Speed: 59259.24 samples&#x2F;sec     Train-accuracy&#x3D;0.913438</span><br><span class="line">INFO:root:Epoch[0] Batch [300]  Speed: 60952.37 samples&#x2F;sec     Train-accuracy&#x3D;0.927031</span><br><span class="line">INFO:root:Epoch[0] Batch [400]  Speed: 57657.63 samples&#x2F;sec     Train-accuracy&#x3D;0.938906</span><br><span class="line">INFO:root:Epoch[0] Batch [500]  Speed: 61538.41 samples&#x2F;sec     Train-accuracy&#x3D;0.943594</span><br><span class="line">INFO:root:Epoch[0] Batch [600]  Speed: 60377.39 samples&#x2F;sec     Train-accuracy&#x3D;0.945000</span><br><span class="line">INFO:root:Epoch[0] Batch [700]  Speed: 61538.55 samples&#x2F;sec     Train-accuracy&#x3D;0.945781</span><br><span class="line">INFO:root:Epoch[0] Batch [800]  Speed: 62135.82 samples&#x2F;sec     Train-accuracy&#x3D;0.952500</span><br><span class="line">INFO:root:Epoch[0] Batch [900]  Speed: 60952.37 samples&#x2F;sec     Train-accuracy&#x3D;0.957031</span><br><span class="line">INFO:root:Epoch[0] Train-accuracy&#x3D;0.960726</span><br><span class="line">INFO:root:Epoch[0] Time cost&#x3D;1.386</span><br><span class="line">INFO:root:Epoch[0] Validation-accuracy&#x3D;0.962878</span><br><span class="line"># CPU</span><br><span class="line">INFO:root:Epoch[0] Batch [100]  Speed: 52458.92 samples&#x2F;sec     Train-accuracy&#x3D;0.786665</span><br><span class="line">INFO:root:Epoch[0] Batch [200]  Speed: 52892.64 samples&#x2F;sec     Train-accuracy&#x3D;0.911094</span><br><span class="line">INFO:root:Epoch[0] Batch [300]  Speed: 52892.54 samples&#x2F;sec     Train-accuracy&#x3D;0.930781</span><br><span class="line">INFO:root:Epoch[0] Batch [400]  Speed: 52032.56 samples&#x2F;sec     Train-accuracy&#x3D;0.933594</span><br><span class="line">INFO:root:Epoch[0] Batch [500]  Speed: 53333.38 samples&#x2F;sec     Train-accuracy&#x3D;0.941094</span><br><span class="line">INFO:root:Epoch[0] Batch [600]  Speed: 52892.64 samples&#x2F;sec     Train-accuracy&#x3D;0.945781</span><br><span class="line">INFO:root:Epoch[0] Batch [700]  Speed: 52892.54 samples&#x2F;sec     Train-accuracy&#x3D;0.950156</span><br><span class="line">INFO:root:Epoch[0] Batch [800]  Speed: 53333.28 samples&#x2F;sec     Train-accuracy&#x3D;0.957031</span><br><span class="line">INFO:root:Epoch[0] Batch [900]  Speed: 53333.38 samples&#x2F;sec     Train-accuracy&#x3D;0.958125</span><br><span class="line">INFO:root:Epoch[0] Train-accuracy&#x3D;0.953125</span><br><span class="line">INFO:root:Epoch[0] Time cost&#x3D;1.506</span><br><span class="line">INFO:root:Epoch[0] Validation-accuracy&#x3D;0.962480</span><br></pre></td></tr></table></figure>
+
+<p>可以看出我們自己用Intel C++ 2017 加上 O3 optimization的速度</p>
+<p>在GPU方面比prebuilt每秒多了一千張，CPU部分則多了將近10000張</p>
+<p>The performace gain worths your time!!</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/GPU/" rel="tag"># GPU</a>
+              <a href="/tags/MxNet/" rel="tag"># MxNet</a>
+              <a href="/tags/Windows/" rel="tag"># Windows</a>
+              <a href="/tags/Deep-Learning/" rel="tag"># Deep Learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/201704/2017-04-23-RcppArmadillo-call-F77-blas-lapacl.html" rel="prev" title="RcppArmadillo call F77 blas/lapack">
+      <i class="fa fa-chevron-left"></i> RcppArmadillo call F77 blas/lapack
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/201705/2017-05-25-use-R-to-construct-web-service.html" rel="next" title="使用R來建立web service">
+      使用R來建立web service <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ching-Chuan Chen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">156</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ChingChuan-Chen" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ChingChuan-Chen" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zw12356@gmail.com" title="E-Mail → mailto:zw12356@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/celestial0230/" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;celestial0230&#x2F;" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ching-Chuan Chen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://celestial0230.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://chingchuan-chen.github.io/posts/201704/2017-04-24-building-gpu-version-of-mxnet-in-windows.html";
+    this.page.identifier = "posts/201704/2017-04-24-building-gpu-version-of-mxnet-in-windows.html";
+    this.page.title = "在Windows環境下編譯GPU版本的mxnet";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://celestial0230.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

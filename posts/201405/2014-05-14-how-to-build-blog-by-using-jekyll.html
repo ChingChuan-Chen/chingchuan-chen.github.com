@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="zh-tw,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans TC:300,300italic,400,400italic,700,700italic|DM Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chingchuan-chen.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"buttons","active":"disqus","storage":true,"lazyload":false,"nav":null,"activeClass":"disqus"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="以下詳細介紹如何在windows環境下使用sublime text在github上建立屬於你自己的部落格 以下教學來自下列兩個網站  yizeng的blogger [madhur的blogger](http:&#x2F;&#x2F;www.madhur.co.in&#x2F;blog&#x2F;2011&#x2F;09&#x2F;01&#x2F;runningjekyllwindows.html">
+<meta property="og:type" content="article">
+<meta property="og:title" content="如何利用jekyll建立你的blogger">
+<meta property="og:url" content="http://chingchuan-chen.github.io/posts/201405/2014-05-14-how-to-build-blog-by-using-jekyll.html">
+<meta property="og:site_name" content="Ching-Chuan Chen&#39;s Blogger">
+<meta property="og:description" content="以下詳細介紹如何在windows環境下使用sublime text在github上建立屬於你自己的部落格 以下教學來自下列兩個網站  yizeng的blogger [madhur的blogger](http:&#x2F;&#x2F;www.madhur.co.in&#x2F;blog&#x2F;2011&#x2F;09&#x2F;01&#x2F;runningjekyllwindows.html">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/path_setup.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/git_install.PNG">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/cmd_1.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/cmd_2.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/cmd_3.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/dk_rb_edit.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/dk_rb_edit_2.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/ruby_install_jekyll_1.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/ruby_install_jekyll_2.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/cmd_3.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/config.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/config2.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/cmd_5.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/cmd_6.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/browser.png">
+<meta property="article:published_time" content="2014-05-13T16:00:00.000Z">
+<meta property="article:modified_time" content="2018-03-14T16:36:38.000Z">
+<meta property="article:author" content="Ching-Chuan Chen">
+<meta property="article:tag" content="jekyll">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chingchuan-chen.github.io/images/path_setup.png">
+
+<link rel="canonical" href="http://chingchuan-chen.github.io/posts/201405/2014-05-14-how-to-build-blog-by-using-jekyll.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-tw'
+  };
+</script>
+
+  <title>如何利用jekyll建立你的blogger | Ching-Chuan Chen's Blogger</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72564040-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-72564040-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ching-Chuan Chen's Blogger</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Statistics, Machine Learning and Programming</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/ChingChuan-Chen" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-tw">
+    <link itemprop="mainEntityOfPage" href="http://chingchuan-chen.github.io/posts/201405/2014-05-14-how-to-build-blog-by-using-jekyll.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ching-Chuan Chen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ching-Chuan Chen's Blogger">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          如何利用jekyll建立你的blogger
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2014-05-14 00:00:00" itemprop="dateCreated datePublished" datetime="2014-05-14T00:00:00+08:00">2014-05-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2018-03-15 00:36:38" itemprop="dateModified" datetime="2018-03-15T00:36:38+08:00">2018-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/jekyll/" itemprop="url" rel="index"><span itemprop="name">jekyll</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/posts/201405/2014-05-14-how-to-build-blog-by-using-jekyll.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="posts/201405/2014-05-14-how-to-build-blog-by-using-jekyll.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>以下詳細介紹如何在windows環境下使用sublime text在github上建立屬於你自己的部落格</p>
+<p>以下教學來自下列兩個網站</p>
+<ul>
+<li><a target="_blank" rel="noopener" href="http://yizeng.me/2013/05/10/setup-jekyll-on-windows/">yizeng的blogger</a></li>
+<li>[madhur的blogger](<a target="_blank" rel="noopener" href="http://www.madhur.co.in/blog/2011/09/01/runningjekyllwindows.html">http://www.madhur.co.in/blog/2011/09/01/runningjekyllwindows.html</a></li>
+</ul>
+<a id="more"></a>
+
+<h2 id="安裝步驟如下"><a href="#安裝步驟如下" class="headerlink" title="安裝步驟如下:"></a>安裝步驟如下:</h2><p>A. 下載我壓縮的工具包：<a target="_blank" rel="noopener" href="https://drive.google.com/open?id=0B1UBN4lCLHrVU3JOR0JDQ1J4Zmc">Google drive</a><br>解壓縮之後，裡面包含九個檔案：</p>
+<ul>
+<li>rubyinstaller-2.3.0-x64.exe</li>
+<li>DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe</li>
+<li>Anaconda2-4.1.0-Windows-x86_64.exe</li>
+<li>install.bat</li>
+<li>Git-1.9.5-preview20150319.exe</li>
+<li>RedmondPathzip.rar</li>
+</ul>
+<p>這六個檔案分別為ruby安裝檔、ruby開發環境的檔案、python安裝檔案、python安裝bat檔、Git安裝檔案以及path修改的軟體，請依下面指示安裝。</p>
+<ul>
+<li>ruby預設安裝到C:\Ruby23-x64。</li>
+<li>點擊兩下DevKit-mingw64-64-4.7.2-20130224-1432-sfx.exe，進行解壓縮，為了方便說明，以及環境設定，請解壓縮到C:\rubydevkit</li>
+<li>解壓縮RedmondPathzip.rar，打開資料夾中的Redmond Path.exe，在任意視窗中下方加入; C:\Ruby23-x64，(你安裝路徑有更動，請跟著更改)，如下圖下示：<br><img src="/images/path_setup.png"></li>
+<li>點擊Anaconda2-4.1.0-Windows-x86_64.exe，安裝python，預設安裝到C:\Anaconda2，然後點擊兩下install.bat，會詢問你是否安裝，按下y，便完成python安裝。</li>
+<li>點擊Git-1.9.5-preview20150319.exe安裝Git，中間要注意，勾選Use Git from the Windows Command Prompt<br><img src="/images/git_install.PNG"></li>
+</ul>
+<p>B. 為了工作方便，請先按下windows鍵(在Ctr跟Alt之間)+R，開啟執行視窗，鍵入cmd，打開<code>Windows Command Prompt</code>，為了解釋方便，以後稱這個視窗為cmd。<br><img src="/images/cmd_1.png"><br><img src="/images/cmd_2.png"></p>
+<p>打開cmd，他的預設目錄是在你的使用者下，請先輸入<code>cd ../..</code>，退到C:&gt;，如圖：<br><img src="/images/cmd_3.png"></p>
+<p>然後在cmd中輸入下列指令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> C:/rubydevkit</span><br><span class="line">ruby dk.rb init</span><br><span class="line">notepad config.yml</span><br></pre></td></tr></table></figure>
+
+<p>輸入完以上三行指令後，將會用記事本打開一個名為<code>_config.yml</code>的檔案，最後一行改成 <code> - C:\Ruby23-x64</code>。<br><img src="/images/dk_rb_edit.png"></p>
+<p>回到cmd，鍵入<code>ruby dk.rb install</code>，如果成功會出現下面的訊息：<br><img src="/images/dk_rb_edit_2.png"></p>
+<p>然後回到cmd，鍵入<code>gem install jekyll</code>，然後等待一下之後，他會安裝數個gems(不一定是27)，如圖：<br><img src="/images/ruby_install_jekyll_1.png"><br><img src="/images/ruby_install_jekyll_2.png"></p>
+<p>另外，還需要安裝pygments，請鍵入<code>gem install pygments.rb</code>。</p>
+<p>C. 申請git，並且clone我的庫當作基底。請到 <a target="_blank" rel="noopener" href="https://github.com/">Github</a>申請一個帳號，假設你的使用者名稱(username)為USERNAME，在你的github中建立一個新的repository，repository的名稱請設定為USERNAME.github.com，這樣就完成github初步的設定。接下來，請先建立好你的工作目錄，例如我設定在E:\website中，那我可以利用這個指令<code>cd /d E:\website</code>到該目錄下，你可以自行更改工作目錄，假設clone我的庫做為基底，輸入下方指令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">mkdir USERNAME.github.com</span><br><span class="line">git <span class="built_in">clone</span> https://github.com/ChingChuan-Chen/chingchuan-chen.github.com USERNAME.github.com</span><br></pre></td></tr></table></figure>
+
+<p>記得當中的USERNAME要改成你在github的username。例如我的username叫做imstupid，預期output如下圖：<br><img src="/images/cmd_3.png"></p>
+<p>再來就是init github的本地倉庫，以及設定你的github遠端帳號，指令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> USERNAME.github.com</span><br><span class="line">git init</span><br><span class="line">git remote <span class="built_in">set</span>-url origin https://github.com/USERNAME/USERNAME.github.com.git</span><br><span class="line">git push origin master</span><br></pre></td></tr></table></figure>
+
+<p>過程中會要求輸入你的github的帳號(username)以及其密碼(password)，之後你就可以在你的github上看到你上傳的檔案了！最後就是一些簡單的修改，例如記事本去修改<code>_config.yml</code> (簡單的指令是<code>notepad _config.yml</code>，或是用記事本把它打開)：<br><img src="/images/config.png"><br><img src="/images/config2.png"></p>
+<p>檔案中，#是註解，程式不會去閱讀的部分可以寫在#後面，其他前面沒有#的部分就是你可以更改的部分，當然更進階的話，你還可以添加一些選項進去，像是更動<code>title :</code>後面的文字就是在更改你主題頁的名稱。修改之後存檔，在cmd中輸入<code>git commit -am &quot;message&quot;</code>這個目的是儲存你所有的修改，以及添加修改的相關訊息message (這個可以自己改)，例如我想記錄這次的修改是增加新的文章，我可以打<code>git commit -am &quot;new post&quot;</code>。</p>
+<p>還有git的使用如你想在你的目錄下新增東西，你要讓它能夠出現在網站上就要先加入名單中，輸入<code>git add .</code>的指令加入你所新增的檔案，舉例來說，我增加了幾張圖，我就先打入<code>git add .</code>，接著commit，然後push(上傳)到我的github，操作示範如下：<br><img src="/images/cmd_5.png"></p>
+<p>如果想移除檔案，就輸入<code>git rm filename</code>，filename是你的檔案名稱，只是注意的是這個操作不只把從github抹除，同時也會把你硬碟的檔案刪除。其他的指令利用可能就要慢慢再去學習。</p>
+<p>D. 其他部分，最重要的是如何預覽，在cmd中輸入<code>jekyll serve</code>會出現下面：<br><img src="/images/cmd_6.png"></p>
+<p>然後在你的瀏覽器(例如IE, chrome or firefox)輸入<code>localhost:4000</code>，就可以出現你blogger的預覽畫面：<br><img src="/images/browser.png"></p>
+<p>還有PO文部分，可以先更改_posts下我的文章，它的檔案格式是yyyy-mm-dd-ANameOfPost.md，可以直接利用記事本做編輯，最前面是一些基本設定：</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">---</span><br><span class="line">layout: post</span><br><span class="line">cTitle: 如何利用jekyll建立你的blogger</span><br><span class="line">title: how to build blog by using jekyll</span><br><span class="line">description: &quot;&quot;</span><br><span class="line">---</span><br><span class="line">&#123;&#125;</span><br><span class="line">一些文字...</span><br><span class="line">123</span><br><span class="line"></span><br><span class="line">456</span><br></pre></td></tr></table></figure>
+
+<p>兩個—中是關於你post的設定，layout是設定我現在的格式是什麼，在_posts裡面就理所當然是設定post，title是設定你文章的標題(這是顯示的標題)，title是標題(提供給程式控制)，decription是關於你這篇文章的敘述，category是你文章的分類，cssdemo是檔案的格式，這部分我還不熟，請先跟我設定相同，或是你自行摸索，tags是標籤，方便你自己以及其他人找尋相關文章，最後，published是設定是否要公開於網站上，你如果還沒寫好的文章就可以先改成false，那你確定要公開就改成true，include部分是必須要引入的設定，最好不要省略，more那列是在首頁顯示部分到此，例如上面的例子，就是首頁只會顯示123，而456要等你點開文章才會看到。剩下還要更改的部分是index.html以及一些小地方，如果需要幫助，再到左下角點選我的名字就可以連到我的facebook與我聯絡。最後，溫馨提醒：文章的編寫可以對照我的post跟我的blogger顯示文章去推敲寫法，總之，從模仿開始，我也才剛學會架設blogger一周而已。</p>
+<p>Note: github不會即時更新，需要等待幾分鐘才會更新你新的上傳。</p>
+<p>2016-01-18增補：</p>
+<p>沒空寫新的文章，根據這個部落格風格的原作者表示出了一個github-page的gem，用法參考這篇，<a target="_blank" rel="noopener" href="http://wcc723.github.io/jekyll/2014/09/05/github-page">這篇</a>。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">gem install github-pages</span><br><span class="line">gem install rails</span><br><span class="line"><span class="built_in">cd</span> USERNAME.github.com</span><br><span class="line">bundle install</span><br><span class="line">bundle <span class="built_in">exec</span> jekyll serve --watch</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/jekyll/" rel="tag"># jekyll</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/posts/201405/2014-05-16-how-to-compile-R-with-mkl.html" rel="next" title="如何compile R with Intel C++ compiler and Intel MKL">
+      如何compile R with Intel C++ compiler and Intel MKL <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%89%E8%A3%9D%E6%AD%A5%E9%A9%9F%E5%A6%82%E4%B8%8B"><span class="nav-number">1.</span> <span class="nav-text">安裝步驟如下:</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ching-Chuan Chen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">156</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ChingChuan-Chen" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ChingChuan-Chen" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zw12356@gmail.com" title="E-Mail → mailto:zw12356@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/celestial0230/" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;celestial0230&#x2F;" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ching-Chuan Chen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://celestial0230.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://chingchuan-chen.github.io/posts/201405/2014-05-14-how-to-build-blog-by-using-jekyll.html";
+    this.page.identifier = "posts/201405/2014-05-14-how-to-build-blog-by-using-jekyll.html";
+    this.page.title = "如何利用jekyll建立你的blogger";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://celestial0230.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

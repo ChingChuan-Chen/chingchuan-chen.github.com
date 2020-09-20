@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="zh-tw,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans TC:300,300italic,400,400italic,700,700italic|DM Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chingchuan-chen.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"buttons","active":"disqus","storage":true,"lazyload":false,"nav":null,"activeClass":"disqus"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="R maillist有討論過這個問題，而且回的非常長 我稍微看了一下，發問者試了RcppArmadillo跟RcppEigen 發現RcppEigen的SVD decomposition不是那麼合用，而且不太好去做coding RcppArmadillo比較好去coding">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Differences between RcppEigen and RcppArmadillo">
+<meta property="og:url" content="http://chingchuan-chen.github.io/posts/201612/2016-12-31-Differences-between-RcppEigen-and-RcppArmadillo.html">
+<meta property="og:site_name" content="Ching-Chuan Chen&#39;s Blogger">
+<meta property="og:description" content="R maillist有討論過這個問題，而且回的非常長 我稍微看了一下，發問者試了RcppArmadillo跟RcppEigen 發現RcppEigen的SVD decomposition不是那麼合用，而且不太好去做coding RcppArmadillo比較好去coding">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2016-12-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2018-03-14T16:37:40.000Z">
+<meta property="article:author" content="Ching-Chuan Chen">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="RcppArmadillo">
+<meta property="article:tag" content="RcppEigen">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://chingchuan-chen.github.io/posts/201612/2016-12-31-Differences-between-RcppEigen-and-RcppArmadillo.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-tw'
+  };
+</script>
+
+  <title>Differences between RcppEigen and RcppArmadillo | Ching-Chuan Chen's Blogger</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72564040-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-72564040-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ching-Chuan Chen's Blogger</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Statistics, Machine Learning and Programming</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/ChingChuan-Chen" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-tw">
+    <link itemprop="mainEntityOfPage" href="http://chingchuan-chen.github.io/posts/201612/2016-12-31-Differences-between-RcppEigen-and-RcppArmadillo.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ching-Chuan Chen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ching-Chuan Chen's Blogger">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Differences between RcppEigen and RcppArmadillo
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-12-31 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-31T00:00:00+08:00">2016-12-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2018-03-15 00:37:40" itemprop="dateModified" datetime="2018-03-15T00:37:40+08:00">2018-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/R/" itemprop="url" rel="index"><span itemprop="name">R</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/posts/201612/2016-12-31-Differences-between-RcppEigen-and-RcppArmadillo.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="posts/201612/2016-12-31-Differences-between-RcppEigen-and-RcppArmadillo.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>R maillist有討論過這個問題，而且回的非常長</p>
+<p>我稍微看了一下，發問者試了RcppArmadillo跟RcppEigen</p>
+<p>發現RcppEigen的SVD decomposition不是那麼合用，而且不太好去做coding</p>
+<p>RcppArmadillo比較好去coding</p>
+<a id="more"></a>
+
+
+<p>接下來的回文就是RcppEigen會快一點(我的文章也證實了這點)</p>
+<p>而RcppEigen是用自己的BLAS and LAPACK，RcppArmadillo會使用R session所使用的</p>
+<p>然後接下來就跳到RcppArmadillo的svd表現不好的問題：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span>(inline)</span><br><span class="line"><span class="keyword">library</span>(RcppArmadillo)</span><br><span class="line"><span class="keyword">library</span>(RcppEigen)</span><br><span class="line"></span><br><span class="line">arma_body &lt;- <span class="string">&#x27;using namespace arma; NumericMatrix Xr(Xs); </span></span><br><span class="line"><span class="string">mat X = Rcpp::as&lt;mat&gt;(Xr), U, V; </span></span><br><span class="line"><span class="string">vec s; svd(U, s, V, X); </span></span><br><span class="line"><span class="string">return wrap(s);&#x27;</span></span><br><span class="line">arma_svd &lt;- cxxfunction(signature(Xs = <span class="string">&quot;numeric&quot;</span>), body = arma_body, plugin = <span class="string">&quot;RcppArmadillo&quot;</span>)</span><br><span class="line">eigen_body &lt;- <span class="string">&#x27;using Eigen::MatrixXd; using Eigen::Map;</span></span><br><span class="line"><span class="string">Map&lt;MatrixXd&gt; x(Rcpp::as&lt;Map&lt;MatrixXd&gt; &gt;(Xs));</span></span><br><span class="line"><span class="string">Eigen::JacobiSVD&lt;MatrixXd&gt; svd(x, Eigen::ComputeThinU | Eigen::ComputeThinV);</span></span><br><span class="line"><span class="string">return wrap(svd.singularValues());&#x27;</span></span><br><span class="line">eigen_svd &lt;- cxxfunction(signature(Xs = <span class="string">&quot;numeric&quot;</span>), body = eigen_body, plugin = <span class="string">&quot;RcppEigen&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">library</span>(microbenchmark)</span><br><span class="line">N &lt;- <span class="number">1000L</span></span><br><span class="line">A &lt;- matrix(rnorm(N^<span class="number">2</span>), N)</span><br><span class="line">microbenchmark(svd(A), arma_svd(A), eigen_svd(A), times = <span class="number">20L</span>)</span><br><span class="line"><span class="comment"># Unit: milliseconds</span></span><br><span class="line"><span class="comment">#          expr        min         lq       mean     median         uq        max neval</span></span><br><span class="line"><span class="comment">#        svd(A)   436.0527   441.6736   444.1783   443.7081   445.4228   454.5612    10</span></span><br><span class="line"><span class="comment">#   arma_svd(A)   354.7630   359.3738   365.7064   365.5194   367.7162   383.8402    10</span></span><br><span class="line"><span class="comment">#  eigen_svd(A) 56648.3330 56700.3132 57499.2423 57345.0418 58318.3001 58883.5604    10</span></span><br></pre></td></tr></table></figure>
+
+<p>我在我電腦(<a href="mailto:&#x69;&#x37;&#x2d;&#x33;&#x37;&#55;&#48;&#75;&#64;&#52;&#46;&#x32;&#71;&#x48;&#122;">&#x69;&#x37;&#x2d;&#x33;&#x37;&#55;&#48;&#75;&#64;&#52;&#46;&#x32;&#71;&#x48;&#122;</a> with MRO 3.3.1)上測試</p>
+<p>其實RcppArmadillo是最快的</p>
+<p>不知道是不是Armadillo做了一些改進</p>
+<p>因為討論中提到R只有算sigular values沒算U跟V，而Armadillo有</p>
+<p>這造就了底層的LAPACK用的函數就不同了，所以performance會差很多</p>
+<p>而RcppEigen因為用自帶的LAPACK比我R用的MKL慢不少，所以performance很差</p>
+<p>再來，我也測試看看兩個套件中fastLmPure的表現</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">n &lt;- <span class="number">3e3</span></span><br><span class="line">p &lt;- <span class="number">250</span></span><br><span class="line">X &lt;- matrix(rnorm(n * p), n , p)</span><br><span class="line">beta &lt;- rnorm(p)</span><br><span class="line">y &lt;- <span class="number">3</span> + X %*% beta + rnorm(n)</span><br><span class="line"></span><br><span class="line"><span class="keyword">library</span>(microbenchmark)</span><br><span class="line">microbenchmark(</span><br><span class="line">eigen_colPivQR = RcppEigen::fastLmPure(X, y, method = <span class="number">0L</span>),</span><br><span class="line">    eigen_HHQR = RcppEigen::fastLmPure(X, y, method = <span class="number">1L</span>),</span><br><span class="line">     eigen_LLT = RcppEigen::fastLmPure(X, y, method = <span class="number">2L</span>),</span><br><span class="line">    eigen_LLDT = RcppEigen::fastLmPure(X, y, method = <span class="number">3L</span>),</span><br><span class="line">     eigen_SVD = RcppEigen::fastLmPure(X, y, method = <span class="number">4L</span>),</span><br><span class="line">     eigen_eig = RcppEigen::fastLmPure(X, y, method = <span class="number">5L</span>),</span><br><span class="line">     armadillo = RcppArmadillo::fastLmPure(X, y),</span><br><span class="line">         times = <span class="number">30L</span></span><br><span class="line">)</span><br><span class="line"><span class="comment"># Unit: milliseconds</span></span><br><span class="line"><span class="comment">#            expr        min         lq       mean     median         uq        max neval</span></span><br><span class="line"><span class="comment">#  eigen_colPivQR   77.37665   78.46618   85.91465   82.41118   89.88866  120.38286    30</span></span><br><span class="line"><span class="comment">#      eigen_HHQR   47.47491   47.83243   52.40245   48.70604   54.42752   70.18852    30</span></span><br><span class="line"><span class="comment">#       eigen_LLT   17.68025   18.07902   37.30092   18.50793   21.12671  544.98383    30</span></span><br><span class="line"><span class="comment">#      eigen_LDLT   19.52899   19.95702   22.62692   20.12774   26.57289   36.44651    30</span></span><br><span class="line"><span class="comment">#       eigen_SVD 1019.39032 1051.11184 1072.05842 1061.67417 1080.98286 1201.88356    30</span></span><br><span class="line"><span class="comment">#       eigen_eig   62.97932   63.51531   71.18810   64.34445   79.16513   99.23830    30</span></span><br><span class="line"><span class="comment">#            arma   47.26046   48.48105   50.61176   49.99042   51.71892   57.41407    30</span></span><br></pre></td></tr></table></figure>
+
+<p>這裡也可以看出來RcppArmadillo的performace平平，RcppEigen的llt, ldlt速度真的很快，比RcppArmadillo快上不少</p>
+<p>可是這裡沒辦法加weights，所以我也測試了一下WLS，RcppArmadillo就快上不少，可以看一下我今天發的其他篇文章</p>
+<p>看了兩個Benchmark之後，總結一下：</p>
+<p>RcppEigen有自己的LAPACK，在某些case下可以比RcppArmadillo快</p>
+<p>而SVD方面的表現卻是不盡人意，非常的慢</p>
+<p>再來是連結到我的文章，WLS的計算上RcppArmadillo快(<a href="http://chingchuan-chen.github.io/posts/2016/12/31/weighted-least-square-algorithm">連結</a>，LOOCV with RcppParallel/OpenMP則是RcppEigen快(<a href="http://chingchuan-chen.github.io/posts/2016/12/31/RcppEigen-Work-With-RcppParall">連結</a></p>
+<p>所以求速度的話，使用RcppEigen基本上沒錯，只是svd的performance真的很差，這部分需要謹記(其他雷目前未知)</p>
+<p>但是RcppArmadillo有不少方便的功能</p>
+<p>submatrix view可以支援用uword vector拉出</p>
+<p>element-wise, column/row-wise的操作也相較起RcppEigen來的強大 </p>
+<p>舉例來說，<code>mat m = p.each_col() % v</code>，其中<code>v</code>是vector，<code>m</code>, <code>p</code>都是矩陣</p>
+<p>而這個在RcppEigen就要用迴圈來處理了，但是performance還是RcppEigen快一些</p>
+<p>所以求coding方便性，希望有很多簡單的方式去處理資料，使用RcppArmadillo就好</p>
+<p>延伸閱讀：</p>
+<ol>
+<li><a href="http://chingchuan-chen.github.io/posts/2017/01/01/kernal-matrix-computation-in-Rcpp">kernal matrix computation in Rcpp</a></li>
+<li><a href="http://chingchuan-chen.github.io/posts/2017/01/01/kernal-matrix-computation-in-Rcpp-continued">kernal matrix computation in Rcpp (continued)</a></li>
+<li><a href="http://chingchuan-chen.github.io/posts/2017/01/02/update-RcppEigen-to-3-3-1">pdate RcppEigen to 3.3.1</a></li>
+</ol>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/RcppArmadillo/" rel="tag"># RcppArmadillo</a>
+              <a href="/tags/RcppEigen/" rel="tag"># RcppEigen</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/201612/2016-12-31-RcppEigen-Work-With-RcppParall.html" rel="prev" title="RcppEigen Work with RcppParallel">
+      <i class="fa fa-chevron-left"></i> RcppEigen Work with RcppParallel
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/201701/2017-01-01-kernal-matrix-computation-in-Rcpp.html" rel="next" title="kernal matrix computation in Rcpp">
+      kernal matrix computation in Rcpp <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ching-Chuan Chen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">156</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ChingChuan-Chen" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ChingChuan-Chen" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zw12356@gmail.com" title="E-Mail → mailto:zw12356@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/celestial0230/" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;celestial0230&#x2F;" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ching-Chuan Chen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://celestial0230.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://chingchuan-chen.github.io/posts/201612/2016-12-31-Differences-between-RcppEigen-and-RcppArmadillo.html";
+    this.page.identifier = "posts/201612/2016-12-31-Differences-between-RcppEigen-and-RcppArmadillo.html";
+    this.page.title = "Differences between RcppEigen and RcppArmadillo";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://celestial0230.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

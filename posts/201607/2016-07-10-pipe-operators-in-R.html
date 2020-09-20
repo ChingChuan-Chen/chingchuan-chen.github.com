@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="zh-tw,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans TC:300,300italic,400,400italic,700,700italic|DM Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chingchuan-chen.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"buttons","active":"disqus","storage":true,"lazyload":false,"nav":null,"activeClass":"disqus"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="我在ptt分享過magrittr的文章(連結)，做為資料處理系列文章的第一篇 後來有一些額外的心得(連結)，所以又有一篇補充了一些觀念 一個大陸人Kun Ren(任堃)後來在2015年上傳了一個pipeR套件">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Pipe Operators in R">
+<meta property="og:url" content="http://chingchuan-chen.github.io/posts/201607/2016-07-10-pipe-operators-in-R.html">
+<meta property="og:site_name" content="Ching-Chuan Chen&#39;s Blogger">
+<meta property="og:description" content="我在ptt分享過magrittr的文章(連結)，做為資料處理系列文章的第一篇 後來有一些額外的心得(連結)，所以又有一篇補充了一些觀念 一個大陸人Kun Ren(任堃)後來在2015年上傳了一個pipeR套件">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2016-07-09T16:00:00.000Z">
+<meta property="article:modified_time" content="2018-03-14T16:59:12.000Z">
+<meta property="article:author" content="Ching-Chuan Chen">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="magrittr">
+<meta property="article:tag" content="Pipe Operator">
+<meta property="article:tag" content="pipeR">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://chingchuan-chen.github.io/posts/201607/2016-07-10-pipe-operators-in-R.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-tw'
+  };
+</script>
+
+  <title>Pipe Operators in R | Ching-Chuan Chen's Blogger</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72564040-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-72564040-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ching-Chuan Chen's Blogger</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Statistics, Machine Learning and Programming</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/ChingChuan-Chen" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-tw">
+    <link itemprop="mainEntityOfPage" href="http://chingchuan-chen.github.io/posts/201607/2016-07-10-pipe-operators-in-R.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ching-Chuan Chen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ching-Chuan Chen's Blogger">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Pipe Operators in R
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-07-10 00:00:00" itemprop="dateCreated datePublished" datetime="2016-07-10T00:00:00+08:00">2016-07-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2018-03-15 00:59:12" itemprop="dateModified" datetime="2018-03-15T00:59:12+08:00">2018-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/R/" itemprop="url" rel="index"><span itemprop="name">R</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/posts/201607/2016-07-10-pipe-operators-in-R.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="posts/201607/2016-07-10-pipe-operators-in-R.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>我在ptt分享過magrittr的文章(<a target="_blank" rel="noopener" href="https://www.ptt.cc/bbs/R_Language/M.1437452331.A.CD1.html">連結</a>)，做為資料處理系列文章的第一篇</p>
+<p>後來有一些額外的心得(<a target="_blank" rel="noopener" href="https://www.ptt.cc/bbs/Statistics/M.1450534933.A.8A4.html">連結</a>)，所以又有一篇補充了一些觀念</p>
+<p>一個大陸人Kun Ren(任堃)後來在2015年上傳了一個pipeR套件</p>
+<a id="more"></a>
+
+<p>宣稱比magrittr的pipe operator更好用，效能更佳，而且沒有模糊的界線(他的文章連結：<a target="_blank" rel="noopener" href="https://renkun.me/blog/2014/08/08/difference-between-magrittr-and-pipeR.html">Blog Post</a>)</p>
+<p>效能差異大概是快了近8倍，後面會在提及這方面</p>
+<h2 id="magrittr"><a href="#magrittr" class="headerlink" title="magrittr"></a>magrittr</h2><h3 id="背景介紹"><a href="#背景介紹" class="headerlink" title="背景介紹"></a>背景介紹</h3><p>先介紹一下magrittr的來由，根據這篇<a target="_blank" rel="noopener" href="http://www.r-statistics.com/2014/08/simpler-r-coding-with-pipes-the-present-and-future-of-the-magrittr-package/">blog文章</a>所提到的：</p>
+<blockquote>
+<p>The <code>|&gt;</code> operator in <code>F#</code> is indeed very simple: it is defined as let <code>(|&gt;) x f = f x</code>. However, the usefulness of this simplicity relies heavily on a concept that is not available in <code>R</code>: partial application. Furthermore, functions in <code>F#</code> almost always adhere to certain design principles which make the simple definition sufficient. Suppose that <code>f</code> is a function of two arguments, then in <code>F#</code> you may apply <code>f</code> to only the first argument and obtain a new function as the result — a function of the second argument alone.</p>
+</blockquote>
+<p><code>F#</code>的pipe operator, <code>|&gt;</code>, 讓他覺得非常的方便以及實用，因此，決定把這個東西實作到R裡面</p>
+<p>(注：其實shell script也有pipe operator, <code>|</code>, 而且更廣為人知。)</p>
+<p>這就是<code>R</code>為什麼會有<code>magrittr</code>這個套件的背景原由了，所以才會有了<code>%&gt;%</code>, <code>%&lt;&gt;%</code>跟<code>%T&gt;%</code>這幾個operator。</p>
+<p>(注：我這裡補充一點，其實此時開發<code>ggplot2</code>, <code>plyr</code>, <code>dplyr</code>等套件的Hadley已經在<code>dplyr</code>上</p>
+<p>推出了<code>%.%</code>這個operator，而且也把<code>dplyr</code>的函數全部都設計第一個放<code>data.frame</code>做為input，</p>
+<p>只是<code>magrittr</code>的推出，把整個功能用到更加完善，並且還涵蓋了alias function，</p>
+<p>因此，Hadley後來加入了<code>magrittr</code>的發展計畫，就未繼續開發<code>%.%</code>，</p>
+<p>在Hadley後面發展的套件都可以看到他都有直接把<code>%&gt;%</code> import在他的套件中，</p>
+<p>例如：很好用的爬蟲套件<code>rvest</code>、開發用來處理list的<code>purrr</code>等都可以看到<code>magrittr</code>的身影。)</p>
+<h3 id="pipe-operator的基本概念"><a href="#pipe-operator的基本概念" class="headerlink" title="pipe operator的基本概念"></a>pipe operator的基本概念</h3><p>假設現在有一個函數<code>f</code>，其input為<code>a</code>，一般在寫程式的時候，</p>
+<p>我們都可以透過<code>f(a)</code>獲得<code>f</code>函數在<code>a</code>這一點的值</p>
+<p>而<code>%&gt;%</code>可以把LHS(注：left hand side of operator)當作RHS(注：right hand side of operator)的函數的第一個input</p>
+<p>因此，透過 a %&gt;% f 或是 a %&gt;% f() 都等同於 f(a)</p>
+<p>同理，如果現在還有一個函數<code>g</code>，有兩個input，<code>x</code>跟<code>y</code>，則<code>g(x,y)</code>可以寫做<code>x %&gt;% g(y)</code></p>
+<p>這樣的好處是當我們有層層推疊的<code>(</code>時，就可以輕易地拆解開來並執行</p>
+<p>例如：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a_list &lt;- list(<span class="number">1</span>:<span class="number">6</span>, <span class="number">3</span>:<span class="number">5</span>, <span class="number">4</span>:<span class="number">7</span>)</span><br><span class="line">sort_uni_a &lt;- sort(unique(unlist(a_list)))</span><br></pre></td></tr></table></figure>
+
+<p>第二行這樣連在一起非常的難讀，但是改成下面這樣，又有效能問題(暫存變數)：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">unlist_list &lt;- unlist(a_list)</span><br><span class="line">sort_uni_a &lt;- sort(unique(unlist_list))</span><br></pre></td></tr></table></figure>
+
+<p>或是改成這樣，卻沒覺得可讀性上升多少：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sort_uni_a &lt;- sort(unique(unlist(a_list)))</span><br></pre></td></tr></table></figure>
+
+<p>但是用<code>%&gt;%</code>改寫就可以兼顧可讀性跟效能問題：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sort_uni_a &lt;- a_list %&gt;% unlist %&gt;% unique %&gt;% sort</span><br></pre></td></tr></table></figure>
+
+<p>這樣就可以很容易知道他把<code>a_list</code>先拉成一個向量(<code>unlist</code>)，然後取唯一(<code>unique</code>)</p>
+<p>接著排列所有元素(<code>sort</code>)，照著<code>%&gt;%</code>的順序去讀就可以順利解讀</p>
+<p>此時，<code>magrittr</code>的特性就可以被看到，他省去了暫存變數，也增加了易讀性。</p>
+<h3 id="gt-介紹"><a href="#gt-介紹" class="headerlink" title="%&gt;%介紹"></a>%&gt;%介紹</h3><p>舉一個簡單的例子，來說明<code>%&gt;%</code>的用法</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">a &lt;- <span class="number">1</span></span><br><span class="line">f &lt;- <span class="keyword">function</span>(a) a + <span class="number">1</span></span><br><span class="line">f(a)</span><br><span class="line">a %&gt;% f</span><br><span class="line">a %&gt;% f()</span><br><span class="line">a %&gt;% f(.)</span><br></pre></td></tr></table></figure>
+
+<p>跑上面的程式可以發現，最後四個output都一樣</p>
+<p>其實<code>%&gt;%</code>做的就是把左邊變數放進右邊函數裡做執行</p>
+<p>也就是說<code>f(a)</code>等同於<code>a %&gt;% f</code>(或是上面其他三種)</p>
+<p>但是怎麼最後一個<code>a %&gt;% f(.)</code>看起來怪怪的，為啥有個<code>.</code>在那</p>
+<p>其實在<code>magrittr</code>中，<code>.</code>是用來代表<code>%&gt;%</code>前面的變數</p>
+<p>所以<code>a %&gt;% f(.)</code>程式會把<code>.</code>的位置換成<code>a</code>，變成<code>f(a)</code></p>
+<p><code>.</code> 在<code>magrittr</code>的應用中，會佔很大的比例，也在Hadley往後的套件扮演重大的角色</p>
+<p>像是<code>do.call</code>, <code>Reduce</code>第一個input是<code>function</code>，第二個是<code>list</code></p>
+<p>我們通常傳入<code>list</code>，所以此時必須用<code>.</code>做輸入位置的控制</p>
+<p>再者，<code>c</code>, <code>cbind</code>, <code>rbind</code>會根據位置不同來決定是合併於何處</p>
+<p>也是一個很重要的問題，因此，用 <code>.</code>做傳入位置的控制是必須的</p>
+<p>針對這個，我給一段簡單的程式碼來示範：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">a_list &lt;- list(<span class="number">1</span>:<span class="number">5</span>, <span class="number">3</span>:<span class="number">7</span>, <span class="number">6</span>:<span class="number">10</span>)</span><br><span class="line">a_list %&gt;% do.call(rbind, .)</span><br><span class="line">a_list %&gt;% Reduce(cbind, .)</span><br><span class="line"></span><br><span class="line"><span class="number">1</span>:<span class="number">5</span> %&gt;% rbind(<span class="number">3</span>:<span class="number">7</span>, .)</span><br><span class="line"><span class="number">1</span>:<span class="number">5</span> %&gt;% rbind(., <span class="number">3</span>:<span class="number">7</span>)</span><br><span class="line"></span><br><span class="line">f &lt;- <span class="keyword">function</span>(x, a, b) a * x^<span class="number">2</span> + b</span><br><span class="line"><span class="number">1</span>:<span class="number">5</span> %&gt;% f(., <span class="number">2</span>, <span class="number">5</span>)  <span class="comment"># 同 1:5 %&gt;% f(2, 5)</span></span><br><span class="line"><span class="number">1</span>:<span class="number">5</span> %&gt;% f(<span class="number">2</span>, ., <span class="number">5</span>)</span><br><span class="line"><span class="number">1</span>:<span class="number">5</span> %&gt;% f(<span class="number">2</span>, <span class="number">5</span>, .)</span><br></pre></td></tr></table></figure>
+
+<p>但是，這點被Kun Ren攻擊，這裡有一些模稜兩可的問題，後面在提。</p>
+<p>先介紹一下<code>&#123;&#125;</code>在<code>%&gt;%</code>的用法，用<code>&#123;&#125;</code>括住之後，</p>
+<p>裡面的只要不是其他<code>%&gt;%</code>後面的 <code>.</code>都代表你前面傳入的值</p>
+<p>這樣說有點難懂，舉個例子</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>:<span class="number">2</span> %&gt;% &#123;</span><br><span class="line">    list(cbind(<span class="number">9</span>:<span class="number">10</span>, .), <span class="number">3</span>:<span class="number">4</span> %&gt;% cbind(<span class="number">9</span>:<span class="number">10</span>, .))</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">## [[1]]</span><br><span class="line">##         .</span><br><span class="line">## [1,]  9 1</span><br><span class="line">## [2,] 10 2</span><br><span class="line">## </span><br><span class="line">## [[2]]</span><br><span class="line">##         .</span><br><span class="line">## [1,]  9 3</span><br><span class="line">## [2,] 10 4</span><br></pre></td></tr></table></figure>
+
+<p>可以看到第一個可以很直覺的解讀，<code>9:10</code>是跟傳入的<code>1:2</code>做行合併</p>
+<p>而第二個<code>.</code>，因為前面有了一個新的<code>%&gt;%</code></p>
+<p>所以這一個<code>.</code>就被前面的<code>3:4</code>取代</p>
+<p>所以第二個output變成<code>9:10</code>跟<code>3:4</code>做行合併</p>
+<p>回到Kun Ren攻擊的點</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">f &lt;- <span class="keyword">function</span>(x, y, z = <span class="string">&quot;nothing&quot;</span>) &#123;</span><br><span class="line">    cat(<span class="string">&quot;x =&quot;</span>, x, <span class="string">&quot;\n&quot;</span>)</span><br><span class="line">    cat(<span class="string">&quot;y =&quot;</span>, y, <span class="string">&quot;\n&quot;</span>)</span><br><span class="line">    cat(<span class="string">&quot;z =&quot;</span>, z, <span class="string">&quot;\n&quot;</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>1:10 %&gt;% f(mean(.), median(.))</code>到底是</p>
+<p><code>f(1:10, mean(1:10), median(1:10))</code>還是<code>f(mean(1:10),median(1:10))</code>？</p>
+<p>你可能會根據上面的rule很快回答出來是<code>f(1:10, mean(1:10), median(1:10))</code></p>
+<p>但是<code>a_list %&gt;% do.call(rbind, .)</code>這個呢？</p>
+<p>剛剛<code>1:10 %&gt;% f(mean(.), median(.))</code>不是<code>f(1:10, mean(1:10), median(1:10))</code>這個嗎？</p>
+<p>怎麼此時<code>a_list %&gt;% do.call(rbind, .)</code>又是<code>do.call(rbind, a_list)</code>？</p>
+<p>還有剛剛看到的<code>1:5 %&gt;% rbind(3:7, .)</code>這個呢？</p>
+<p>剛剛<code>1:5 %&gt;% rbind(3:7, .)</code>是<code>rbind(1:5, 3:7, 1:5)</code>還是<code>rbind(3:7, 1:5)</code>這個嗎？</p>
+<p>這是<code>magrittr</code>為了一些函數做了特例，讓整個rule出現了一些模糊的情況</p>
+<p>但是，通常也不會去寫成<code>a_list %&gt;% &#123;do.call(rbind, .)&#125;</code>這樣去避免模糊情況(<code>&#123;&#125;</code>後面說明)</p>
+<p>不過這個方式不能說不好，只是<code>pipeR</code>提供了更明確的方式去避免更複雜的方式使用<code>do.call</code>跟<code>Reduce</code></p>
+<h3 id="lt-gt-T-gt-跟-介紹"><a href="#lt-gt-T-gt-跟-介紹" class="headerlink" title="%&lt;&gt;%, %T&gt;%跟%$%介紹"></a>%&lt;&gt;%, %T&gt;%跟%$%介紹</h3><p>如果懂了<code>%&gt;%</code>， 這個就不難了</p>
+<p>先看簡單的例子 (<code>add</code>是<code>magrittr</code>提供用在<code>%&gt;%</code>上的<code>+</code> (這部分請看最後面的補充))</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">a &lt;- <span class="number">1</span></span><br><span class="line">a %&gt;% add(<span class="number">1</span>)  <span class="comment"># 同 a %&gt;% &#x27;+&#x27;(1) or a %&gt;% &#x27;+&#x27;(., 1)</span></span><br><span class="line">a  <span class="comment"># 1</span></span><br><span class="line">a %&lt;&gt;% add(<span class="number">1</span>)</span><br><span class="line">a  <span class="comment"># 2</span></span><br></pre></td></tr></table></figure>
+
+<p>這個例子可以看的出來<code>%&lt;&gt;%</code>除了傳入變數之外，也會改變傳入變數的值</p>
+<p>也就是可以把<code>a %&lt;&gt;% add(1)</code>看成<code>a = a + 1</code></p>
+<p>你如果有一串要做最後賦值給你傳入的變數</p>
+<p>只需要在第一個傳導變數的operator做改變即可，舉例來說：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">dat &lt;- data.frame(a = <span class="number">1</span>:<span class="number">3</span>, b = <span class="number">8</span>:<span class="number">10</span>)</span><br><span class="line">dat &lt;- dat %&gt;% rbind(dat)</span><br><span class="line">dat2 &lt;- data.frame(a = <span class="number">1</span>:<span class="number">3</span>, b = <span class="number">8</span>:<span class="number">10</span>)</span><br><span class="line">dat2 %&lt;&gt;% rbind(dat2)</span><br><span class="line">all.eqaul(dat, dat2)  <span class="comment"># TRUE</span></span><br></pre></td></tr></table></figure>
+
+<p>至於<code>%T&gt;%</code>，他只傳遞變數，不回傳值，通常用來傳遞到不回傳值的<code>function</code>上</p>
+<p>像是<code>plot</code>, <code>library</code>, <code>install.packages</code>, <code>plyr</code>的<code>*_ply</code>等</p>
+<p>這個operator可以幫你把前面做好的值賦予一個變數</p>
+<p>並且同時做後面function的動作，舉例來說：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">dat &lt;- data.frame(a = rep(<span class="number">1</span>:<span class="number">3</span>, <span class="number">2</span>), b = rnorm(<span class="number">6</span>))</span><br><span class="line">dat2 &lt;- dat %&gt;% &#123;</span><br><span class="line">    tapply(.$b, .$a, sum)</span><br><span class="line">&#125; %&gt;% &#123;</span><br><span class="line">    data.frame(a = names(.) %&gt;% as.integer, b = .)</span><br><span class="line">&#125; %<span class="literal">T</span>&gt;% plot(.$a, .$b)</span><br></pre></td></tr></table></figure>
+
+<p>這裡<code>dat2</code>就是一個新的<code>data.frame</code>，同時，我們也把<code>a, b</code>的scatter plot畫出來</p>
+<p>這部分可以用<code>dplyr</code>的<code>group_by</code>以及<code>summarise</code>完成</p>
+<p>還沒提到<code>dplyr</code>，所以我們先用替代方法做</p>
+<p>再來是第四個operator <code>%$%</code></p>
+<p>舉個例來說，雖然有了<code>%&gt;%</code>，但是<code>dat %&gt;% &#123;tapply(.$b, .$a, sum)&#125;</code>還是會覺得冗長</p>
+<p>而且也容易忘記要放<code>.$</code>，此時<code>%$%</code>就提供了直接把前面變數的元素直接以名字做操作</p>
+<p>再也不需要<code>.$name</code>這麼麻煩，直接用<code>name</code>做你想要的操作就好</p>
+<p>所以，就可以簡單寫成<code>dat %$% tapply(b, a, sum)</code></p>
+<p>是不是就變得簡單的很多？</p>
+<p>再給一個例子說明<code>%$%</code>就好</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">a &lt;- <span class="number">3</span></span><br><span class="line">b &lt;- -<span class="number">2</span></span><br><span class="line">x &lt;- rnorm(<span class="number">100</span>)</span><br><span class="line">y &lt;- a + b * x + rnorm(<span class="number">100</span>)</span><br><span class="line">fit &lt;- lm(y ~ x)</span><br><span class="line">sigma_hat &lt;- fit %$% &#123;</span><br><span class="line">    crossprod(residuals)/df.residual</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="magrittr一些補充"><a href="#magrittr一些補充" class="headerlink" title="magrittr一些補充"></a>magrittr一些補充</h3><p><code>magrittr</code>提供很多其他<code>function</code>的別名</p>
+<p>像是<code>+</code>, <code>*</code>, <code>[</code>, <code>[[</code>, <code>&lt;- rownames()</code>等等</p>
+<p>有興趣請去<code>magrittr</code>的manual查看<code>extract</code>的部分</p>
+<p>這個可以讓你寫pipe chain的時候更加順手，像是</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">vals &lt;- <span class="number">1</span>:<span class="number">3</span> %&gt;% data.frame(a = ., b = .^<span class="number">2</span>) %&gt;% set_rownames(LETTERS[<span class="number">1</span>:<span class="number">3</span>]) %&gt;% lm(b ~ a, data = .) %&gt;% predict</span><br></pre></td></tr></table></figure>
+
+<p>不然你可能會這樣寫</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">dat &lt;- <span class="number">1</span>:<span class="number">3</span> %&gt;% data.frame(a = ., b = .^<span class="number">2</span>)</span><br><span class="line">rownames(dat) &lt;- LETTERS[<span class="number">1</span>:<span class="number">3</span>]</span><br><span class="line">vals = dat %&gt;% lm(b ~ a, data = .) %&gt;% predict</span><br></pre></td></tr></table></figure>
+
+<p>你可能只是要<code>vals</code>這個變數，你卻還要多創一個<code>dat</code>這個暫存變數，而中斷chain</p>
+<h2 id="pipeR"><a href="#pipeR" class="headerlink" title="pipeR"></a>pipeR</h2><p>這部分是未在ptt上分享過的部分，我主要根據<a target="_blank" rel="noopener" href="http://renkun.me/pipeR/">pipeR Tutorial</a>的內容作介紹</p>
+<p>我先說明差異，<code>pipeR</code>提供了另一個pipe operator, <code>%&gt;&gt;%</code>, 其中最重要的改進就是上面說的模糊問題</p>
+<p>強制LHS一定是RHS的第一個input</p>
+<p>例如：</p>
+<p><code>1:5 %&gt;&gt;% rbind(3:7)</code>是<code>rbind(1:5, 3:7)</code></p>
+<p><code>1:5 %&gt;&gt;% rbind(3:7, .)</code>是<code>rbind(1:5, 3:7, 1:5)</code></p>
+<p><code>1:5 %&gt;&gt;% rbind(., 3:7)</code>是<code>rbind(1:5, 1:5, 3:7)</code></p>
+<p>那<code>a_list %&gt;% do.call(rbind, .)</code>怎麼辦</p>
+<p><code>pipeR</code>設定只要寫上第一個的parameter name之後，他就會自動傳到第二個</p>
+<p>舉例來說，<code>a_list %&gt;&gt;% do.call(what = rbind)</code>，他就會看成<code>do.call(rbind, a_list)</code></p>
+<p>因為第一個parameter的名字已經被用了，所以會自動傳到第二個參數去</p>
+<p>或像是tutorial裡面提到的<code>lm</code>函數，打<code>mtcars %&gt;&gt;% lm(formula = mpg ~ cyl + wt)</code></p>
+<p>就會等於<code>lm(formula = mpg ~ cyl + wt, mtcars)</code>，其中的<code>mtcars</code>就會自動放在第二個<code>data</code>的input</p>
+<p>這樣就規則就會沒有模糊問題，而且不需要再用<code>&#123;&#125;</code>去界定位置了</p>
+<h3 id="in-pipeR"><a href="#in-pipeR" class="headerlink" title="() in pipeR"></a>() in pipeR</h3><p>再來是一些新功能，<code>pipeR</code>提供了<code>()</code>去使用單行命令，做指定位置的動作</p>
+<p>不需要再開block (<code>&#123;&#125;</code>)去產生新的<code>environment</code>，可以增進效率</p>
+<p>例如上面的<code>a_list %&gt;&gt;% do.call(what = rbind)</code>也可以寫成</p>
+<p><code>a_list %&gt;&gt;% (do.call(rbind, .))</code>或像是<code>lm</code>的例子也可以寫成</p>
+<p><code>mtcars %&gt;&gt;% (lm(mpg ~ cyl + wt, .))</code>，至於要用上面的方式還是這裡的模式去寫</p>
+<p>就看個人的coding習慣了，基本上，我個人是偏好前面那一種，第二種會多出太多<code>()</code></p>
+<p>而且<code>()</code>在<code>pipeR</code>還會有其他功能，在讀程式時，有時候會有點搞混，不建議用<code>()</code></p>
+<p><code>()</code>在<code>pipeR</code>的另一個用途就是side effect，下面就來介紹他</p>
+<h3 id="side-effect-in-pipeR"><a href="#side-effect-in-pipeR" class="headerlink" title="side effect in pipeR"></a>side effect in pipeR</h3><p>那什麼是side effect?</p>
+<p>如果想要在pipe的過程中，想要作指派、輸出一些資訊</p>
+<p>而輸出一些資訊就跟<code>%T&gt;%</code>的功能一樣，但指派就是新東西了</p>
+<p>所有side effect的指令都需要用<code>(~</code>跟<code>)</code>包起來</p>
+<p>例如：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a_list &lt;- list(<span class="number">1</span>:<span class="number">5</span>, <span class="number">3</span>:<span class="number">7</span>, <span class="number">6</span>:<span class="number">10</span>)</span><br><span class="line">sort_uni_a &lt;- a_list %&gt;&gt;% unlist %&gt;&gt;% (~cat(<span class="string">&quot;what is it? show me:\n&quot;</span>, .)) %&gt;&gt;% unique %&gt;&gt;% sort</span><br></pre></td></tr></table></figure>
+
+<p>這樣一來就可以在pipe的過程中把途中的變數show出來</p>
+<p>這樣有兩個好處，一個是不需要在額外print東西出來，可以直接pipe，另一個則是方便debug</p>
+<p>接著是指派，舉個例子，你需要把a取unique排序後，去掉全資料的平均</p>
+<p>以往的寫法會像是：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">a_list &lt;- list(<span class="number">1</span>:<span class="number">5</span>, <span class="number">3</span>:<span class="number">7</span>, <span class="number">6</span>:<span class="number">10</span>)</span><br><span class="line">a_list_to_vec &lt;- a_list %&gt;&gt;% unlist</span><br><span class="line">mean_list_a &lt;- mean(a_list_to_vec)</span><br><span class="line">sort_uni_demean_a &lt;- a_list_to_vec - mean_list_a</span><br></pre></td></tr></table></figure>
+
+<p>這樣寫就需要兩個暫存變數，<code>a_list_to_vec</code>跟<code>mean_list_a</code>，而且不能一路pipe</p>
+<p>那改用side effect之後，就可以寫成這樣：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">a_list &lt;- list(<span class="number">1</span>:<span class="number">5</span>, <span class="number">3</span>:<span class="number">7</span>, <span class="number">6</span>:<span class="number">10</span>)</span><br><span class="line">sort_uni_demean_a &lt;- a_list %&gt;&gt;% unlist %&gt;&gt;% (~mean_list_a &lt;- mean(.)) %&gt;&gt;% unique %&gt;&gt;% sort %&gt;&gt;% -mean_list_a</span><br></pre></td></tr></table></figure>
+
+<p>至於<code>%&gt;%</code>跟<code>%&gt;&gt;%</code>的效能比較可以看下面這段程式(例子取自前面提及的Kun Ren部落格文章)：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span>(magrittr)</span><br><span class="line"><span class="keyword">library</span>(pipeR)</span><br><span class="line"><span class="keyword">library</span>(microbenchmark)</span><br><span class="line">eq_f &lt;- `==`</span><br><span class="line">microbenchmark(magrittr = &#123;</span><br><span class="line">    lapply(<span class="number">1</span>:<span class="number">10000</span>, <span class="keyword">function</span>(i) &#123;</span><br><span class="line">        sample(letters, <span class="number">6</span>, replace = <span class="literal">T</span>) %&gt;% paste(collapse = <span class="string">&quot;&quot;</span>) %&gt;% eq_f(<span class="string">&quot;rstats&quot;</span>)</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;, pipeR = &#123;</span><br><span class="line">    lapply(<span class="number">1</span>:<span class="number">10000</span>, <span class="keyword">function</span>(i) &#123;</span><br><span class="line">        sample(letters, <span class="number">6</span>, replace = <span class="literal">T</span>) %&gt;&gt;% paste(collapse = <span class="string">&quot;&quot;</span>) %&gt;&gt;% eq_f(<span class="string">&quot;rstats&quot;</span>)</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;, times = <span class="number">20L</span>)</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">## Unit: milliseconds</span><br><span class="line">##      expr       min       lq      mean   median        uq       max neval</span><br><span class="line">##  magrittr 1215.1390 1253.883 1282.4720 1279.271 1304.1553 1400.9079    20</span><br><span class="line">##     pipeR  377.7212  386.284  395.8731  393.892  406.5949  418.6119    20</span><br></pre></td></tr></table></figure>
+
+<p>可以看出效能改進相當顯著，大概快了3倍，隨著loop次數增加</p>
+<p>效能改進的倍率還會再增加，這裡就留給有興趣的人自己測試了</p>
+<p>而<code>pipeR</code>還有兩個函數<code>Pipe</code>跟<code>pipeline</code>，不過我就沒研究了，有興趣的人在自己看吧</p>
+<p>以上是我這篇文章的分享</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/magrittr/" rel="tag"># magrittr</a>
+              <a href="/tags/Pipe-Operator/" rel="tag"># Pipe Operator</a>
+              <a href="/tags/pipeR/" rel="tag"># pipeR</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/201605/2016-05-11-initialization_of_centos.html" rel="prev" title="Some installations of centos">
+      <i class="fa fa-chevron-left"></i> Some installations of centos
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/201607/2016-07-23-deployment-spark-phoenix-hbase-yarn-zookeeper-hadoop.html" rel="next" title="基於Hadoop的Spark, Phoenix, HBase, Yarn, Zookeeper部署">
+      基於Hadoop的Spark, Phoenix, HBase, Yarn, Zookeeper部署 <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#magrittr"><span class="nav-number">1.</span> <span class="nav-text">magrittr</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%83%8C%E6%99%AF%E4%BB%8B%E7%B4%B9"><span class="nav-number">1.1.</span> <span class="nav-text">背景介紹</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#pipe-operator%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.2.</span> <span class="nav-text">pipe operator的基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#gt-%E4%BB%8B%E7%B4%B9"><span class="nav-number">1.3.</span> <span class="nav-text">%&gt;%介紹</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#lt-gt-T-gt-%E8%B7%9F-%E4%BB%8B%E7%B4%B9"><span class="nav-number">1.4.</span> <span class="nav-text">%&lt;&gt;%, %T&gt;%跟%$%介紹</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#magrittr%E4%B8%80%E4%BA%9B%E8%A3%9C%E5%85%85"><span class="nav-number">1.5.</span> <span class="nav-text">magrittr一些補充</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#pipeR"><span class="nav-number">2.</span> <span class="nav-text">pipeR</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#in-pipeR"><span class="nav-number">2.1.</span> <span class="nav-text">() in pipeR</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#side-effect-in-pipeR"><span class="nav-number">2.2.</span> <span class="nav-text">side effect in pipeR</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ching-Chuan Chen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">156</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ChingChuan-Chen" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ChingChuan-Chen" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zw12356@gmail.com" title="E-Mail → mailto:zw12356@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/celestial0230/" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;celestial0230&#x2F;" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ching-Chuan Chen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://celestial0230.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://chingchuan-chen.github.io/posts/201607/2016-07-10-pipe-operators-in-R.html";
+    this.page.identifier = "posts/201607/2016-07-10-pipe-operators-in-R.html";
+    this.page.title = "Pipe Operators in R";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://celestial0230.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="zh-tw,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans TC:300,300italic,400,400italic,700,700italic|DM Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chingchuan-chen.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"buttons","active":"disqus","storage":true,"lazyload":false,"nav":null,"activeClass":"disqus"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="最近一直work on locally weighted least-square 結果發現使用gausvar這個kernel的時候，weight會出現負的 我原本的解法是直接在input跟output都乘上根號的weight 結果這招就行不通了 另外還有再一些case下，解不是穩健的，有可能跑出虛數，但是虛數的係數其實很小… 所以就下定決心來研究一下各種WLS的解法">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Weighted Least-Square Algorithm">
+<meta property="og:url" content="http://chingchuan-chen.github.io/posts/201612/2016-12-31-weighted-least-square-algorithm.html">
+<meta property="og:site_name" content="Ching-Chuan Chen&#39;s Blogger">
+<meta property="og:description" content="最近一直work on locally weighted least-square 結果發現使用gausvar這個kernel的時候，weight會出現負的 我原本的解法是直接在input跟output都乘上根號的weight 結果這招就行不通了 另外還有再一些case下，解不是穩健的，有可能跑出虛數，但是虛數的係數其實很小… 所以就下定決心來研究一下各種WLS的解法">
+<meta property="og:locale" content="zh_TW">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/wls_performace_comparison1.png">
+<meta property="og:image" content="http://chingchuan-chen.github.io/images/wls_performace_comparison2.png">
+<meta property="article:published_time" content="2016-12-30T16:00:00.000Z">
+<meta property="article:modified_time" content="2018-03-14T16:37:20.000Z">
+<meta property="article:author" content="Ching-Chuan Chen">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="RcppArmadillo">
+<meta property="article:tag" content="RcppEigen">
+<meta property="article:tag" content="WLS">
+<meta property="article:tag" content="Least-Square">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://chingchuan-chen.github.io/images/wls_performace_comparison1.png">
+
+<link rel="canonical" href="http://chingchuan-chen.github.io/posts/201612/2016-12-31-weighted-least-square-algorithm.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-tw'
+  };
+</script>
+
+  <title>Weighted Least-Square Algorithm | Ching-Chuan Chen's Blogger</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72564040-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-72564040-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ching-Chuan Chen's Blogger</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Statistics, Machine Learning and Programming</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/ChingChuan-Chen" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-tw">
+    <link itemprop="mainEntityOfPage" href="http://chingchuan-chen.github.io/posts/201612/2016-12-31-weighted-least-square-algorithm.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ching-Chuan Chen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ching-Chuan Chen's Blogger">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Weighted Least-Square Algorithm
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-12-31 00:00:00" itemprop="dateCreated datePublished" datetime="2016-12-31T00:00:00+08:00">2016-12-31</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2018-03-15 00:37:20" itemprop="dateModified" datetime="2018-03-15T00:37:20+08:00">2018-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/R/" itemprop="url" rel="index"><span itemprop="name">R</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/posts/201612/2016-12-31-weighted-least-square-algorithm.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="posts/201612/2016-12-31-weighted-least-square-algorithm.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>最近一直work on locally weighted least-square</p>
+<p>結果發現使用<code>gausvar</code>這個kernel的時候，weight會出現負的</p>
+<p>我原本的解法是直接在input跟output都乘上根號的weight</p>
+<p>結果這招就行不通了</p>
+<p>另外還有再一些case下，解不是穩健的，有可能跑出虛數，但是虛數的係數其實很小…</p>
+<p>所以就下定決心來研究一下各種WLS的解法</p>
+<a id="more"></a>
+
+
+<p>稍微GOOGLE了一下，發現不外乎下面四種解法：</p>
+<ol>
+<li>直接解，就是利用<code>(X^T * W * X)^(-1) * X^T * W * y</code>去解出迴歸係數</li>
+<li>再來就是把inverse部分用pseudo inverse代替，以避免rank不足的問題出現</li>
+<li>Cholesky Decomposition (LDL Decomposition)</li>
+<li>QR Decomposition</li>
+</ol>
+<p>效率的話，<code>4 &gt; 3 &gt; 1 &gt; 2</code>，但是QR在一些情況下會跑出虛數</p>
+<p>所以我這裡會偏向以3為主</p>
+<p>下面是用程式去實作各種解法：</p>
+<p>R code:</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line">Rcpp::sourceCpp(<span class="string">&quot;wls.cpp&quot;</span>)</span><br><span class="line">n &lt;- <span class="number">500</span></span><br><span class="line">p &lt;- <span class="number">150</span></span><br><span class="line">X &lt;- matrix(rnorm(n * p), n , p)</span><br><span class="line">beta &lt;- rnorm(p)</span><br><span class="line">w &lt;- sqrt(rowMeans(X**<span class="number">2</span>) - (n / (n-<span class="number">1</span>)) * rowMeans(X)**<span class="number">2</span>)</span><br><span class="line">y &lt;- <span class="number">3</span> + X %*% beta + rnorm(n)</span><br><span class="line"></span><br><span class="line"><span class="keyword">library</span>(microbenchmark)</span><br><span class="line">microbenchmark(</span><br><span class="line">  eigen_llt = eigen_llt(X, w, y),</span><br><span class="line">  eigen_ldlt = eigen_ldlt(X, w, y),</span><br><span class="line">  eigen_fullLU = eigen_fullLU(X, w, y),</span><br><span class="line">  eigen_HHQR = eigen_HHQR(X, w, y),</span><br><span class="line">  eigen_colPivHHQR = eigen_colPivHHQR(X, w, y),</span><br><span class="line">  eigen_fullPivHHQR = eigen_fullPivHHQR(X, w, y),</span><br><span class="line">  eigen_chol_llt1 = eigen_chol_llt1(X, w, y),</span><br><span class="line">  eigen_chol_llt2 = eigen_chol_llt2(X, w, y),</span><br><span class="line">  eigen_chol_llt3 = eigen_chol_llt3(X, w, y),</span><br><span class="line">  arma_qr = arma_qr(X, w, y), <span class="comment"># can&#x27;t run if n is too big</span></span><br><span class="line">  arma_pinv = arma_pinv(X, w, y),</span><br><span class="line">  arma_chol1 = arma_chol1(X, w, y),</span><br><span class="line">  arma_chol2 = arma_chol2(X, w, y),</span><br><span class="line">  arma_direct1 = arma_direct1(X, w, y),</span><br><span class="line">  arma_direct2 = arma_direct2(X, w, y),</span><br><span class="line">  r_lm = coef(lm(y ~ -<span class="number">1</span> + X, weights = w)),</span><br><span class="line">  times = <span class="number">30L</span></span><br><span class="line">)</span><br><span class="line"><span class="comment"># Unit: microseconds</span></span><br><span class="line"><span class="comment">#               expr      min       lq       mean    median       uq        max neval</span></span><br><span class="line"><span class="comment">#          eigen_llt 1787.601 1814.225  2341.2993 2287.1645 2889.126   2912.239    30</span></span><br><span class="line"><span class="comment">#         eigen_ldlt 1812.763 1846.408  2292.7815 2089.9725 2928.916   3020.197    30</span></span><br><span class="line"><span class="comment">#       eigen_fullLU 3112.649 3133.129  3673.1350 3242.1115 4610.021   4725.294    30</span></span><br><span class="line"><span class="comment">#         eigen_HHQR 2334.999 2401.120  3095.5537 3073.1525 3820.669   3920.142    30</span></span><br><span class="line"><span class="comment">#   eigen_colPivHHQR 2411.945 2423.941  2969.3488 2691.4950 3756.888   4029.855    30</span></span><br><span class="line"><span class="comment">#  eigen_fullPivHHQR 3449.397 3477.776  4179.7097 3585.0035 5282.639   5363.389    30</span></span><br><span class="line"><span class="comment">#    eigen_chol_llt1 3302.234 3359.286  4111.7262 3828.5675 5297.852   5362.510    30</span></span><br><span class="line"><span class="comment">#    eigen_chol_llt2 3268.004 3308.379  4065.1882 3418.3850 5253.674   5296.390    30</span></span><br><span class="line"><span class="comment">#    eigen_chol_llt3 3354.020 3397.027  4130.9969 3857.0925 4929.800   5425.121    30</span></span><br><span class="line"><span class="comment">#            arma_qr 1868.936 2167.357  2330.0549 2316.5675 2419.552   2829.442    30</span></span><br><span class="line"><span class="comment">#          arma_pinv 4137.229 4723.245  5024.8460 4877.1375 5474.272   5722.957    30</span></span><br><span class="line"><span class="comment">#         arma_chol1  702.167  959.337  1042.1535 1041.1100 1147.167   1291.404    30</span></span><br><span class="line"><span class="comment">#         arma_chol2  780.869 1046.523  1121.4886 1125.5160 1234.645   1423.645    30</span></span><br><span class="line"><span class="comment">#       arma_direct1 4473.977 4636.645  4956.8919 4701.4490 5481.294   5867.193    30</span></span><br><span class="line"><span class="comment">#       arma_direct2  676.129  898.482   963.5788  965.4805 1060.565   1184.615    30</span></span><br><span class="line"><span class="comment">#               r_lm 6257.189 6817.459 11962.0246 8113.9820 9301.084 123398.876    30</span></span><br></pre></td></tr></table></figure>
+
+<p>C++ code:</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// [[Rcpp::depends(RcppArmadillo, RcppEigen)]]</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;RcppArmadillo.h&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">include</span> <span class="meta-string">&lt;RcppEigen.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> arma;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">Eigen::VectorXd <span class="title">eigen_fullPivHHQR</span><span class="params">(<span class="keyword">const</span> Eigen::Map&lt;Eigen::MatrixXd&gt; &amp; X,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; w,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; y)</span> </span>&#123;</span><br><span class="line">  Eigen::VectorXd beta = (X.transpose() * w.asDiagonal() * X).fullPivHouseholderQr().solve(X.transpose() * w.asDiagonal() * y);;</span><br><span class="line">  <span class="keyword">return</span> beta;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">Eigen::VectorXd <span class="title">eigen_colPivHHQR</span><span class="params">(<span class="keyword">const</span> Eigen::Map&lt;Eigen::MatrixXd&gt; &amp; X,</span></span></span><br><span class="line"><span class="function"><span class="params">                                 <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; w,</span></span></span><br><span class="line"><span class="function"><span class="params">                                 <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; y)</span> </span>&#123;</span><br><span class="line">  Eigen::VectorXd beta = (X.transpose() * w.asDiagonal() * X).colPivHouseholderQr().solve(X.transpose() * w.asDiagonal() * y);;</span><br><span class="line">  <span class="keyword">return</span> beta;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">Eigen::VectorXd <span class="title">eigen_HHQR</span><span class="params">(<span class="keyword">const</span> Eigen::Map&lt;Eigen::MatrixXd&gt; &amp; X,</span></span></span><br><span class="line"><span class="function"><span class="params">                           <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; w,</span></span></span><br><span class="line"><span class="function"><span class="params">                           <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; y)</span> </span>&#123;</span><br><span class="line">  Eigen::VectorXd beta = (X.transpose() * w.asDiagonal() * X).householderQr().solve(X.transpose() * w.asDiagonal() * y);</span><br><span class="line">  <span class="keyword">return</span> beta;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">Eigen::VectorXd <span class="title">eigen_fullLU</span><span class="params">(<span class="keyword">const</span> Eigen::Map&lt;Eigen::MatrixXd&gt; &amp; X, </span></span></span><br><span class="line"><span class="function"><span class="params">                             <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; w, </span></span></span><br><span class="line"><span class="function"><span class="params">                             <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; y)</span> </span>&#123;</span><br><span class="line">  Eigen::VectorXd beta = (X.transpose() * w.asDiagonal() * X).fullPivLu().solve(X.transpose() * w.asDiagonal() * y);</span><br><span class="line">  <span class="keyword">return</span> beta;</span><br><span class="line">&#125;</span><br><span class="line">  </span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">Eigen::VectorXd <span class="title">eigen_llt</span><span class="params">(<span class="keyword">const</span> Eigen::Map&lt;Eigen::MatrixXd&gt; &amp; X, </span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; w, </span></span></span><br><span class="line"><span class="function"><span class="params">                          <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; y)</span> </span>&#123;</span><br><span class="line">  Eigen::VectorXd beta = (X.transpose() * w.asDiagonal() * X).llt().solve(X.transpose() * w.asDiagonal() * y);</span><br><span class="line">  <span class="keyword">return</span> beta;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">Eigen::VectorXd <span class="title">eigen_ldlt</span><span class="params">(<span class="keyword">const</span> Eigen::Map&lt;Eigen::MatrixXd&gt; &amp; X, </span></span></span><br><span class="line"><span class="function"><span class="params">                           <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; w, </span></span></span><br><span class="line"><span class="function"><span class="params">                           <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; y)</span> </span>&#123;</span><br><span class="line">  Eigen::VectorXd beta = (X.transpose() * w.asDiagonal() * X).ldlt().solve(X.transpose() * w.asDiagonal() * y);</span><br><span class="line">  <span class="keyword">return</span> beta;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">Eigen::VectorXd <span class="title">eigen_chol_llt1</span><span class="params">(<span class="keyword">const</span> Eigen::Map&lt;Eigen::MatrixXd&gt; &amp; X,</span></span></span><br><span class="line"><span class="function"><span class="params">                                <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; w,</span></span></span><br><span class="line"><span class="function"><span class="params">                                <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; y)</span> </span>&#123;</span><br><span class="line">  Eigen::MatrixXd XWX = X.transpose() * w.asDiagonal() * X;</span><br><span class="line">  Eigen::MatrixXd R = XWX.llt().matrixU();</span><br><span class="line">  Eigen::VectorXd XWY = X.transpose() * (w.<span class="built_in">array</span>() * y.<span class="built_in">array</span>()).matrix();</span><br><span class="line">  Eigen::VectorXd beta = R.householderQr().solve(R.transpose().householderQr().solve(XWY));</span><br><span class="line">  <span class="keyword">return</span> beta;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">Eigen::VectorXd <span class="title">eigen_chol_llt2</span><span class="params">(<span class="keyword">const</span> Eigen::Map&lt;Eigen::MatrixXd&gt; &amp; X,</span></span></span><br><span class="line"><span class="function"><span class="params">                                <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; w,</span></span></span><br><span class="line"><span class="function"><span class="params">                                <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; y)</span> </span>&#123;</span><br><span class="line">  Eigen::MatrixXd XW = X.transpose() * w.asDiagonal();</span><br><span class="line">  Eigen::MatrixXd R = (XW * X).llt().matrixU();</span><br><span class="line">  Eigen::VectorXd beta = R.householderQr().solve(R.transpose().householderQr().solve(XW * y));</span><br><span class="line">  <span class="keyword">return</span> beta;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">Eigen::VectorXd <span class="title">eigen_chol_llt3</span><span class="params">(<span class="keyword">const</span> Eigen::Map&lt;Eigen::MatrixXd&gt; &amp; X,</span></span></span><br><span class="line"><span class="function"><span class="params">                                <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; w,</span></span></span><br><span class="line"><span class="function"><span class="params">                                <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; y)</span> </span>&#123;</span><br><span class="line">  <span class="function">Eigen::MatrixXd <span class="title">XW</span><span class="params">(X.cols(), X.rows())</span></span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; X.cols(); ++i)</span><br><span class="line">    XW.row(i) = X.col(i).<span class="built_in">array</span>() * w.<span class="built_in">array</span>();</span><br><span class="line">  Eigen::MatrixXd R = (XW * X).llt().matrixU();</span><br><span class="line">  Eigen::VectorXd beta = R.householderQr().solve(R.transpose().householderQr().solve(XW * y));</span><br><span class="line">  <span class="keyword">return</span> beta;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">Eigen::VectorXd <span class="title">eigen_colPivHHQR2</span><span class="params">(<span class="keyword">const</span> Eigen::Map&lt;Eigen::MatrixXd&gt; &amp; X,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; w,</span></span></span><br><span class="line"><span class="function"><span class="params">                                  <span class="keyword">const</span> Eigen::Map&lt;Eigen::VectorXd&gt; &amp; y)</span> </span>&#123;</span><br><span class="line">  Eigen::VectorXd sw = w.cwiseSqrt();</span><br><span class="line">  <span class="function">Eigen::MatrixXd <span class="title">XW</span><span class="params">(X.rows(), X.cols())</span></span>;</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">unsigned</span> <span class="keyword">int</span> i = <span class="number">0</span>; i &lt; X.cols(); ++i)</span><br><span class="line">    XW.col(i) = X.col(i).<span class="built_in">array</span>() * sw.<span class="built_in">array</span>();</span><br><span class="line">  Eigen::VectorXd beta = XW.colPivHouseholderQr().solve(y.cwiseProduct(sw));</span><br><span class="line">  <span class="keyword">return</span> beta;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">arma::vec <span class="title">arma_qr</span><span class="params">(<span class="keyword">const</span> arma::mat&amp; X, <span class="keyword">const</span> arma::vec&amp; w, <span class="keyword">const</span> arma::vec&amp; y)</span> </span>&#123;</span><br><span class="line">  mat Q, R;</span><br><span class="line">  arma::qr_econ(Q, R, X.each_col() % <span class="built_in">sqrt</span>(w));</span><br><span class="line">  vec p = solve(R, Q.t() * (y % <span class="built_in">sqrt</span>(w)));</span><br><span class="line">  <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">arma::vec <span class="title">arma_pinv</span><span class="params">(<span class="keyword">const</span> arma::mat&amp; X, <span class="keyword">const</span> arma::vec&amp; w, <span class="keyword">const</span> arma::vec&amp; y)</span> </span>&#123;</span><br><span class="line">  vec p = pinv(X.t() * (repmat(w, <span class="number">1</span>, X.n_cols) % X)) * X.t() * (w % y);</span><br><span class="line">  <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">arma::vec <span class="title">arma_chol1</span><span class="params">(<span class="keyword">const</span> arma::mat&amp; X, <span class="keyword">const</span> arma::vec&amp; w, <span class="keyword">const</span> arma::vec&amp; y)</span> </span>&#123;</span><br><span class="line">  mat R = chol((X.each_col() % w).t() * X);</span><br><span class="line">  vec p = solve(R, solve(R.t(), X.t() * (w % y), solve_opts::fast), solve_opts::fast);</span><br><span class="line">  <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">arma::vec <span class="title">arma_chol2</span><span class="params">(<span class="keyword">const</span> arma::mat&amp; X, <span class="keyword">const</span> arma::vec&amp; w, <span class="keyword">const</span> arma::vec&amp; y)</span> </span>&#123;</span><br><span class="line">  mat XW = (X.each_col() % w).t();</span><br><span class="line">  mat R = chol(XW * X);</span><br><span class="line">  vec p = solve(R, solve(R.t(), XW * y, solve_opts::fast), solve_opts::fast);</span><br><span class="line">  <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">arma::vec <span class="title">arma_direct1</span><span class="params">(<span class="keyword">const</span> arma::mat&amp; X, <span class="keyword">const</span> arma::vec&amp; w, <span class="keyword">const</span> arma::vec&amp; y)</span> </span>&#123;</span><br><span class="line">  vec sw = <span class="built_in">sqrt</span>(w);</span><br><span class="line">  vec p = solve(X.each_col() % sw, y % sw);</span><br><span class="line">  <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// [[Rcpp::export]]</span></span><br><span class="line"><span class="function">arma::vec <span class="title">arma_direct2</span><span class="params">(<span class="keyword">const</span> arma::mat&amp; X, <span class="keyword">const</span> arma::vec&amp; w, <span class="keyword">const</span> arma::vec&amp; y)</span> </span>&#123;</span><br><span class="line">  vec p = solve((X.each_col() % w).t() * X, X.t() * (w % y));</span><br><span class="line">  <span class="keyword">return</span> p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>這裡的QR解得很慢，我不知道要怎麼樣讓armadillo只輸出跟rank一樣多的Q，R矩陣就好</p>
+<p>而直接解會是最快的，我猜這原因是裡面某部分有被優化過了…</p>
+<p>不然以程式來看，Cholesky Decomposition的performance是最好的</p>
+<p>只是我也不解的是Eigen也用一樣的方法去做</p>
+<p>卻比Armadillo手動去寫慢了好幾倍 (eigen_chol_llt vs arma_chol)</p>
+<p>不確定是不是Eigen在solve linear system時用不一樣的LAPACK函數</p>
+<p>或是Eigen在這做了比較多check</p>
+<p>這裡就留給後人慢慢玩賞QQ</p>
+<p>2017/4/20補充：</p>
+<p>我後來試了一些簡單的case</p>
+<p>發現其實在p不大(大概小於80)，n也不大(小於200)的情況</p>
+<p>RcppEigen擁有比較好的performance，我的猜測是SSE指令集帶來的好處</p>
+<p><img src="/images/wls_performace_comparison1.png"><br><img src="/images/wls_performace_comparison2.png"></p>
+<p>測試script如下：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span>(iterators)</span><br><span class="line"><span class="keyword">library</span>(foreach)</span><br><span class="line"><span class="keyword">library</span>(data.table)</span><br><span class="line"><span class="keyword">library</span>(pipeR)</span><br><span class="line"><span class="keyword">library</span>(Rcpp)</span><br><span class="line"><span class="keyword">library</span>(RcppArmadillo)</span><br><span class="line"><span class="keyword">library</span>(RcppEigen)</span><br><span class="line"><span class="keyword">library</span>(microbenchmark)</span><br><span class="line"></span><br><span class="line">Rcpp::sourceCpp(<span class="string">&quot;wls.cpp&quot;</span>)</span><br><span class="line"></span><br><span class="line">trainFunc &lt;- <span class="keyword">function</span>(n, p)&#123;</span><br><span class="line">  X &lt;- matrix(rnorm(n * p), n , p)</span><br><span class="line">  beta &lt;- rnorm(p)</span><br><span class="line">  w &lt;- rgamma(nrow(X), <span class="number">2</span>, <span class="number">0.5</span>)</span><br><span class="line">  y &lt;- <span class="number">3</span> + X %*% beta + rnorm(n)</span><br><span class="line">  </span><br><span class="line">  microRes &lt;- microbenchmark(</span><br><span class="line">    eigen_llt = eigen_llt(X, w, y),</span><br><span class="line">    eigen_ldlt = eigen_ldlt(X, w, y),</span><br><span class="line">    eigen_chol_llt1 = eigen_chol_llt1(X, w, y),</span><br><span class="line">    eigen_chol_llt2 = eigen_chol_llt2(X, w, y),</span><br><span class="line">    eigen_chol_llt3 = eigen_chol_llt3(X, w, y),</span><br><span class="line">    arma_chol1 = arma_chol1(X, w, y),</span><br><span class="line">    arma_chol2 = arma_chol2(X, w, y),</span><br><span class="line">    arma_direct1 = arma_direct1(X, w, y),</span><br><span class="line">    arma_direct2 = arma_direct2(X, w, y),</span><br><span class="line">    r_lm = coef(lm(y ~ -<span class="number">1</span> + X, weights = w)),</span><br><span class="line">    times = <span class="number">30L</span></span><br><span class="line">  )</span><br><span class="line">  m &lt;- tapply(microRes$time, microRes$expr, median) / <span class="number">1000</span></span><br><span class="line">  <span class="keyword">return</span>(data.table(n = n, p = p, method = names(m), median_time = m))</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">paraList &lt;- CJ(p = c(<span class="number">1</span>:<span class="number">20</span>, seq(<span class="number">25</span>, <span class="number">100</span>, <span class="number">5</span>)), n = c(<span class="number">20</span>, <span class="number">30</span>, <span class="number">50</span>, <span class="number">75</span>, <span class="number">100</span>, <span class="number">200</span>)) %&gt;&gt;% `[`(n &gt; p)</span><br><span class="line">paraResDT &lt;- foreach(v = iter(paraList, by = <span class="string">&quot;row&quot;</span>), .final = rbindlist) %do% trainFunc(v$n, v$p)</span><br><span class="line"></span><br><span class="line"><span class="keyword">library</span>(lattice)</span><br><span class="line"></span><br><span class="line">xyplot(median_time ~ p | factor(n, c(<span class="number">20</span>, <span class="number">30</span>, <span class="number">50</span>, <span class="number">75</span>, <span class="number">100</span>, <span class="number">200</span>)), paraResDT, groups = method, type = <span class="string">&quot;o&quot;</span>, </span><br><span class="line">       auto.key = list(points = <span class="literal">TRUE</span>, columns = <span class="number">3</span>), </span><br><span class="line">       scales = list(x = list(relation = <span class="string">&quot;free&quot;</span>), y = list(relation = <span class="string">&quot;free&quot;</span>)))</span><br><span class="line"></span><br><span class="line">xyplot(median_time ~ p | factor(n, c(<span class="number">20</span>, <span class="number">30</span>, <span class="number">50</span>, <span class="number">75</span>, <span class="number">100</span>, <span class="number">200</span>)), </span><br><span class="line">       paraResDT[!method %<span class="keyword">in</span>% c(<span class="string">&quot;r_lm&quot;</span>, <span class="string">&quot;arma_direct1&quot;</span>, <span class="string">&quot;eigen_chol_llt1&quot;</span>,</span><br><span class="line">                                <span class="string">&quot;eigen_chol_llt2&quot;</span>, <span class="string">&quot;eigen_chol_llt3&quot;</span>)], </span><br><span class="line">       groups = method, type = <span class="string">&quot;o&quot;</span>, auto.key = list(points = <span class="literal">TRUE</span>, columns = <span class="number">3</span>), </span><br><span class="line">       scales = list(x = list(relation = <span class="string">&quot;free&quot;</span>), y = list(relation = <span class="string">&quot;free&quot;</span>)))</span><br></pre></td></tr></table></figure>
+
+<p>基於上面的結論，所以我會建議這樣去寫wls的solver:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F; [[Rcpp::depends(RcppArmadillo, RcppEigen)]]</span><br><span class="line">#include &lt;RcppArmadillo.h&gt;</span><br><span class="line">#include &lt;RcppEigen.h&gt;</span><br><span class="line"></span><br><span class="line">&#x2F;&#x2F; [[Rcpp::export]]</span><br><span class="line">arma::vec fastSolve(arma::mat X, arma::vec w, arma::vec y) &#123;</span><br><span class="line">  if (X.n_rows * X.n_cols &lt;&#x3D; 6000) &#123;</span><br><span class="line">    Eigen::MatrixXd X2 &#x3D; Eigen::MatrixXd::Map(X.memptr(), X.n_rows, X.n_cols);</span><br><span class="line">    Eigen::VectorXd w2 &#x3D; Eigen::VectorXd::Map(w.memptr(), w.size());</span><br><span class="line">    Eigen::VectorXd y2 &#x3D; Eigen::VectorXd::Map(y.memptr(), y.size());</span><br><span class="line">    Eigen::VectorXd out &#x3D; (X2.transpose() * w2.asDiagonal() * X2).llt().solve(X2.transpose() * w2.asDiagonal() * y2);</span><br><span class="line">    arma::vec p(out.data(), out.rows(), false);</span><br><span class="line">    return p;</span><br><span class="line">  &#125; else &#123;</span><br><span class="line">    return arma::solve((X.each_col() % w).t() * X, X.t() * (w % y));</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/RcppArmadillo/" rel="tag"># RcppArmadillo</a>
+              <a href="/tags/RcppEigen/" rel="tag"># RcppEigen</a>
+              <a href="/tags/WLS/" rel="tag"># WLS</a>
+              <a href="/tags/Least-Square/" rel="tag"># Least-Square</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/201612/2016-12-10-locally-quantile-regression-in-R.html" rel="prev" title="Locally quantile regression in R">
+      <i class="fa fa-chevron-left"></i> Locally quantile regression in R
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/201612/2016-12-31-RcppEigen-Work-With-RcppParall-part-2.html" rel="next" title="RcppEigen Work with RcppParallel (Part 2)">
+      RcppEigen Work with RcppParallel (Part 2) <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ching-Chuan Chen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">156</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ChingChuan-Chen" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ChingChuan-Chen" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zw12356@gmail.com" title="E-Mail → mailto:zw12356@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/celestial0230/" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;celestial0230&#x2F;" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ching-Chuan Chen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://celestial0230.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://chingchuan-chen.github.io/posts/201612/2016-12-31-weighted-least-square-algorithm.html";
+    this.page.identifier = "posts/201612/2016-12-31-weighted-least-square-algorithm.html";
+    this.page.title = "Weighted Least-Square Algorithm";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://celestial0230.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

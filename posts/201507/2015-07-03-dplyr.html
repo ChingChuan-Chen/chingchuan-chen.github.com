@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="zh-tw,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans TC:300,300italic,400,400italic,700,700italic|DM Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chingchuan-chen.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"buttons","active":"disqus","storage":true,"lazyload":false,"nav":null,"activeClass":"disqus"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="這是我自己在PTT PO的文，詳細介紹dplyr，以下是正文~~ 這篇重點放在dplyr">
+<meta property="og:type" content="article">
+<meta property="og:title" content="introduction to dplyr">
+<meta property="og:url" content="http://chingchuan-chen.github.io/posts/201507/2015-07-03-dplyr.html">
+<meta property="og:site_name" content="Ching-Chuan Chen&#39;s Blogger">
+<meta property="og:description" content="這是我自己在PTT PO的文，詳細介紹dplyr，以下是正文~~ 這篇重點放在dplyr">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2015-07-02T16:00:00.000Z">
+<meta property="article:modified_time" content="2018-03-14T17:02:18.000Z">
+<meta property="article:author" content="Ching-Chuan Chen">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="data.table">
+<meta property="article:tag" content="dplyr">
+<meta property="article:tag" content="plyr">
+<meta property="article:tag" content="ptt">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://chingchuan-chen.github.io/posts/201507/2015-07-03-dplyr.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-tw'
+  };
+</script>
+
+  <title>introduction to dplyr | Ching-Chuan Chen's Blogger</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72564040-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-72564040-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ching-Chuan Chen's Blogger</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Statistics, Machine Learning and Programming</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/ChingChuan-Chen" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-tw">
+    <link itemprop="mainEntityOfPage" href="http://chingchuan-chen.github.io/posts/201507/2015-07-03-dplyr.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ching-Chuan Chen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ching-Chuan Chen's Blogger">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          introduction to dplyr
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2015-07-03 00:00:00" itemprop="dateCreated datePublished" datetime="2015-07-03T00:00:00+08:00">2015-07-03</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2018-03-15 01:02:18" itemprop="dateModified" datetime="2018-03-15T01:02:18+08:00">2018-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/R/" itemprop="url" rel="index"><span itemprop="name">R</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/posts/201507/2015-07-03-dplyr.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="posts/201507/2015-07-03-dplyr.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>這是我自己在PTT PO的文，詳細介紹dplyr，以下是正文~~</p>
+<p>這篇重點放在dplyr</p>
+<a id="more"></a>
+
+<p>plyr與dplyr有不少函數是重疊的</p>
+<p>不過都會以dplyr為主</p>
+<p>plyr跟dplyr有一些名字不同，但功能相似的函數</p>
+<p>我會一併介紹</p>
+<p>先列一下這章要介紹的函數 (沒標註的就是來自dplyr)</p>
+<p>A. 基本整理的函數：arragnge, filter, mutate, select, group_by, summarise, n</p>
+<p>B. 增併rownames為變數：add_rownames, plyr:::name_rows</p>
+<p>C. list to data.frame：as_data_frame</p>
+<p>D. by var 合併函數：join, plyr:::join, data.table:::merge, base:::merge</p>
+<p>E. col/row 合併函數：bind_rows, data.table:::rbindlist, bind_cols</p>
+<p>F. 取唯一列：distinct, data.table:::unique</p>
+<p>G. 列行運算：rowwise, plyr:::colwise</p>
+<p>H. 值映射(對應修改)：plyr:::mapvalues, plyr:::revalue</p>
+<p>I. 其他函數：summarise_each, mutate_each</p>
+<p>J. 特殊函數：plyr:::here</p>
+<ol>
+<li>基本整理函數</li>
+</ol>
+<p>arrange: 根據你選定的變數做排列 (可以是多個變數)</p>
+<p>filter: 根據你設定的條件做row 篩選(or selection)</p>
+<p>mutate: 根據你給定的值賦予新變數，或是變更舊變數</p>
+<p>select: 根據給定的變數名稱做選擇，也可以做刪除變數</p>
+<p>group_by: 根據給定變數做group，以銜接summarise</p>
+<p>summarise: 資料整併</p>
+<p>n: 計算資料個數</p>
+<p>用一個簡單例子來展示用法：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line">  set.seed(<span class="number">100</span>)</span><br><span class="line">  (dt = data.table(V1 = rpois(<span class="number">5</span>, <span class="number">3</span>),</span><br><span class="line">     V2 = sample(c(<span class="string">&quot;g1&quot;</span>, <span class="string">&quot;g2&quot;</span>), <span class="number">5</span>, <span class="number">1</span>), V3 = rnorm(<span class="number">5</span>)))</span><br><span class="line"><span class="comment">#    V1 V2         V3</span></span><br><span class="line"><span class="comment"># 1:  2 g1  0.3186301</span></span><br><span class="line"><span class="comment"># 2:  2 g2 -0.5817907</span></span><br><span class="line"><span class="comment"># 3:  3 g1  0.7145327</span></span><br><span class="line"><span class="comment"># 4:  1 g2 -0.8252594</span></span><br><span class="line"><span class="comment"># 5:  3 g1 -0.3598621</span></span><br><span class="line"></span><br><span class="line">  dt %&gt;% arrange(V1, V2, V3)</span><br><span class="line"><span class="comment">#    V1 V2         V3</span></span><br><span class="line"><span class="comment"># 1:  1 g2 -0.8252594</span></span><br><span class="line"><span class="comment"># 2:  2 g1  0.3186301</span></span><br><span class="line"><span class="comment"># 3:  2 g2 -0.5817907</span></span><br><span class="line"><span class="comment"># 4:  3 g1 -0.3598621</span></span><br><span class="line"><span class="comment"># 5:  3 g1  0.7145327</span></span><br><span class="line"></span><br><span class="line">  dt %&gt;% filter(V1 &lt;= <span class="number">2</span>, V3 &lt; <span class="number">0</span>)</span><br><span class="line"><span class="comment">#    V1 V2         V3</span></span><br><span class="line"><span class="comment"># 1:  2 g2 -0.5817907</span></span><br><span class="line"><span class="comment"># 2:  1 g2 -0.8252594</span></span><br><span class="line"></span><br><span class="line">  dt %&gt;% mutate(V5 = V1 * V3, V6 = substr(V2, <span class="number">2</span>, <span class="number">2</span>),</span><br><span class="line">           V7 = round(V3), V8 = <span class="number">1L</span>, V3 = V3 **<span class="number">2</span>)</span><br><span class="line"><span class="comment">#    V1 V2        V3         V5 V6 V7 V8</span></span><br><span class="line"><span class="comment"># 1:  2 g1 0.1015251  0.6372602  1  0  1</span></span><br><span class="line"><span class="comment"># 2:  2 g2 0.3384804 -1.1635814  2 -1  1</span></span><br><span class="line"><span class="comment"># 3:  3 g1 0.5105570  2.1435981  1  1  1</span></span><br><span class="line"><span class="comment"># 4:  1 g2 0.6810531 -0.8252594  2 -1  1</span></span><br><span class="line"><span class="comment"># 5:  3 g1 0.1295008 -1.0795864  1  0  1</span></span><br><span class="line"></span><br><span class="line">  dt %&gt;% select(V1, V2)</span><br><span class="line"><span class="comment">#    V1 V2</span></span><br><span class="line"><span class="comment"># 1:  2 g1</span></span><br><span class="line"><span class="comment"># 2:  2 g2</span></span><br><span class="line"><span class="comment"># 3:  3 g1</span></span><br><span class="line"><span class="comment"># 4:  1 g2</span></span><br><span class="line"><span class="comment"># 5:  3 g1</span></span><br><span class="line"></span><br><span class="line">  dt %&gt;% group_by(V2) %&gt;% summarise(size_g = n(), m_V3 = mean(V3),</span><br><span class="line">    s_V1 = sum(V1))</span><br><span class="line"><span class="comment">#   V2 size_g       m_V3 s_V1</span></span><br><span class="line"><span class="comment"># 1 g1      3  0.2244336    8</span></span><br><span class="line"><span class="comment"># 2 g2      2 -0.7035251    3</span></span><br></pre></td></tr></table></figure>
+
+<p>上面的例子是一些簡單運用的範例</p>
+<p>先介紹一下tbl_df, tbl_dt的class</p>
+<p>tbl_df跟tbl_dt只會列出一部分的資料</p>
+<p>做操作時比較不會因為太多資料的輸出造成當機</p>
+<p>要更改列出的資料量，可以這樣做</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">  set.seed(<span class="number">100</span>)</span><br><span class="line">  (dt = data.table(V1 = rpois(<span class="number">50</span>, <span class="number">3</span>), V2 = sample(c(<span class="string">&quot;g1&quot;</span>, <span class="string">&quot;g2&quot;</span>), <span class="number">50</span>, <span class="number">1</span>),</span><br><span class="line">     V3 = rnorm(<span class="number">50</span>))) %&gt;% tbl_dt(<span class="literal">FALSE</span>)</span><br><span class="line"><span class="comment">#    V1 V2         V3</span></span><br><span class="line"><span class="comment"># 1   2 g1 -0.4470622</span></span><br><span class="line"><span class="comment"># 2   2 g1 -1.7385979</span></span><br><span class="line"><span class="comment"># 3   3 g1  0.1788648</span></span><br><span class="line"><span class="comment"># 4   1 g1  1.8974657</span></span><br><span class="line"><span class="comment"># 5   3 g2 -2.2719255</span></span><br><span class="line"><span class="comment"># 6   3 g1  0.9804641</span></span><br><span class="line"><span class="comment"># 7   4 g1 -1.3988256</span></span><br><span class="line"><span class="comment"># 8   2 g1  1.8248724</span></span><br><span class="line"><span class="comment"># 9   3 g2  1.3812987</span></span><br><span class="line"><span class="comment"># 10  1 g1 -0.8388519</span></span><br><span class="line"><span class="comment"># .. .. ..        ...</span></span><br><span class="line"></span><br><span class="line">  print(dt, n = <span class="number">5</span>)</span><br><span class="line"><span class="comment">#    V1 V2         V3</span></span><br><span class="line"><span class="comment"># 1   2 g1 -0.4470622</span></span><br><span class="line"><span class="comment"># 2   2 g1 -1.7385979</span></span><br><span class="line"><span class="comment"># 3   3 g1  0.1788648</span></span><br><span class="line"><span class="comment"># 4   1 g1  1.8974657</span></span><br><span class="line"><span class="comment"># 5   3 g2 -2.2719255</span></span><br><span class="line"><span class="comment"># .. .. ..        ...</span></span><br></pre></td></tr></table></figure>
+
+<p>再介紹一些這些函數的其他用法</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">  dt = data.table(V1 = rpois(<span class="number">20</span>, <span class="number">3</span>), V2 = sample(c(<span class="string">&quot;g1&quot;</span>, <span class="string">&quot;g2&quot;</span>), <span class="number">20</span>, <span class="number">1</span>),</span><br><span class="line">    V3 = rnorm(<span class="number">20</span>), V4 = rgamma(<span class="number">20</span>, <span class="number">5</span>, <span class="number">3</span>))</span><br><span class="line"><span class="comment"># 你可以直接用一個你想要使用的變數放入，不須先立變數</span></span><br><span class="line">  dt %&gt;% arrange(V1*V3, V3)</span><br><span class="line">  dt %&gt;% filter(abs(V1*V3) &gt; <span class="number">1</span>)</span><br><span class="line"><span class="comment"># desc是dplyr的函數提供反向排列</span></span><br><span class="line">  dt %&gt;% arrange(V1)</span><br><span class="line">  dt %&gt;% arrange(desc(V1))</span><br><span class="line"><span class="comment"># 兩種做變數刪除的方式 (我偏好第二種)</span></span><br><span class="line">  dt %&gt;% mutate(V4 = <span class="literal">NULL</span>)</span><br><span class="line">  dt %&gt;% select(-V4)</span><br><span class="line"><span class="comment"># select 還有提供各種特別函數於select中使用</span></span><br><span class="line">  dt %&gt;% select(starts_with(<span class="string">&quot;V&quot;</span>))</span><br><span class="line">  dt %&gt;% select(ends_with(<span class="string">&quot;1&quot;</span>))</span><br><span class="line">  dt %&gt;% select(contains(<span class="string">&quot;2&quot;</span>))</span><br><span class="line">  dt %&gt;% select(matches(<span class="string">&quot;\\w\\d&quot;</span>))</span><br><span class="line">  dt %&gt;% select(num_range(<span class="string">&quot;V&quot;</span>, <span class="number">1</span>:<span class="number">2</span>))</span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>增併rownames為變數</li>
+</ol>
+<p>如標題所示，直接看範例</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">dat = data.frame(A = <span class="number">1</span>:<span class="number">5</span>, row.names = paste0(<span class="string">&quot;City_&quot;</span>, LETTERS[<span class="number">1</span>:<span class="number">5</span>]))</span><br><span class="line">dat %&gt;% name_rows</span><br><span class="line">dat %&gt;% add_rownames</span><br><span class="line">dat %&gt;% add_rownames(<span class="string">&quot;city&quot;</span>) <span class="comment"># add_rownames可以改成你要的名稱</span></span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>list to data.frame</li>
+</ol>
+<p>as_data_frame提供比as.data.frame有效率的轉換方法</p>
+<p>我之前也沒用過，不過看到manual寫到這個函數，就忍不住想分享一下</p>
+<p>不過這個函數強迫list的element要有name，使用上要注意一下</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">  <span class="keyword">library</span>(microbenchmark)</span><br><span class="line">  dat_list = lapply(rep(<span class="number">1e6</span>, <span class="number">200</span>), rnorm)</span><br><span class="line">  names(dat_list) &lt;- paste0(<span class="string">&quot;A&quot;</span>, <span class="number">1</span>:<span class="number">200</span>)</span><br><span class="line">  microbenchmark(</span><br><span class="line">    as_data_frame(dat_list),</span><br><span class="line">    as.data.frame(dat_list)</span><br><span class="line">  )</span><br><span class="line"><span class="comment">#Unit: milliseconds</span></span><br><span class="line"><span class="comment">#                    expr      min        lq      mean    median        uq</span></span><br><span class="line"><span class="comment"># as_data_frame(dat_list)  1.22642  1.281156  1.418296  1.311944  1.339027</span></span><br><span class="line"><span class="comment"># as.data.frame(dat_list) 19.83196 20.199147 21.397833 20.350524 21.143335</span></span><br><span class="line"><span class="comment">#                    expr       max neval</span></span><br><span class="line"><span class="comment"># as_data_frame(dat_list)  6.957693   100</span></span><br><span class="line"><span class="comment"># as.data.frame(dat_list) 33.307182   100</span></span><br></pre></td></tr></table></figure>
+<p>看起來是沒差很多啦(汗顏，可能資料不夠大</p>
+<ol start="4">
+<li>by var 合併函數</li>
+</ol>
+<p>先介紹base的merge，這個函數是用來合併兩個data.frame</p>
+<p>除了input的兩個data.frame，還有其他五個input (其他input之後再提)</p>
+<p>a. by    - 合併根據的變數<br>b. by.x  - 合併根據的變數 於第一個data.frame的名稱<br>c. by.y  - 合併根據的變數 於第二個data.frame的名稱<br>d. all.x - 是否保留來自第一個data.frame的values<br>e. all.y - 是否保留來自第一個data.frame的values</p>
+<p>註：還有一個input是 all 可以一次控制all.x跟all.y</p>
+<p>我用簡單的範例去介紹這幾個選項</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## 產生資料</span></span><br><span class="line">  set.seed(<span class="number">75</span>)</span><br><span class="line">  (x = data.frame(cat1 = sample(c(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="literal">NA</span>), <span class="number">5</span>, <span class="number">1</span>),</span><br><span class="line">    cat2 = sample(c(<span class="number">1</span>, <span class="number">2</span>, <span class="literal">NA</span>), <span class="number">5</span>, <span class="number">1</span>), v = rpois(<span class="number">5</span>, <span class="number">3</span>),</span><br><span class="line">    stringsAsFactors = <span class="literal">FALSE</span>))</span><br><span class="line"><span class="comment">#   cat1 cat2 v</span></span><br><span class="line"><span class="comment"># 1    A    1 4</span></span><br><span class="line"><span class="comment"># 2    A    2 3</span></span><br><span class="line"><span class="comment"># 3 &lt;NA&gt;   NA 4</span></span><br><span class="line"><span class="comment"># 4    B   NA 4</span></span><br><span class="line"><span class="comment"># 5    A    1 4</span></span><br><span class="line">  (y = data.frame(cat1 = sample(c(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="literal">NA</span>), <span class="number">5</span>, <span class="number">1</span>),</span><br><span class="line">    cat2 = sample(c(<span class="number">1</span>, <span class="number">2</span>, <span class="literal">NA</span>), <span class="number">5</span>, <span class="number">1</span>), v = rpois(<span class="number">5</span>, <span class="number">3</span>),</span><br><span class="line">    stringsAsFactors = <span class="literal">FALSE</span>))</span><br><span class="line"><span class="comment">#   cat1 cat2 v</span></span><br><span class="line"><span class="comment"># 1    A    2 1</span></span><br><span class="line"><span class="comment"># 2    A    1 8</span></span><br><span class="line"><span class="comment"># 3 &lt;NA&gt;   NA 2</span></span><br><span class="line"><span class="comment"># 4    B    2 5</span></span><br><span class="line"><span class="comment"># 5 &lt;NA&gt;    1 3</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 兩個data.frame的資料都不保留 (預設值)</span></span><br><span class="line">  merge(x, y, by = c(<span class="string">&quot;cat1&quot;</span>,<span class="string">&quot;cat2&quot;</span>), all.x = <span class="literal">FALSE</span>, all.y = <span class="literal">FALSE</span>)</span><br><span class="line"><span class="comment">#   cat1 cat2 v.x v.y</span></span><br><span class="line"><span class="comment"># 1    A    1   4   8</span></span><br><span class="line"><span class="comment"># 2    A    1   4   8</span></span><br><span class="line"><span class="comment"># 3    A    2   3   1</span></span><br><span class="line"><span class="comment"># 4 &lt;NA&gt;   NA   4   2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 保留第一個data.frame的全部資料</span></span><br><span class="line">  merge(x, y, by = c(<span class="string">&quot;cat1&quot;</span>,<span class="string">&quot;cat2&quot;</span>), all.x = <span class="literal">TRUE</span>, all.y = <span class="literal">FALSE</span>)</span><br><span class="line"><span class="comment">#   cat1 cat2 v.x v.y</span></span><br><span class="line"><span class="comment"># 1    A    1   4   8</span></span><br><span class="line"><span class="comment"># 2    A    1   4   8</span></span><br><span class="line"><span class="comment"># 3    A    2   3   1</span></span><br><span class="line"><span class="comment"># 4    B   NA   4  NA</span></span><br><span class="line"><span class="comment"># 5 &lt;NA&gt;   NA   4   2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 保留第二個data.frame的全部資料</span></span><br><span class="line">  merge(x, y, by = c(<span class="string">&quot;cat1&quot;</span>,<span class="string">&quot;cat2&quot;</span>), all.x = <span class="literal">FALSE</span>, all.y = <span class="literal">TRUE</span>)</span><br><span class="line"><span class="comment">#   cat1 cat2 v.x v.y</span></span><br><span class="line"><span class="comment"># 1    A    1   4   8</span></span><br><span class="line"><span class="comment"># 2    A    1   4   8</span></span><br><span class="line"><span class="comment"># 3    A    2   3   1</span></span><br><span class="line"><span class="comment"># 4    B    2  NA   5</span></span><br><span class="line"><span class="comment"># 5 &lt;NA&gt;    1  NA   3</span></span><br><span class="line"><span class="comment"># 6 &lt;NA&gt;   NA   4   2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">## 保留兩個data.frame全部的資料</span></span><br><span class="line">  merge(x, y, by = c(<span class="string">&quot;cat1&quot;</span>,<span class="string">&quot;cat2&quot;</span>), all.x = <span class="literal">TRUE</span>, all.y = <span class="literal">TRUE</span>)</span><br><span class="line"><span class="comment">#   cat1 cat2 v.x v.y</span></span><br><span class="line"><span class="comment"># 1    A    1   4   8</span></span><br><span class="line"><span class="comment"># 2    A    1   4   8</span></span><br><span class="line"><span class="comment"># 3    A    2   3   1</span></span><br><span class="line"><span class="comment"># 4    B    2  NA   5</span></span><br><span class="line"><span class="comment"># 5    B   NA   4  NA</span></span><br><span class="line"><span class="comment"># 6 &lt;NA&gt;    1  NA   3</span></span><br><span class="line"><span class="comment"># 7 &lt;NA&gt;   NA   4   2</span></span><br></pre></td></tr></table></figure>
+
+<p>all.x跟all.y這四種組合分別對應到dplyr的四種join</p>
+<p>a. inner_join  - merge(…, all.x = FALSE, all.y = FALSE)<br>b. left_join   - merge(…, all.x = TRUE , all.y = FALSE)<br>c. right_join  - merge(…, all.x = FASLE, all.y = TRUE)<br>d. full_join   - merge(…, all.x = TRUE , all.y = TRUE)</p>
+<p>但是merge跟dplyr的join還是有些微不同</p>
+<p>dplyr的join不會去比對by variable都是NA的情況</p>
+<p>給一個例子就好</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">  inner_join(x, y, by = c(<span class="string">&quot;cat1&quot;</span>,<span class="string">&quot;cat2&quot;</span>))</span><br><span class="line"><span class="comment">#   cat1 cat2 v.x v.y</span></span><br><span class="line"><span class="comment"># 1    A    1   4   8</span></span><br><span class="line"><span class="comment"># 2    A    2   3   1</span></span><br><span class="line"><span class="comment"># 3 &lt;NA&gt;   NA   4   2</span></span><br><span class="line"><span class="comment"># 4    A    1   4   8</span></span><br></pre></td></tr></table></figure>
+
+<p>PS: If you use dplyr 0.4.1, there is something wrong. You’re gonna find the</p>
+<p>output do not contain the line: 3 <NA>   NA   4   2. Please update your dplyr</p>
+<p>to 0.4.2 or higher version.</p>
+<p>至於plyr:::join就沒有這個問題</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">  join(x, y, by = c(<span class="string">&quot;cat1&quot;</span>,<span class="string">&quot;cat2&quot;</span>), <span class="string">&#x27;inner&#x27;</span>)</span><br><span class="line"><span class="comment">#   cat1 cat2 v v</span></span><br><span class="line"><span class="comment"># 1    A    1 4 8</span></span><br><span class="line"><span class="comment"># 2    A    2 3 1</span></span><br><span class="line"><span class="comment"># 3 &lt;NA&gt;   NA 4 2</span></span><br><span class="line"><span class="comment"># 4    A    1 4 8</span></span><br></pre></td></tr></table></figure>
+<p>plyr:::join用法其實大同小異，它是用type去控制join方式</p>
+<p>最後是data.table:::merge</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">  setDT(x)</span><br><span class="line">  setDT(y)</span><br><span class="line">  merge(x, y, by = c(<span class="string">&quot;cat1&quot;</span>,<span class="string">&quot;cat2&quot;</span>))</span><br><span class="line"><span class="comment">#    cat1 cat2 v.x v.y</span></span><br><span class="line"><span class="comment"># 1:   NA   NA   4   2</span></span><br><span class="line"><span class="comment"># 2:    A    1   4   8</span></span><br><span class="line"><span class="comment"># 3:    A    1   4   8</span></span><br><span class="line"><span class="comment"># 4:    A    2   3   1</span></span><br></pre></td></tr></table></figure>
+<p>其實用法跟merge一模一樣，不贅述</p>
+<p>介紹完by, all.x, 跟all.y之後，我們來介紹by.x跟by.y</p>
+<p>用一個簡單例子：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">  set.seed(<span class="number">75</span>)</span><br><span class="line">  x = data.frame(cat1 = sample(c(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="literal">NA</span>), <span class="number">5</span>, <span class="number">1</span>),</span><br><span class="line">    cat2 = sample(c(<span class="number">1</span>, <span class="number">2</span>, <span class="literal">NA</span>), <span class="number">5</span>, <span class="number">1</span>), v = rpois(<span class="number">5</span>, <span class="number">3</span>),</span><br><span class="line">    stringsAsFactors = <span class="literal">FALSE</span>)</span><br><span class="line">  y = data.frame(cat3 = sample(c(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="literal">NA</span>), <span class="number">5</span>, <span class="number">1</span>),</span><br><span class="line">    cat4 = sample(c(<span class="number">1</span>, <span class="number">2</span>, <span class="literal">NA</span>), <span class="number">5</span>, <span class="number">1</span>), v = rpois(<span class="number">5</span>, <span class="number">3</span>),</span><br><span class="line">    stringsAsFactors = <span class="literal">FALSE</span>)</span><br><span class="line">  merge(x, y, by.x = c(<span class="string">&quot;cat1&quot;</span>,<span class="string">&quot;cat2&quot;</span>), by.y = c(<span class="string">&quot;cat3&quot;</span>,<span class="string">&quot;cat4&quot;</span>))</span><br><span class="line"><span class="comment">#   cat1 cat2 v.x v.y</span></span><br><span class="line"><span class="comment"># 1    A    1   4   8</span></span><br><span class="line"><span class="comment"># 2    A    1   4   8</span></span><br><span class="line"><span class="comment"># 3    A    2   3   1</span></span><br><span class="line"><span class="comment"># 4 &lt;NA&gt;   NA   4   2</span></span><br></pre></td></tr></table></figure>
+<p>我想這個例子已經很好說明了by.x跟by.y了</p>
+<p>接著是再dplyr怎麼做？</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">  inner_join(x, y, by = c(<span class="string">&quot;cat1&quot;</span> = <span class="string">&quot;cat3&quot;</span>, <span class="string">&quot;cat2&quot;</span> = <span class="string">&quot;cat4&quot;</span>))</span><br><span class="line"><span class="comment">#   cat1 cat2 v.x v.y</span></span><br><span class="line"><span class="comment"># 1    A    1   4   8</span></span><br><span class="line"><span class="comment"># 2    A    2   3   1</span></span><br><span class="line"><span class="comment"># 3    A    1   4   8</span></span><br></pre></td></tr></table></figure>
+
+<p>至於plyr:::join跟data.table:::merge就沒有支援這種功能了</p>
+<p>dplyr還提供兩種join: semi_join跟anti_join</p>
+<p>簡單說明一下，semi_join就是只保留第一個data.frame變數的inner_join</p>
+<p>anti_join則semi_join沒有配對的組合</p>
+<p>這兩個有興趣再去玩玩看，這裡就不提供例子了</p>
+<p>最後是一個實際問題</p>
+<p>我如果要merge超過三個的df怎麼辦？</p>
+<p>可以參考一下 #1LaHm_aH (R_Language)</p>
+<p>這裡完整介紹一下使用這幾個套件要怎麼解決</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">  DF_list = replicate(<span class="number">5</span>, data.frame(cat1 = sample(c(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>), <span class="number">5</span>, <span class="number">1</span>),</span><br><span class="line">      cat2 = sample(c(<span class="number">1</span>, <span class="number">2</span>), <span class="number">5</span>, <span class="number">1</span>), v = rnorm(<span class="number">5</span>)), simplify = <span class="literal">FALSE</span>)</span><br><span class="line"><span class="comment"># 下列兩種會變成橫表，每一個data.frame的v都會保留</span></span><br><span class="line">  Reduce(<span class="keyword">function</span>(x, y) merge(x, y, by = c(<span class="string">&quot;cat1&quot;</span>,<span class="string">&quot;cat2&quot;</span>), all=<span class="literal">TRUE</span>), DF_list)</span><br><span class="line">  Reduce(<span class="keyword">function</span>(x, y) full_join(x, y, by = c(<span class="string">&quot;cat1&quot;</span>,<span class="string">&quot;cat2&quot;</span>)), DF_list)</span><br><span class="line"><span class="comment"># 只保留第一個data.frame的值</span></span><br><span class="line">  join_all(DF_list, by = c(<span class="string">&quot;cat1&quot;</span>,<span class="string">&quot;cat2&quot;</span>), type = <span class="string">&quot;full&quot;</span>)</span><br><span class="line"><span class="comment"># 直表，保留全部的v，等同於全部做rbind</span></span><br><span class="line">  join_all(DF_list, by = c(<span class="string">&quot;cat1&quot;</span>,<span class="string">&quot;cat2&quot;</span>, <span class="string">&quot;v&quot;</span>), type = <span class="string">&quot;full&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<p>其實這樣每一個方法的結果都會很混亂，非常不建議，除非你知道你目標是什麼</p>
+<ol start="5">
+<li>col/row 合併函數</li>
+</ol>
+<p>bind_rows跟rbindlist其實就是在做 do.call(rbind, .)或是 Reduce(rbind, .)</p>
+<p>只是這兩個function更加有效率</p>
+<p>如果還不懂do.call(rbind, .)跟Reduce(rbind, .)再做什麼</p>
+<p>剛好可以利用這個機會去弄懂他們在幹嘛</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DF_list = replicate(<span class="number">5</span>, data.frame(cat1 = sample(c(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>), <span class="number">5</span>, <span class="number">1</span>),</span><br><span class="line">    cat2 = sample(c(<span class="number">1</span>, <span class="number">2</span>), <span class="number">5</span>, <span class="number">1</span>), v = rnorm(<span class="number">5</span>)), simplify = <span class="literal">FALSE</span>)</span><br><span class="line">bind_rows(DF_list)</span><br><span class="line">rbindlist(DF_list)</span><br></pre></td></tr></table></figure>
+
+<p>bind_cols等同於 do.call(cbind, .)</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DT_list = lapply(<span class="number">1</span>:<span class="number">5</span>, <span class="keyword">function</span>(x) data.table(rnorm(<span class="number">5</span>)) %&gt;%</span><br><span class="line">  setnames(paste0(<span class="string">&quot;V&quot;</span>, x)))</span><br><span class="line">bind_cols(DT_list)</span><br></pre></td></tr></table></figure>
+
+<p>此為下半部部分，下部分要介紹的function如下：</p>
+<p>A. 取唯一列：distinct, data.table:::unique</p>
+<p>B. 列行運算：rowwise, plyr:::colwise</p>
+<p>C. 值映射(對應修改)：plyr:::mapvalues, plyr:::revalue</p>
+<p>D. 其他函數：summarise_each, mutate_each</p>
+<p>E. 特殊函數：plyr:::here</p>
+<p>F. function with underscore suffix</p>
+<ol>
+<li>取唯一列</li>
+</ol>
+<p>我在第一章 data.table提過 unique</p>
+<p>distinct是一樣的方法</p>
+<p>就從data.table:::unique的例子開始</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">  DT = data.table(A = rbinom(<span class="number">5</span>, <span class="number">1</span>, <span class="number">0.5</span>), B = rbinom(<span class="number">5</span>, <span class="number">1</span>, <span class="number">0.5</span>))</span><br><span class="line"><span class="comment">#    A B</span></span><br><span class="line"><span class="comment"># 1: 0 0</span></span><br><span class="line"><span class="comment"># 2: 0 1</span></span><br><span class="line"><span class="comment"># 3: 1 0</span></span><br><span class="line"><span class="comment"># 4: 0 1</span></span><br><span class="line"><span class="comment"># 5: 0 0</span></span><br><span class="line"></span><br><span class="line">  unique(DT)</span><br><span class="line"><span class="comment">#    A B</span></span><br><span class="line"><span class="comment"># 1: 0 0</span></span><br><span class="line"><span class="comment"># 2: 0 1</span></span><br><span class="line"><span class="comment"># 3: 1 0</span></span><br><span class="line"></span><br><span class="line">  distinct(DT)</span><br><span class="line"><span class="comment">#    A B</span></span><br><span class="line"><span class="comment"># 1: 0 0</span></span><br><span class="line"><span class="comment"># 2: 0 1</span></span><br><span class="line"><span class="comment"># 3: 1 0</span></span><br><span class="line"></span><br><span class="line">  unique(DT, by = <span class="string">&quot;A&quot;</span>)</span><br><span class="line"><span class="comment">#    A B</span></span><br><span class="line"><span class="comment"># 1: 0 0</span></span><br><span class="line"><span class="comment"># 2: 1 0</span></span><br><span class="line"></span><br><span class="line">  distinct(DT, A)</span><br><span class="line"><span class="comment">#    A B</span></span><br><span class="line"><span class="comment"># 1: 0 0</span></span><br><span class="line"><span class="comment"># 2: 1 0</span></span><br></pre></td></tr></table></figure>
+
+<p>但是如mutate, filter等函數</p>
+<p>distinct也可以給由變數組成的其他條件來做取唯一列的動作</p>
+<p>給個簡單例子：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">  distinct(DT, A*B)</span><br><span class="line"><span class="comment">#    A B  A * B</span></span><br><span class="line"><span class="comment"># 1: 0 0      0</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>列行運算</li>
+</ol>
+<p>mutate提供了列運算的函數 rowwise</p>
+<p>雖然沒有apply好寫，不過效率確實好上不少</p>
+<p>至少在chain上可以比較輕易地套用了</p>
+<p>要介紹rowwise，還需要介紹do這個函數</p>
+<p>do提供一些廣泛的運算方式</p>
+<p>像是你可以根據不同變數設立模型如範例所示</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">  set.seed(<span class="number">100</span>)</span><br><span class="line">  DF = data.frame(A = sample(<span class="number">1</span>:<span class="number">5</span>, <span class="number">50</span>, <span class="literal">TRUE</span>),</span><br><span class="line">    y = rnorm(<span class="number">50</span>), x = rnorm(<span class="number">50</span>))</span><br><span class="line">  models = DF %&gt;% group_by(A) %&gt;% do(model = lm(y ~ x, data = .))</span><br><span class="line">  models %&gt;% summarise(mse = mean(model$residuals**<span class="number">2</span>))</span><br><span class="line"><span class="comment">#          mse</span></span><br><span class="line"><span class="comment"># 1 0.07560431</span></span><br><span class="line"><span class="comment"># 2 0.03617592</span></span><br><span class="line"><span class="comment"># 3 0.71000090</span></span><br><span class="line"><span class="comment"># 4 0.35385491</span></span><br><span class="line"><span class="comment"># 5 1.39799410</span></span><br><span class="line"></span><br><span class="line">  DT = data.table(A = sample(<span class="number">1</span>:<span class="number">5</span>, <span class="number">50</span>, <span class="literal">TRUE</span>),</span><br><span class="line">    y = rnorm(<span class="number">50</span>), x = rnorm(<span class="number">50</span>))</span><br><span class="line">  models = group_by(DT, A)  %&gt;% do(model = lm(y ~ x, data = .))</span><br><span class="line">  models %&gt;% rowwise %&gt;% summarise(mse = mean(model$residuals**<span class="number">2</span>))</span><br><span class="line"><span class="comment">#         mse</span></span><br><span class="line"><span class="comment"># 1 0.8953635</span></span><br><span class="line"><span class="comment"># 2 0.3954457</span></span><br><span class="line"><span class="comment"># 3 0.1469698</span></span><br><span class="line"><span class="comment"># 4 0.6303710</span></span><br><span class="line"><span class="comment"># 5 0.2966472</span></span><br></pre></td></tr></table></figure>
+
+<p>data.table出來的結果不會自動group_by row</p>
+<p>要自己手動加入rowwise，這點需要注意</p>
+<p>do應該有更多應用，需要各位好好開發。</p>
+<p>再來，給一個rowwise的應用：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">  set.seed(<span class="number">100</span>)</span><br><span class="line">  (DT = data.table(A = rnorm(<span class="number">5</span>), B = rnorm(<span class="number">5</span>), C = rnorm(<span class="number">5</span>)))</span><br><span class="line"><span class="comment">#              A          B           C</span></span><br><span class="line"><span class="comment"># 1: -0.50219235  0.3186301  0.08988614</span></span><br><span class="line"><span class="comment"># 2:  0.13153117 -0.5817907  0.09627446</span></span><br><span class="line"><span class="comment"># 3: -0.07891709  0.7145327 -0.20163395</span></span><br><span class="line"><span class="comment"># 4:  0.88678481 -0.8252594  0.73984050</span></span><br><span class="line"><span class="comment"># 5:  0.11697127 -0.3598621  0.12337950</span></span><br><span class="line"></span><br><span class="line">  DT %&gt;% rowwise %&gt;%</span><br><span class="line">    do(k = c(.$A, .$B, .$C)[between(c(.$A, .$B, .$C), <span class="number">0</span>, <span class="number">1</span>)]) %&gt;%</span><br><span class="line">    summarise(size = length(k), sums = sum(k))</span><br><span class="line"><span class="comment">#   size      sums</span></span><br><span class="line"><span class="comment"># 1    2 0.4085162</span></span><br><span class="line"><span class="comment"># 2    2 0.2278056</span></span><br><span class="line"><span class="comment"># 3    1 0.7145327</span></span><br><span class="line"><span class="comment"># 4    2 1.6266253</span></span><br><span class="line"><span class="comment"># 5    2 0.2403508</span></span><br></pre></td></tr></table></figure>
+
+<p>colwise提供每一行的做一個動作的方法</p>
+<p>其實等同於你用sapply做</p>
+<p>只是它還可以讓你選擇你要做的column去做</p>
+<p>簡單例子如下：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">  set.seed(<span class="number">100</span>)</span><br><span class="line">  (DT = data.table(A = rnorm(<span class="number">5</span>), B = rnorm(<span class="number">5</span>), C = rnorm(<span class="number">5</span>)))</span><br><span class="line"><span class="comment">#              A          B           C</span></span><br><span class="line"><span class="comment"># 1: -0.50219235  0.3186301  0.08988614</span></span><br><span class="line"><span class="comment"># 2:  0.13153117 -0.5817907  0.09627446</span></span><br><span class="line"><span class="comment"># 3: -0.07891709  0.7145327 -0.20163395</span></span><br><span class="line"><span class="comment"># 4:  0.88678481 -0.8252594  0.73984050</span></span><br><span class="line"><span class="comment"># 5:  0.11697127 -0.3598621  0.12337950</span></span><br><span class="line"></span><br><span class="line">  colwise(<span class="keyword">function</span>(x) c(mean(x), sd(x)))(DT)</span><br><span class="line"><span class="comment">#           A         B          C</span></span><br><span class="line"><span class="comment"># 1 0.1600685 0.1890685 -0.6537084</span></span><br><span class="line"><span class="comment"># 2 0.8140039 0.7824803  0.5610936</span></span><br><span class="line"></span><br><span class="line">  colwise(<span class="keyword">function</span>(x) c(mean(x), sd(x)), .cols = .(A, B))(DT)</span><br><span class="line"><span class="comment">#           A         B</span></span><br><span class="line"><span class="comment"># 1 0.1600685 0.1890685</span></span><br><span class="line"><span class="comment"># 2 0.8140039 0.7824803</span></span><br><span class="line"></span><br><span class="line">  f = <span class="keyword">function</span>(x) quantile(x, c(<span class="number">0.05</span>, <span class="number">0.95</span>))</span><br><span class="line">  colwise(f)(DT)</span><br><span class="line"><span class="comment">#            A          B          C</span></span><br><span class="line"><span class="comment"># 1 -0.4175373 -0.7765657 -0.1433299</span></span><br><span class="line"><span class="comment"># 2  0.7357341  0.6353522  0.6165483</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>值映射(對應修改)</li>
+</ol>
+<p>這一節要介紹兩個很好用的函數 plyr:::mapvalues, plyr:::revalue</p>
+<p>這兩個函數再處理資料時一定很常用到</p>
+<p>我們再整理資料時，有時候會遇到奇異值</p>
+<p>我們要把它改成我們想要的值時</p>
+<p>大部分人應該都會遇到這個問題</p>
+<p>或是有時候我們需要組別整併時也會遇到</p>
+<p>給一個簡單的example</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line">DT = data.table(col1 = sample(c(<span class="string">&quot;A&quot;</span>, <span class="string">&quot;B&quot;</span>, <span class="string">&quot;N&quot;</span>), <span class="number">30</span>, <span class="literal">TRUE</span>),</span><br><span class="line">  col2 = sample(c(<span class="string">&quot;A1&quot;</span>, <span class="string">&quot;B3&quot;</span>, <span class="string">&quot;C4&quot;</span>, <span class="string">&quot;U9&quot;</span>, <span class="string">&quot;Z5&quot;</span>), <span class="number">30</span>, <span class="literal">TRUE</span>),</span><br><span class="line">  col3 = sample(-<span class="number">2</span>:<span class="number">2</span>, <span class="number">30</span>, <span class="literal">TRUE</span>))</span><br><span class="line">DT2 = copy(DT)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">## example 1 - 當初keyin資料出問題，col1出現了&quot;N&quot;這個值，我們要通通改成NA</span></span><br><span class="line"><span class="comment">## 此處提供數種方法做</span></span><br><span class="line">set(DT, which(DT$col1 == <span class="string">&quot;N&quot;</span>), <span class="string">&quot;col1&quot;</span>, <span class="literal">NA</span>)</span><br><span class="line">DT2 %&gt;% mutate(col1 = ifelse(col1 == <span class="string">&quot;N&quot;</span>, <span class="literal">NA</span>, col1)) <span class="comment"># transform同理</span></span><br><span class="line">DT2 %&gt;% mutate(col1 = revalue(col1, c(N = <span class="literal">NA</span>)))</span><br><span class="line">DT2 %&gt;% mutate(col1 = mapvalues(col1, <span class="string">&quot;N&quot;</span>, <span class="literal">NA</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">## example 2 - 我們想要把col2做調整 A1 改成 B3， U9改成Z5</span></span><br><span class="line"><span class="comment">## 這裡就直接提供用revalue以及mapvalues的方法</span></span><br><span class="line">DT2 %&gt;% mutate(col2 = revalue(col2, c(A1 = <span class="string">&quot;B3&quot;</span>, U9 = <span class="string">&quot;Z5&quot;</span>)))</span><br><span class="line">DT2 %&gt;% mutate(col2 = mapvalues(col2, c(<span class="string">&quot;A1&quot;</span>, <span class="string">&quot;U9&quot;</span>), c(<span class="string">&quot;B3&quot;</span>, <span class="string">&quot;Z5&quot;</span>)))</span><br><span class="line"></span><br><span class="line"><span class="comment">## example 3 - 當初keyin時不小心搞錯col3的-2跟2的正負號，我們要把-2跟2做互換</span></span><br><span class="line">DT2 %&gt;% mutate(col3 = mapvalues(col3, c(-<span class="number">2</span>, <span class="number">2</span>), c(<span class="number">2</span>, -<span class="number">2</span>)))</span><br></pre></td></tr></table></figure>
+
+<p>最後提示幾個重點，</p>
+<p>revalue可以用在factor跟character上面，不能用在數值上</p>
+<p>mapvalues可以用在integer, double跟character上面，factor要先轉chr</p>
+<ol start="4">
+<li>其他函數</li>
+</ol>
+<p>這兩個函數 summarise_each, mutate_each，我自己也很少用</p>
+<p>我提供一些例子做操作，先用簡單的例子</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">  DT = data.table(X = rnorm(<span class="number">100</span>), Y = rnorm(<span class="number">100</span>))</span><br><span class="line">  DT %&gt;% summarise_each(funs(c(median(.), mean(.))))</span><br><span class="line"><span class="comment">#              X          Y</span></span><br><span class="line"><span class="comment"># 1: -0.02923809 0.08238550</span></span><br><span class="line"><span class="comment"># 2: -0.09154615 0.05153845</span></span><br><span class="line">  DT = data.table(X = c(<span class="number">3</span>,<span class="number">2</span>), Y = c(<span class="number">1</span>, <span class="number">4</span>))</span><br><span class="line">  DT %&gt;% mutate_each(funs(half = . / <span class="number">2</span>))</span><br><span class="line"><span class="comment">#      X   Y</span></span><br><span class="line"><span class="comment"># 1: 1.5 0.5</span></span><br><span class="line"><span class="comment"># 2: 1.0 2.0</span></span><br></pre></td></tr></table></figure>
+<p>這例子只是很簡單的介紹他們的功能</p>
+<p>可能需要時間來累積看看是否有什麼好方法去用這兩個函數</p>
+<ol start="5">
+<li>特殊函數</li>
+</ol>
+<p>介紹一個我覺得很有趣的函數 here</p>
+<p>here可以幫助你再使用sapply系列時</p>
+<p>可以使用mutate等</p>
+<p>提一個簡單的例子</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DTs = resplicate(<span class="number">5</span>, data.table(A = rnorm(<span class="number">5</span>)), simplify = <span class="literal">FALSE</span>)</span><br><span class="line">DTs = lapply(DTs, here(mutate), Asq = A**<span class="number">2</span>)</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>function with underscore suffix</li>
+</ol>
+<p>本章最後一個重點</p>
+<p>怎麼使用像是filter_, select_, mutate_, …這些以_結尾的function</p>
+<p>這些以_結尾的function提供使用者使用string作為input</p>
+<p>中間執行的過程透過 lazyeval 來執行</p>
+<p>(其實dplyr大部分函數都透過這個套件)</p>
+<p>來看幾個簡單的例子</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">DT = data.table(A = rnorm(<span class="number">5</span>), B = rnorm(<span class="number">5</span>))</span><br><span class="line">DT %&gt;% select_(<span class="string">&quot;A&quot;</span>)</span><br><span class="line">DT %&gt;% select(A)</span><br><span class="line">DT %&gt;% mutate(C = A*B)</span><br><span class="line">(DT2 = DT %&gt;% mutate_(<span class="string">&quot;A*B&quot;</span>) %&gt;% setnames(<span class="string">&quot;A*B&quot;</span>, <span class="string">&quot;C&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+<p>這幾個例子應該可以很簡單的解釋有_的函數要怎麼使用</p>
+<p>最後給個.dots的用法，這個代表說你可以製作適當的string放入</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DT = data.table(x = rnorm(<span class="number">100</span>), y = rnorm(<span class="number">100</span>))</span><br><span class="line">(DT %&lt;&gt;% mutate_(.dots = c(<span class="string">&quot;x^2&quot;</span>, <span class="string">&quot;y^2&quot;</span>)) %&gt;%</span><br><span class="line">  setnames(c(<span class="string">&quot;x^2&quot;</span>, <span class="string">&quot;y^2&quot;</span>), c(<span class="string">&quot;xsq&quot;</span>, <span class="string">&quot;ysq&quot;</span>)))</span><br><span class="line">DT %&gt;% select_(.dots = c(<span class="string">&quot;y&quot;</span>, <span class="string">&quot;xsq&quot;</span>))</span><br></pre></td></tr></table></figure>
+
+<p>再給一個簡單的例子</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">DT = data.table(x1 = rnorm(<span class="number">100</span>), x2 = rnorm(<span class="number">100</span>))</span><br><span class="line">cmds = paste0(<span class="string">&quot;x&quot;</span>, <span class="number">1</span>:<span class="number">2</span>, <span class="string">&quot;^2&quot;</span>)</span><br><span class="line">newnames = c(<span class="string">&quot;xsq&quot;</span>, <span class="string">&quot;ysq&quot;</span>)</span><br><span class="line">DT %&lt;&gt;% mutate_(.dots = cmds) %&gt;% setnames(cmds, newnames))</span><br></pre></td></tr></table></figure>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/data-table/" rel="tag"># data.table</a>
+              <a href="/tags/dplyr/" rel="tag"># dplyr</a>
+              <a href="/tags/plyr/" rel="tag"># plyr</a>
+              <a href="/tags/ptt/" rel="tag"># ptt</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/201507/2015-07-02-data-table.html" rel="prev" title="introduction to data.table">
+      <i class="fa fa-chevron-left"></i> introduction to data.table
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/201507/2015-07-04-tidyr.html" rel="next" title="introduction to tidyr">
+      introduction to tidyr <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ching-Chuan Chen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">156</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ChingChuan-Chen" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ChingChuan-Chen" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zw12356@gmail.com" title="E-Mail → mailto:zw12356@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/celestial0230/" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;celestial0230&#x2F;" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ching-Chuan Chen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://celestial0230.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://chingchuan-chen.github.io/posts/201507/2015-07-03-dplyr.html";
+    this.page.identifier = "posts/201507/2015-07-03-dplyr.html";
+    this.page.title = "introduction to dplyr";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://celestial0230.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

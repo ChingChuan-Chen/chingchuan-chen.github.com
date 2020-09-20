@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-tw,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans TC:300,300italic,400,400italic,700,700italic|DM Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chingchuan-chen.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"buttons","active":"disqus","storage":true,"lazyload":false,"nav":null,"activeClass":"disqus"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="這是我自己在PTT PO的文，詳細介紹tidyr，以下是正文~~ 本篇是最後一篇，主要介紹tidyr，以下是要介紹的內容：  data.table:::dcast.data.table  data.table:::melt  tidyr:::gather  tidyr:::spread  tidyr:::separate">
+<meta property="og:type" content="article">
+<meta property="og:title" content="introduction to tidyr">
+<meta property="og:url" content="http://chingchuan-chen.github.io/posts/201507/2015-07-04-tidyr.html">
+<meta property="og:site_name" content="Ching-Chuan Chen&#39;s Blogger">
+<meta property="og:description" content="這是我自己在PTT PO的文，詳細介紹tidyr，以下是正文~~ 本篇是最後一篇，主要介紹tidyr，以下是要介紹的內容：  data.table:::dcast.data.table  data.table:::melt  tidyr:::gather  tidyr:::spread  tidyr:::separate">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2015-07-03T16:00:00.000Z">
+<meta property="article:modified_time" content="2018-03-14T17:01:54.000Z">
+<meta property="article:author" content="Ching-Chuan Chen">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="data.table">
+<meta property="article:tag" content="ptt">
+<meta property="article:tag" content="tidyr">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://chingchuan-chen.github.io/posts/201507/2015-07-04-tidyr.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-tw'
+  };
+</script>
+
+  <title>introduction to tidyr | Ching-Chuan Chen's Blogger</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72564040-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-72564040-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ching-Chuan Chen's Blogger</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Statistics, Machine Learning and Programming</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/ChingChuan-Chen" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-tw">
+    <link itemprop="mainEntityOfPage" href="http://chingchuan-chen.github.io/posts/201507/2015-07-04-tidyr.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ching-Chuan Chen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ching-Chuan Chen's Blogger">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          introduction to tidyr
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2015-07-04 00:00:00" itemprop="dateCreated datePublished" datetime="2015-07-04T00:00:00+08:00">2015-07-04</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2018-03-15 01:01:54" itemprop="dateModified" datetime="2018-03-15T01:01:54+08:00">2018-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/R/" itemprop="url" rel="index"><span itemprop="name">R</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/posts/201507/2015-07-04-tidyr.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="posts/201507/2015-07-04-tidyr.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>這是我自己在PTT PO的文，詳細介紹tidyr，以下是正文~~</p>
+<p>本篇是最後一篇，主要介紹tidyr，以下是要介紹的內容：</p>
+<ol>
+<li><p>data.table:::dcast.data.table</p>
+</li>
+<li><p>data.table:::melt</p>
+</li>
+<li><p>tidyr:::gather</p>
+</li>
+<li><p>tidyr:::spread</p>
+</li>
+<li><p>tidyr:::separate</p>
+</li>
+</ol>
+<a id="more"></a>
+
+<p>這一章主要講述注重在資料的呈現方式 - 橫表跟直表的呈現</p>
+<p>還有一些表格整合的問題</p>
+<ol>
+<li>dcast.data.table</li>
+</ol>
+<p>dcast提供直表加總的函數</p>
+<p>學過統計的話，應該是contingency table (列聯表)</p>
+<p>或是熟悉EXCEL，知道樞紐分析表，它其實就是樞紐分析表</p>
+<p>Y就是列聯表中的列變數，X就是行變數</p>
+<p>製作列聯表也可以說它的應用之一</p>
+<p>這個function，需要先<code>require(reshape2)</code></p>
+<p>有人可能會問reshape2就有dcast為啥要用dcast.data.table</p>
+<p>原因很簡單，因為dcast.data.table快更多！！</p>
+<p>速度直接?dcast.data.table下面例子就有，直接來簡介怎麼用</p>
+<p>第一個input是data.table，第二個是給一個公式</p>
+<p>舉例來說，如果公式是 Y ~ X，Y的元素會展開在列，X就會在行</p>
+<p>第三個input是加總函數，你如果有相同類別的X, Y</p>
+<p>它會把相同類別的值用這個函數做加總，預設是length</p>
+<p>先用一個簡單例子來說明</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">  set.seed(<span class="number">100</span>)</span><br><span class="line">  DT = expand.grid(LETTERS[<span class="number">1</span>:<span class="number">2</span>], LETTERS[<span class="number">3</span>:<span class="number">4</span>]) %&gt;% data.table %&gt;%</span><br><span class="line">    setnames(c(<span class="string">&quot;col1&quot;</span>,<span class="string">&quot;col2&quot;</span>)) %&gt;% <span class="string">&#x27;[&#x27;</span>(rep(<span class="number">1</span>:nrow(.), <span class="number">2</span>)) %&gt;%</span><br><span class="line">    <span class="string">&#x27;[&#x27;</span>(,values := rpois(<span class="number">8</span>,<span class="number">2</span>))</span><br><span class="line">  DT</span><br><span class="line"><span class="comment">#    col1 col2 values</span></span><br><span class="line"><span class="comment"># 1:    A    C      1</span></span><br><span class="line"><span class="comment"># 2:    B    C      1</span></span><br><span class="line"><span class="comment"># 3:    A    D      2</span></span><br><span class="line"><span class="comment"># 4:    B    D      0</span></span><br><span class="line"><span class="comment"># 5:    A    C      2</span></span><br><span class="line"><span class="comment"># 6:    B    C      2</span></span><br><span class="line"><span class="comment"># 7:    A    D      3</span></span><br><span class="line"><span class="comment"># 8:    B    D      1</span></span><br><span class="line"></span><br><span class="line">  dcast.data.table(DT, col1~col2)</span><br><span class="line"><span class="comment">#    col1 C D</span></span><br><span class="line"><span class="comment"># 1:    A 2 2</span></span><br><span class="line"><span class="comment"># 2:    B 2 2</span></span><br><span class="line"></span><br><span class="line">  dcast.data.table(DT, col1~col2, sum)</span><br><span class="line"><span class="comment">#    col1 C D</span></span><br><span class="line"><span class="comment"># 1:    A 3 5</span></span><br><span class="line"><span class="comment"># 2:    B 3 1</span></span><br></pre></td></tr></table></figure>
+
+<p>產生資料的函數、operator，我們都講過了，往前找找看</p>
+<p>我們專注到第一個dcast，dcast.data.table(DT, col1~col2)</p>
+<p>可以看的出來 col1就在列，col2就在行展開，然後計算col1, col2有相同類別的length</p>
+<p>第二個dcast就是把有相同的類別，把values做總和</p>
+<p>但是，我們怎麼知道它加總的是values</p>
+<p>它會告訴你自動找尋data.table，然後選定values做為加總的column</p>
+<p>至於改法就是修改value.var這個input，舉例來說</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">  DT[, values2 := rpois(<span class="number">8</span>, <span class="number">3</span>)]</span><br><span class="line">  dcast.data.table(DT, col1~col2, sum, value.var = <span class="string">&quot;values&quot;</span>)</span><br><span class="line"><span class="comment">#    col1 C D</span></span><br><span class="line"><span class="comment"># 1:    A 3 5</span></span><br><span class="line"><span class="comment"># 2:    B 3 1</span></span><br><span class="line"></span><br><span class="line">  dcast.data.table(DT, col1~col2, sum, value.var = <span class="string">&quot;values2&quot;</span>)</span><br><span class="line"><span class="comment">#    col1 C D</span></span><br><span class="line"><span class="comment"># 1:    A 5 7</span></span><br><span class="line"><span class="comment"># 2:    B 3 9</span></span><br><span class="line"></span><br><span class="line">  DT[, col3 := rep(LETTERS[<span class="number">5</span>:<span class="number">6</span>],,,<span class="number">4</span>)]</span><br><span class="line">  dcast.data.table(DT, col1+col2~col3, sum, value.var = <span class="string">&quot;values&quot;</span>)</span><br><span class="line"><span class="comment">#    col1 col2 E F</span></span><br><span class="line"><span class="comment"># 1:    A    C 1 2</span></span><br><span class="line"><span class="comment"># 2:    A    D 2 3</span></span><br><span class="line"><span class="comment"># 3:    B    C 1 2</span></span><br><span class="line"><span class="comment"># 4:    B    D 0 1</span></span><br></pre></td></tr></table></figure>
+
+<p>dcast.data.table說明到此</p>
+<ol start="2">
+<li>melt</li>
+</ol>
+<p>dcast做直表加總，melt做橫表轉直表</p>
+<p>舉個簡單的例子</p>
+<p>我們有數個病人，每個病人有數個觀察值</p>
+<p>表格紀錄的樣子是</p>
+<p>id  O1  O2<br>P1  12  18<br>P2  13  15<br>..  ..  ..</p>
+<p>我們想要轉成直表長這樣：</p>
+<p>id  O  V<br>P1 O1 12<br>P1 O1 18<br>P2 O2 13<br>P2 O2 15<br>.. .. ..</p>
+<p>那麼在R code可以這樣做：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">  (DT = data.table(id = paste0(<span class="string">&quot;P&quot;</span>, <span class="number">1</span>:<span class="number">2</span>), O1 = c(<span class="number">12</span>,<span class="number">13</span>), O2 = c(<span class="number">18</span>,<span class="number">15</span>)))</span><br><span class="line"><span class="comment">#    id O1 O2</span></span><br><span class="line"><span class="comment"># 1: P1 12 18</span></span><br><span class="line"><span class="comment"># 2: P2 13 15</span></span><br><span class="line"></span><br><span class="line">  (DT_long = melt(DT, <span class="string">&quot;id&quot;</span>, variable.name = <span class="string">&quot;O&quot;</span>, value.name = <span class="string">&quot;V&quot;</span>))</span><br><span class="line"><span class="comment">#    id  O  V</span></span><br><span class="line"><span class="comment"># 1: P1 O1 12</span></span><br><span class="line"><span class="comment"># 2: P2 O1 13</span></span><br><span class="line"><span class="comment"># 3: P1 O2 18</span></span><br><span class="line"><span class="comment"># 4: P2 O2 15</span></span><br></pre></td></tr></table></figure>
+
+<p>melt的第一個input是data.table (註一)</p>
+<p>第二個input是id.vars，也就是你要展開的變數名稱</p>
+<p>第三個input是measure.vars，你要展開的變數名稱</p>
+<p>前面例子未指定的情況下，就是全部的column</p>
+<p>前面我還有用到variable.name 跟 value.name</p>
+<p>variable.name是指定集合其他columns之後的column name</p>
+<p>在前例就是把 O1, O2兩個columns集合之後的變數名稱，我改成了”O”</p>
+<p>value.name是你集合其他columns之後那些變數值的column</p>
+<p>在前例就是把 O1, O2兩個columns集合之後的變數值，我改成了”V”</p>
+<p>註一：此指data.table:::melt，跟reshape2:::melt的差異部分</p>
+<pre><code>請看data.table:::melt的help</code></pre>
+<p>我們再看一個複雜一點的例子</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">  DT = data.table(ID1 = paste0(<span class="string">&quot;ID1_&quot;</span>, <span class="number">1</span>:<span class="number">20</span>),</span><br><span class="line">    ID2 = sample(paste0(<span class="string">&quot;ID2_&quot;</span>, <span class="number">1</span>:<span class="number">20</span>)),</span><br><span class="line">    O1 = rnorm(<span class="number">20</span>), O2 = rnorm(<span class="number">20</span>), O3 = rnorm(<span class="number">20</span>))</span><br><span class="line"></span><br><span class="line"><span class="comment">## 以ID1跟ID2作為展開，其他column (O1 ~ O3)會疊成一個變數</span></span><br><span class="line"><span class="comment">## 還會有一個新類別去label後面的value來自哪一個變數</span></span><br><span class="line">  melt(DT, c(<span class="string">&quot;ID1&quot;</span>, <span class="string">&quot;ID2&quot;</span>), c(<span class="string">&quot;O1&quot;</span>, <span class="string">&quot;O2&quot;</span>, <span class="string">&quot;O3&quot;</span>),</span><br><span class="line">    variable.name = <span class="string">&quot;O&quot;</span>, value.name = <span class="string">&quot;V&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## 以ID1作為展開，其他column (O1 ~ O3)會疊成一個變數</span></span><br><span class="line"><span class="comment">## 還會有一個新類別去label後面的value來自哪一個變數</span></span><br><span class="line">  melt(DT, <span class="string">&quot;ID1&quot;</span>, c(<span class="string">&quot;O1&quot;</span>, <span class="string">&quot;O2&quot;</span>, <span class="string">&quot;O3&quot;</span>),</span><br><span class="line">    variable.name = <span class="string">&quot;O&quot;</span>, value.name = <span class="string">&quot;V&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">## 以ID1作為展開，其他column (O1 ~ O2)會疊成一個變數</span></span><br><span class="line"><span class="comment">## 還會有一個新類別去label後面的value來自哪一個變數</span></span><br><span class="line">  melt(DT, <span class="string">&quot;ID1&quot;</span>, c(<span class="string">&quot;O1&quot;</span>, <span class="string">&quot;O2&quot;</span>),</span><br><span class="line">    variable.name = <span class="string">&quot;O&quot;</span>, value.name = <span class="string">&quot;V&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>gather</li>
+</ol>
+<p>其實就是melt，只是比較好寫</p>
+<p>我們把melt的例子改成用gather寫</p>
+<p>只是melt一次到位的指令用gather寫之後</p>
+<p>要用select跟filter做 (但是我覺得gather比較好寫)</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">  (DT = data.table(id = paste0(<span class="string">&quot;P&quot;</span>, <span class="number">1</span>:<span class="number">2</span>), O1 = c(<span class="number">12</span>,<span class="number">13</span>), O2 = c(<span class="number">18</span>,<span class="number">15</span>)))</span><br><span class="line"><span class="comment">#    id O1 O2</span></span><br><span class="line"><span class="comment"># 1: P1 12 18</span></span><br><span class="line"><span class="comment"># 2: P2 13 15</span></span><br><span class="line"></span><br><span class="line">  (DT_long = gather(DT, O, V, -id))</span><br><span class="line"><span class="comment">#    id  O  V</span></span><br><span class="line"><span class="comment"># 1: P1 O1 12</span></span><br><span class="line"><span class="comment"># 2: P2 O1 13</span></span><br><span class="line"><span class="comment"># 3: P1 O2 18</span></span><br><span class="line"><span class="comment"># 4: P2 O2 15</span></span><br><span class="line"></span><br><span class="line">  DT = data.table(ID1 = paste0(<span class="string">&quot;ID1_&quot;</span>, <span class="number">1</span>:<span class="number">20</span>),</span><br><span class="line">    ID2 = sample(paste0(<span class="string">&quot;ID2_&quot;</span>, <span class="number">1</span>:<span class="number">20</span>)),</span><br><span class="line">    O1 = rnorm(<span class="number">20</span>), O2 = rnorm(<span class="number">20</span>), O3 = rnorm(<span class="number">20</span>))</span><br><span class="line">  gather(DT, O, V, -ID1, -ID2)</span><br><span class="line">  gather(DT, O, V, -ID1, -ID2) %&gt;% select(-ID2)</span><br><span class="line">  gather(DT, O, V, -ID1, -ID2) %&gt;% select(-ID2) %&gt;% filter(O!=<span class="string">&quot;O3&quot;</span>)</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>spread</li>
+</ol>
+<p>提供gather的反向操作</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">  DT = data.table(id = paste0(<span class="string">&quot;P&quot;</span>, <span class="number">1</span>:<span class="number">2</span>), O1 = c(<span class="number">12</span>,<span class="number">13</span>), O2 = c(<span class="number">18</span>,<span class="number">15</span>))</span><br><span class="line">  DT_long = gather(DT, O, V, -id)</span><br><span class="line">  DT_long %&gt;% spread(O, V)</span><br><span class="line"><span class="comment">#    id O1 O2</span></span><br><span class="line"><span class="comment"># 1: P1 12 18</span></span><br><span class="line"><span class="comment"># 2: P2 13 15</span></span><br></pre></td></tr></table></figure>
+
+<ol start="5">
+<li>separate</li>
+</ol>
+<p>把特定column做strsplit，並設定成新的變數</p>
+<p>一個簡單的例子</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DT = data.table(x = paste0(sample(LETTERS, <span class="number">5</span>), <span class="string">&quot;,&quot;</span>, sample(LETTERS, <span class="number">5</span>)))</span><br><span class="line">DT %&gt;% separate(x, paste0(<span class="string">&quot;V&quot;</span>, <span class="number">1</span>:<span class="number">2</span>))</span><br></pre></td></tr></table></figure>
+
+<p>這個函數要注意的是以下的程式是會出現錯誤的</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">DT = data.table(x = paste0(sample(LETTERS, <span class="number">5</span>), sample(LETTERS, <span class="number">5</span>)))</span><br><span class="line">DT %&gt;% separate(x, paste0(<span class="string">&quot;V&quot;</span>, <span class="number">1</span>:<span class="number">2</span>))</span><br></pre></td></tr></table></figure>
+
+<p>separate無法分開沒有間隔字元的字串</p>
+<p>你要分開這個只能做適當的轉換，像是：</p>
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">DT = data.table(x = paste0(sample(LETTERS, <span class="number">5</span>), sample(LETTERS, <span class="number">5</span>)))</span><br><span class="line">DT %&lt;&gt;% mutate(x = gsub(<span class="string">&quot;([A-Z])&quot;</span>, <span class="string">&quot;\\1, &quot;</span>, x))</span><br><span class="line">DT %&gt;% separate(x, paste0(<span class="string">&quot;V&quot;</span>, <span class="number">1</span>:<span class="number">3</span>)) %&gt;% select(-V3)</span><br></pre></td></tr></table></figure>
+
+<p>如果有人有更好的方法，麻煩告知我一下，謝謝</p>
+<p>資料介紹套件就到這裡結束</p>
+<p>有任何問題，歡迎在板上回文詢問，我有看到都會回覆</p>
+<p>(麻煩盡量不要用私信，希望可以讓板眾一起看問題該怎麼解決)</p>
+<p>有任何補充或是建議也歡迎推文或回文，感謝大家</p>
+<p>我並沒有講到plyr的 a<em>ply, l</em>ply, d<em>ply, r</em>ply系列</p>
+<p>其實他們跟apply, lapply, tapply, replicate相對應，只是output型式不同</p>
+<p>如果未來有機會寫有關*ply系列函數時，我再好好介紹plyr</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/data-table/" rel="tag"># data.table</a>
+              <a href="/tags/ptt/" rel="tag"># ptt</a>
+              <a href="/tags/tidyr/" rel="tag"># tidyr</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/201507/2015-07-03-dplyr.html" rel="prev" title="introduction to dplyr">
+      <i class="fa fa-chevron-left"></i> introduction to dplyr
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/201601/2016-01-18-RcppParallel_and_RRO_about_intel_MKL_multithread.html" rel="next" title="RcppParallel and RRO: about Intel MKL multithread">
+      RcppParallel and RRO: about Intel MKL multithread <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ching-Chuan Chen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">156</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ChingChuan-Chen" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ChingChuan-Chen" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zw12356@gmail.com" title="E-Mail → mailto:zw12356@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/celestial0230/" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;celestial0230&#x2F;" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ching-Chuan Chen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://celestial0230.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://chingchuan-chen.github.io/posts/201507/2015-07-04-tidyr.html";
+    this.page.identifier = "posts/201507/2015-07-04-tidyr.html";
+    this.page.title = "introduction to tidyr";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://celestial0230.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

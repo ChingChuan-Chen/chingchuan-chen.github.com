@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-tw,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans TC:300,300italic,400,400italic,700,700italic|DM Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chingchuan-chen.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"buttons","active":"disqus","storage":true,"lazyload":false,"nav":null,"activeClass":"disqus"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="這篇是用R做一個loader，把Oracle資料倒去Mongodb中 並且使用設定去將特定column改成list的方式做儲存">
+<meta property="og:type" content="article">
+<meta property="og:title" content="用R做Oracle跟mongodb的loader">
+<meta property="og:url" content="http://chingchuan-chen.github.io/posts/201610/2016-10-15-using-R-to-load-data-into-mongodb-from-oracle.html">
+<meta property="og:site_name" content="Ching-Chuan Chen&#39;s Blogger">
+<meta property="og:description" content="這篇是用R做一個loader，把Oracle資料倒去Mongodb中 並且使用設定去將特定column改成list的方式做儲存">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2016-10-14T16:00:00.000Z">
+<meta property="article:modified_time" content="2018-03-14T16:40:37.000Z">
+<meta property="article:author" content="Ching-Chuan Chen">
+<meta property="article:tag" content="R">
+<meta property="article:tag" content="mongodb">
+<meta property="article:tag" content="Oracle">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://chingchuan-chen.github.io/posts/201610/2016-10-15-using-R-to-load-data-into-mongodb-from-oracle.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-tw'
+  };
+</script>
+
+  <title>用R做Oracle跟mongodb的loader | Ching-Chuan Chen's Blogger</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72564040-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-72564040-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ching-Chuan Chen's Blogger</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Statistics, Machine Learning and Programming</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/ChingChuan-Chen" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-tw">
+    <link itemprop="mainEntityOfPage" href="http://chingchuan-chen.github.io/posts/201610/2016-10-15-using-R-to-load-data-into-mongodb-from-oracle.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ching-Chuan Chen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ching-Chuan Chen's Blogger">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          用R做Oracle跟mongodb的loader
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-10-15 00:00:00" itemprop="dateCreated datePublished" datetime="2016-10-15T00:00:00+08:00">2016-10-15</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2018-03-15 00:40:37" itemprop="dateModified" datetime="2018-03-15T00:40:37+08:00">2018-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/R/" itemprop="url" rel="index"><span itemprop="name">R</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/posts/201610/2016-10-15-using-R-to-load-data-into-mongodb-from-oracle.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="posts/201610/2016-10-15-using-R-to-load-data-into-mongodb-from-oracle.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>這篇是用R做一個loader，把Oracle資料倒去Mongodb中</p>
+<p>並且使用設定去將特定column改成list的方式做儲存</p>
+<a id="more"></a>
+
+<figure class="highlight r"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">library</span>(ROracle)</span><br><span class="line"><span class="keyword">library</span>(stringr)</span><br><span class="line"><span class="keyword">library</span>(data.table)</span><br><span class="line"><span class="keyword">library</span>(pipeR)</span><br><span class="line"><span class="keyword">library</span>(mongolite)</span><br><span class="line"></span><br><span class="line">Sys.setenv(TZ = <span class="string">&quot;Asia/Taipei&quot;</span>, ORA_SDTZ = <span class="string">&quot;Asia/Taipei&quot;</span>)</span><br><span class="line"></span><br><span class="line">numRows &lt;- <span class="number">5e7</span></span><br><span class="line"></span><br><span class="line">host &lt;- <span class="string">&quot;192.168.0.120&quot;</span></span><br><span class="line">port &lt;- <span class="number">1521</span></span><br><span class="line">sid &lt;- <span class="string">&quot;orcl&quot;</span></span><br><span class="line">connectString &lt;- paste0(<span class="string">&quot;(DESCRIPTION=&quot;</span>,</span><br><span class="line">  <span class="string">&quot;(ADDRESS=(PROTOCOL=TCP)(HOST=&quot;</span>, host, <span class="string">&quot;)(PORT=&quot;</span>, port, <span class="string">&quot;))&quot;</span>,</span><br><span class="line">  <span class="string">&quot;(CONNECT_DATA=(SID=&quot;</span>, sid, <span class="string">&quot;)))&quot;</span>)</span><br><span class="line">con &lt;- dbConnect(dbDriver(<span class="string">&quot;Oracle&quot;</span>), username = <span class="string">&quot;system&quot;</span>, </span><br><span class="line">                 password = <span class="string">&quot;qscf12356&quot;</span>, dbname = connectString)</span><br><span class="line"></span><br><span class="line"><span class="comment"># first commit</span></span><br><span class="line">diff_seconds_90days &lt;- difftime(Sys.time(), Sys.Date()-<span class="number">90</span>, units = <span class="string">&quot;secs&quot;</span>) %&gt;&gt;% as.integer</span><br><span class="line">sizePerGroup &lt;- sample(<span class="number">11</span>:<span class="number">2500</span>, ceiling(numRows / mean(<span class="number">1</span>:<span class="number">2500</span>)) * <span class="number">1.2</span>, <span class="literal">TRUE</span>) %&gt;&gt;% </span><br><span class="line">  `[`(. &gt; <span class="number">10</span>) %&gt;&gt;% `[`(<span class="number">1</span>:which(cumsum(.) &gt;= numRows)[<span class="number">1</span>])</span><br><span class="line">sizePerGroup[length(sizePerGroup)] &lt;- sizePerGroup[length(sizePerGroup)] + numRows - sum(sizePerGroup)</span><br><span class="line"></span><br><span class="line">var2 &lt;- sprintf(<span class="string">&quot;A%05i&quot;</span>, <span class="number">1</span>:length(sizePerGroup))</span><br><span class="line">var3 &lt;- sprintf(<span class="string">&quot;B%03i&quot;</span>, <span class="number">1</span>:<span class="number">800</span>)</span><br><span class="line">dat &lt;- mapply(<span class="keyword">function</span>(ss, v2value)&#123;</span><br><span class="line">  as.data.table(list(t = Sys.time() - sample(diff_seconds_90days, <span class="number">1</span>, <span class="literal">TRUE</span>), </span><br><span class="line">                     v2 = v2value, v3 = sample(var3, ss, <span class="literal">TRUE</span>), v4 = rnorm(ss)))</span><br><span class="line">&#125;, sizePerGroup, var2, SIMPLIFY = <span class="literal">FALSE</span>) %&gt;&gt;% rbindlist %&gt;&gt;%</span><br><span class="line">  setnames(toupper(names(.))) <span class="comment"># 記得全部欄位都要大寫</span></span><br><span class="line"></span><br><span class="line">st &lt;- proc.time()</span><br><span class="line"><span class="comment"># write data to Oracle</span></span><br><span class="line">dbWriteTable(con, <span class="string">&quot;TEST_BIG_TABLE&quot;</span>, dat)</span><br><span class="line">proc.time() - st</span><br><span class="line"><span class="comment">#   user  system elapsed </span></span><br><span class="line"><span class="comment">#  29.97    3.83 1138.38</span></span><br><span class="line"><span class="comment">## 需要19分鐘才能夠把資料都上傳完畢</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># check data size</span></span><br><span class="line">cntDF &lt;- dbGetQuery(con, <span class="string">&quot;SELECT COUNT(*) ROWCNT FROM TEST_BIG_TABLE&quot;</span>)</span><br><span class="line">cat(sprintf(<span class="string">&quot;%8i&quot;</span>, cntDF$ROWCNT))</span><br><span class="line"><span class="comment"># 50000000</span></span><br><span class="line"><span class="comment">## 確定是五千萬筆</span></span><br><span class="line">dbDisconnect(con)</span><br><span class="line"></span><br><span class="line">rm(dat, var2, var3, sizePerGroup)</span><br><span class="line">gc()</span><br><span class="line"></span><br><span class="line"><span class="comment">## 從oracle到mongodb</span></span><br><span class="line"><span class="comment"># 這裡上傳的想法是根據t, v3拆成小小的資料集來做</span></span><br><span class="line"><span class="comment"># 資料會取得v3部分子集(這裡設定一次200個)，t一個</span></span><br><span class="line"><span class="comment"># 舉例來說，v3會取得B001-B200，t1選2016-07-18</span></span><br><span class="line"><span class="comment"># 我就從Oracle拿出v3 in B001-B200的跟t是介在2016-07-18 00:00:00到2016-07-18 23:59:59的資料</span></span><br><span class="line"><span class="comment"># 然後根據t, v2的組合(一個t只會對應一個v2)去把v3,v4合併成一個array，並產生新的column</span></span><br><span class="line"><span class="comment"># 合併出來的一筆資料就會像：</span></span><br><span class="line"><span class="comment"># t: &#x27;2016-08-19 08:56:13&#x27;</span></span><br><span class="line"><span class="comment"># v2: &#x27;A0001&#x27;</span></span><br><span class="line"><span class="comment"># v3: [&#x27;B001&#x27;, &#x27;B096&#x27;, ...]</span></span><br><span class="line"><span class="comment"># v4: [-0.972354, 0.456785, ...]</span></span><br><span class="line"><span class="comment"># 再把這樣的資料傳到mongodb就大功告成了</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># 取得分批的參數</span></span><br><span class="line">paras &lt;- list(sprintf(<span class="string">&quot;B%03i&quot;</span>, <span class="number">1</span>:<span class="number">800</span>), seq.Date(Sys.Date()-<span class="number">90</span>, Sys.Date(), <span class="string">&quot;days&quot;</span>) %&gt;&gt;% </span><br><span class="line">                format(<span class="string">&quot;&#x27;%Y-%m-%d %H:%M:%S&#x27;&quot;</span>))</span><br><span class="line">parasName &lt;- paste0(<span class="string">&quot;:para&quot;</span>, <span class="number">1</span>:length(paras))</span><br><span class="line"><span class="comment"># 分批的size</span></span><br><span class="line">batchSize &lt;- <span class="number">200</span></span><br><span class="line"><span class="comment"># group by 的變數</span></span><br><span class="line">groupbyVars &lt;- <span class="string">&quot;t,v2&quot;</span></span><br><span class="line"><span class="comment"># sql</span></span><br><span class="line">sql &lt;- paste(<span class="string">&quot;SELECT tbl.* FROM TEST_BIG_TABLE tbl WHERE tbl.v3 in :para1&quot;</span>,</span><br><span class="line">             <span class="string">&quot;AND tbl.t &gt;= to_date(:para2, &#x27;YYYY-MM-DD HH24:MI:SS&#x27;)&quot;</span>,</span><br><span class="line">             <span class="string">&quot;AND tbl.t &lt; to_date(:para2, &#x27;YYYY-MM-DD HH24:MI:SS&#x27;) + 1&quot;</span>, sep = <span class="string">&quot;\n&quot;</span>)</span><br><span class="line"><span class="comment"># check sql is valid</span></span><br><span class="line">stopifnot(all(unique(str_extract_all(sql, <span class="string">&quot;:para\\d&quot;</span>)[[<span class="number">1</span>]]) %<span class="keyword">in</span>% parasName))</span><br><span class="line"></span><br><span class="line"><span class="comment"># 分割出para1 set</span></span><br><span class="line">paras1_set &lt;- split(paras[[<span class="number">1</span>]], rep(<span class="number">1</span>:(ceiling(length(paras[[<span class="number">1</span>]]) / batchSize)), </span><br><span class="line">                                    each = batchSize, length = length(paras[[<span class="number">1</span>]]))) %&gt;&gt;%</span><br><span class="line">  sapply(<span class="keyword">function</span>(set) paste0(<span class="string">&quot;(&#x27;&quot;</span>, paste0(set, collapse = <span class="string">&quot;&#x27;,&#x27;&quot;</span>), <span class="string">&quot;&#x27;)&quot;</span>))</span><br><span class="line"><span class="comment"># control the upload progress</span></span><br><span class="line">loc &lt;- rep(<span class="number">1</span>, length(paras))</span><br><span class="line"></span><br><span class="line">st &lt;- proc.time()</span><br><span class="line">contUpload &lt;- <span class="literal">TRUE</span></span><br><span class="line"><span class="keyword">while</span>(contUpload)&#123;</span><br><span class="line">  message(sprintf(<span class="string">&quot;Now loc is %s ...&quot;</span>, paste0(loc, collapse = <span class="string">&quot;,&quot;</span>)))</span><br><span class="line">  </span><br><span class="line">  <span class="comment"># generate sql to query the subset</span></span><br><span class="line">  sql_implement &lt;- sql</span><br><span class="line">  <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">2</span>:length(paras))</span><br><span class="line">    sql_implement &lt;- str_replace_all(sql_implement, paste0(<span class="string">&quot;:para&quot;</span>, i), paras[[i]][loc[i]])</span><br><span class="line">  sql_implement &lt;- str_replace_all(sql_implement, <span class="string">&quot;:para1&quot;</span>, paras1_set[loc[<span class="number">1</span>]])</span><br><span class="line">  </span><br><span class="line">  <span class="comment"># query data</span></span><br><span class="line">  con &lt;- dbConnect(dbDriver(<span class="string">&quot;Oracle&quot;</span>), username = <span class="string">&quot;system&quot;</span>, </span><br><span class="line">                   password = <span class="string">&quot;qscf12356&quot;</span>, dbname = connectString)</span><br><span class="line">  oraDT &lt;- dbGetQuery(con, sql_implement) %&gt;&gt;% data.table %&gt;&gt;% setnames(tolower(names(.)))</span><br><span class="line">  dbDisconnect(con)</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">if</span> (nrow(oraDT) &gt; <span class="number">0</span>)&#123;</span><br><span class="line">    <span class="comment"># binding variables</span></span><br><span class="line">    groupbyVarsSplit &lt;- str_split(groupbyVars, <span class="string">&quot;,&quot;</span>)[[<span class="number">1</span>]]</span><br><span class="line">    bindingVars &lt;- setdiff(names(oraDT), groupbyVarsSplit)</span><br><span class="line">    expr &lt;- paste(bindingVars, paste0(<span class="string">&quot;list(&quot;</span>, bindingVars, <span class="string">&quot;)&quot;</span>), sep = <span class="string">&quot;=&quot;</span>) %&gt;&gt;% </span><br><span class="line">      c(<span class="string">&quot;numRecords=.N&quot;</span>) %&gt;&gt;% paste(collapse = <span class="string">&quot;,&quot;</span>) %&gt;&gt;% (paste0(<span class="string">&quot;.(&quot;</span>, ., <span class="string">&quot;)&quot;</span>))</span><br><span class="line">    mongoDT &lt;- oraDT[ , eval(parse(text = expr)), by = groupbyVars]</span><br><span class="line">    rm(oraDT); gc()</span><br><span class="line">  </span><br><span class="line">    <span class="comment"># upload data to mongo</span></span><br><span class="line">    ignoreOutput &lt;- capture.output(mongoConn &lt;- mongo(<span class="string">&quot;test_big_table&quot;</span>, <span class="string">&quot;big_table&quot;</span>, </span><br><span class="line">                                                      <span class="string">&quot;mongodb://drill:drill@192.168.0.128:27017&quot;</span>))</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># check the data</span></span><br><span class="line">    timeClassNames &lt;- c(<span class="string">&quot;Date&quot;</span>, <span class="string">&quot;POSIXct&quot;</span>, <span class="string">&quot;POSIXt&quot;</span>, <span class="string">&quot;POSIXlt&quot;</span>)</span><br><span class="line">    timeCol &lt;- sapply(mongoDT, <span class="keyword">function</span>(x) any(class(x) %<span class="keyword">in</span>% timeClassNames)) %&gt;&gt;% (names(.[.]))</span><br><span class="line">    groupbyVars2 &lt;- setdiff(groupbyVarsSplit, timeCol)</span><br><span class="line">    fieldStr &lt;- sprintf(<span class="string">&#x27;&#123;&quot;_id&quot;: 0, &quot;numRecords&quot;: 1, %s&#125;&#x27;</span>, </span><br><span class="line">                        paste(sprintf(<span class="string">&#x27;&quot;%s&quot;: 1&#x27;</span>, groupbyVars2), collapse = <span class="string">&quot;,&quot;</span>))</span><br><span class="line">    groupbyVarSet &lt;- sapply(groupbyVars2, <span class="keyword">function</span>(x) unique(mongoDT[[x]]) %&gt;&gt;% </span><br><span class="line">                              (paste0(<span class="string">&quot;\&quot;&quot;</span>, ., <span class="string">&quot;\&quot;&quot;</span>)) %&gt;&gt;% paste(collapse = <span class="string">&quot;,&quot;</span>))</span><br><span class="line">    queryInfo &lt;- paste0(<span class="string">&quot;\&quot;&quot;</span>, groupbyVars2 ,<span class="string">&quot;\&quot;: &#123;\&quot;$in\&quot;: [&quot;</span>, groupbyVarSet, <span class="string">&quot;]&#125;&quot;</span>) %&gt;&gt;%</span><br><span class="line">      paste(collapse = <span class="string">&quot;,&quot;</span>) %&gt;&gt;% (paste0(<span class="string">&quot;&#123;&quot;</span>, ., <span class="string">&quot;&#125;&quot;</span>))</span><br><span class="line">    chkDT &lt;- mongoConn$find(queryInfo, fieldStr)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># filter the data not upload</span></span><br><span class="line">    <span class="keyword">if</span> (nrow(chkDT) &gt; <span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">      uploadDT &lt;- merge(mongoDT, chkDT, all.x = <span class="literal">TRUE</span>, by = groupbyVars2, suffixes = c(<span class="string">&quot;&quot;</span>, <span class="string">&quot;.chk&quot;</span>)) %&gt;&gt;%</span><br><span class="line">        `[`(numRecords != numRecords.chk | is.na(numRecords.chk)) %&gt;&gt;% `[`(j = numRecords.chk := <span class="literal">NULL</span>)</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">      uploadDT &lt;- mongoDT</span><br><span class="line">    &#125;</span><br><span class="line">    rm(mongoDT); gc()</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># start to insert data</span></span><br><span class="line">    numFail &lt;- <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span> (nrow(uploadDT) &gt; <span class="number">0</span>)&#123;</span><br><span class="line">      mapply(<span class="keyword">function</span>(i, j) paras[[i]][j], <span class="number">2</span>:length(paras), tail(loc, length(loc)-<span class="number">1</span>)) %&gt;&gt;%</span><br><span class="line">        paste(collapse = <span class="string">&quot;,&quot;</span>) %&gt;&gt;% (paste0(<span class="string">&quot;para1: \&quot;&quot;</span>, paras1_set[loc[<span class="number">1</span>]], <span class="string">&quot;\&quot;,&quot;</span>, .)) %&gt;&gt;%</span><br><span class="line">        sprintf(fmt = <span class="string">&quot;Now upload data with set: %s&quot;</span>) %&gt;&gt;% message</span><br><span class="line">      </span><br><span class="line">      <span class="keyword">while</span> (numFail &lt;= <span class="number">10</span>) &#123;</span><br><span class="line">        uploadStatus &lt;- mongoConn$insert(uploadDT)</span><br><span class="line">        <span class="keyword">if</span> (uploadStatus)</span><br><span class="line">          <span class="keyword">break</span></span><br><span class="line">        Sys.sleep(<span class="number">0.1</span>)</span><br><span class="line">        numFail &lt;- numFail + <span class="number">1</span></span><br><span class="line">      &#125;</span><br><span class="line">      <span class="keyword">if</span> (numFail &gt; <span class="number">10</span>)</span><br><span class="line">      &#123;</span><br><span class="line">        mongoConn$drop()</span><br><span class="line">        write(sprintf(<span class="string">&quot;Fail to upload the data with sql:\n%s&quot;</span>, sql_implement), <span class="string">&#x27;fail_upload_DB&#x27;</span>, </span><br><span class="line">              append = file.exists(<span class="string">&#x27;fail_upload_DB&#x27;</span>))</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    rm(uploadDT); gc()</span><br><span class="line">    <span class="comment"># disconnect to mongo</span></span><br><span class="line">    remove(mongoConn)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  loc[<span class="number">1</span>] &lt;- loc[<span class="number">1</span>] + <span class="number">1</span></span><br><span class="line">  <span class="keyword">if</span> (loc[<span class="number">1</span>] &gt; length(paras1_set))&#123;</span><br><span class="line">    loc[<span class="number">1</span>] &lt;- <span class="number">1</span></span><br><span class="line">    loc[<span class="number">2</span>] &lt;- loc[<span class="number">2</span>] + <span class="number">1</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">for</span> (i <span class="keyword">in</span> <span class="number">2</span>:length(loc))&#123;</span><br><span class="line">    <span class="keyword">if</span> (loc[i] &gt; length(paras[[i]]))&#123;</span><br><span class="line">      loc[i] &lt;- <span class="number">1</span></span><br><span class="line">      <span class="keyword">if</span> (i == length(loc))&#123;</span><br><span class="line">        contUpload &lt;- <span class="literal">FALSE</span></span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        loc[i+<span class="number">1</span>] &lt;- loc[i+<span class="number">1</span>] + <span class="number">1</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line">proc.time() - st</span><br><span class="line"><span class="comment">#   user  system elapsed </span></span><br><span class="line"><span class="comment"># 253.87    5.33 2971.89</span></span><br><span class="line"><span class="comment">## 拆成360份，上傳大概是2.5倍的時間，50分鐘</span></span><br><span class="line"></span><br><span class="line">mongoConn &lt;- mongo(<span class="string">&quot;test_big_table&quot;</span>, <span class="string">&quot;big_table&quot;</span>, <span class="string">&quot;mongodb://drill:drill@192.168.0.128:27017&quot;</span>)</span><br><span class="line"><span class="comment"># count data size</span></span><br><span class="line">sprintf(<span class="string">&quot;%6i&quot;</span>, mongoConn$count()) <span class="comment"># 305174</span></span><br><span class="line"><span class="comment">## 最後資料量從5000萬降到剩下30.5萬</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># get data and convert to normal table</span></span><br><span class="line">outDT &lt;- mongoConn$find(limit = <span class="number">50</span>) %&gt;&gt;% data.table</span><br><span class="line">outDT_trans &lt;- outDT[ , .(v3 = unlist(v3), v4 = unlist(v4)), by = <span class="string">&quot;t,v2&quot;</span>]</span><br><span class="line"><span class="comment"># disconnect to mongo</span></span><br><span class="line">remove(mongoConn)</span><br></pre></td></tr></table></figure>
+
+<p>因為我的mongodb router server跟config server都只有一台</p>
+<p>所以上傳過程中兩個server都非常忙碌</p>
+<p>如果能有夠多機器去分擔router server跟config server應該還可以提升資料上傳速度</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/R/" rel="tag"># R</a>
+              <a href="/tags/mongodb/" rel="tag"># mongodb</a>
+              <a href="/tags/Oracle/" rel="tag"># Oracle</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/201610/2016-10-14-buildup-mongodb-sharding-server.html" rel="prev" title="建置Mongodb Sharding Server">
+      <i class="fa fa-chevron-left"></i> 建置Mongodb Sharding Server
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/201610/2016-10-19-unnest-in-R-datatable.html" rel="next" title="unnest in R data.table">
+      unnest in R data.table <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ching-Chuan Chen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">156</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ChingChuan-Chen" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ChingChuan-Chen" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zw12356@gmail.com" title="E-Mail → mailto:zw12356@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/celestial0230/" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;celestial0230&#x2F;" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ching-Chuan Chen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://celestial0230.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://chingchuan-chen.github.io/posts/201610/2016-10-15-using-R-to-load-data-into-mongodb-from-oracle.html";
+    this.page.identifier = "posts/201610/2016-10-15-using-R-to-load-data-into-mongodb-from-oracle.html";
+    this.page.title = "用R做Oracle跟mongodb的loader";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://celestial0230.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

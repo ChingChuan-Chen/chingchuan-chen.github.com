@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="zh-tw,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans TC:300,300italic,400,400italic,700,700italic|DM Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chingchuan-chen.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"buttons","active":"disqus","storage":true,"lazyload":false,"nav":null,"activeClass":"disqus"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="本篇主要在部署Spark on Mesos的環境">
+<meta property="og:type" content="article">
+<meta property="og:title" content="部署Spark on Mesos and Cassandra環境">
+<meta property="og:url" content="http://chingchuan-chen.github.io/posts/201608/2016-08-23-deployment-of-mesos-spark.html">
+<meta property="og:site_name" content="Ching-Chuan Chen&#39;s Blogger">
+<meta property="og:description" content="本篇主要在部署Spark on Mesos的環境">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2016-08-22T16:00:00.000Z">
+<meta property="article:modified_time" content="2018-03-14T16:54:35.000Z">
+<meta property="article:author" content="Ching-Chuan Chen">
+<meta property="article:tag" content="BigData">
+<meta property="article:tag" content="Cassandra">
+<meta property="article:tag" content="Spark">
+<meta property="article:tag" content="Mesos">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://chingchuan-chen.github.io/posts/201608/2016-08-23-deployment-of-mesos-spark.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-tw'
+  };
+</script>
+
+  <title>部署Spark on Mesos and Cassandra環境 | Ching-Chuan Chen's Blogger</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72564040-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-72564040-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ching-Chuan Chen's Blogger</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Statistics, Machine Learning and Programming</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/ChingChuan-Chen" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-tw">
+    <link itemprop="mainEntityOfPage" href="http://chingchuan-chen.github.io/posts/201608/2016-08-23-deployment-of-mesos-spark.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ching-Chuan Chen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ching-Chuan Chen's Blogger">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          部署Spark on Mesos and Cassandra環境
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2016-08-23 00:00:00" itemprop="dateCreated datePublished" datetime="2016-08-23T00:00:00+08:00">2016-08-23</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2018-03-15 00:54:35" itemprop="dateModified" datetime="2018-03-15T00:54:35+08:00">2018-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/BigData/" itemprop="url" rel="index"><span itemprop="name">BigData</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/posts/201608/2016-08-23-deployment-of-mesos-spark.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="posts/201608/2016-08-23-deployment-of-mesos-spark.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>本篇主要在部署Spark on Mesos的環境</p>
+<a id="more"></a>
+
+<p>目標是Spark跟Mesos的master配上兩台Mesos standby(同時為Zookeeper)</p>
+<p>cassSpark1為Mesos master跟Spark master，cassSpark2以及cassSpark3為mesos standby</p>
+<p>這三台同時也是Mesos slaves跟Spark slaves (實際用途中，會是其他電腦，這裡用VM就都放一起了)</p>
+<ol>
+<li>準備工作</li>
+</ol>
+<p>這裡基本上跟<a href="http://chingchuan-chen.github.io/cassandra/2016/08/05/deployment-of-spark-based-on-cassandra.html">前篇</a>一樣，就不贅述了</p>
+<ol start="2">
+<li>開始部署</li>
+</ol>
+<p>i. 下載檔案並移到適當位置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 建立放置資料夾</span></span><br><span class="line">sudo mkdir /usr/<span class="built_in">local</span>/bigdata</span><br><span class="line">sudo chown -R tester /usr/<span class="built_in">local</span>/bigdata</span><br><span class="line"></span><br><span class="line"><span class="comment"># 下載並安裝java</span></span><br><span class="line">curl -v -j -k -L -H <span class="string">&quot;Cookie: oraclelicense=accept-securebackup-cookie&quot;</span> http://download.oracle.com/otn-pub/java/jdk/8u101-b13/jdk-8u101-linux-x64.rpm -o jdk-8u101-linux-x64.rpm</span><br><span class="line">sudo yum install -y jdk-8u101-linux-x64.rpm</span><br><span class="line"><span class="comment"># 下載並部署zookeeper</span></span><br><span class="line">curl -v -j -k -L http://apache.stu.edu.tw/zookeeper/zookeeper-3.4.8/zookeeper-3.4.8.tar.gz -o zookeeper-3.4.8.tar.gz</span><br><span class="line">tar -zxvf zookeeper-3.4.8.tar.gz</span><br><span class="line">sudo mv zookeeper-3.4.8 /usr/<span class="built_in">local</span>/bigdata/zookeeper</span><br><span class="line">sudo chown -R tester /usr/<span class="built_in">local</span>/bigdata/zookeeper</span><br><span class="line"><span class="comment"># 下載並部署mesos</span></span><br><span class="line">curl -v -j -k -L http://repos.mesosphere.com/el/7/x86_64/RPMS/mesos-1.0.0-2.0.89.centos701406.x86_64.rpm -o mesos-1.0.0-2.0.89.centos701406.x86_64.rpm</span><br><span class="line">sudo yum install mesos-1.0.0-2.0.89.centos701406.x86_64.rpm</span><br><span class="line"><span class="comment"># 下載並部署scala</span></span><br><span class="line">curl -v -j -k -L http://downloads.lightbend.com/scala/2.11.8/scala-2.11.8.tgz -o scala-2.11.8.tgz</span><br><span class="line">tar -zxvf scala-2.11.8.tgz</span><br><span class="line">mv scala-2.11.8 /usr/<span class="built_in">local</span>/bigdata/scala</span><br><span class="line"><span class="comment"># 下載並部署spark</span></span><br><span class="line">curl -v -j -k -L http://d3kbcqa49mib13.cloudfront.net/spark-2.0.0-bin-hadoop2.6.tgz -o spark-2.0.0-bin-hadoop2.6.tgz</span><br><span class="line">tar -zxvf spark-2.0.0-bin-hadoop2.6.tgz</span><br><span class="line">mv spark-2.0.0-bin-hadoop2.6 /usr/<span class="built_in">local</span>/bigdata/spark</span><br><span class="line"><span class="comment"># 下載並部署cassandra</span></span><br><span class="line">curl -v -j -k -L http://apache.stu.edu.tw/cassandra/2.2.7/apache-cassandra-2.2.7-bin.tar.gz -o apache-cassandra-2.2.7-bin.tar.gz</span><br><span class="line">tar -zxvf apache-cassandra-2.2.7-bin.tar.gz</span><br><span class="line">mv apache-cassandra-2.2.7 /usr/<span class="built_in">local</span>/bigdata/cassandra</span><br></pre></td></tr></table></figure>
+
+<p>ii. 環境變數設置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">sudo tee -a /etc/bashrc &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line"><span class="comment"># JAVA</span></span><br><span class="line"><span class="built_in">export</span> JAVA_HOME=/usr/java/jdk1.8.0_101</span><br><span class="line"><span class="comment"># ZOOKEEPER</span></span><br><span class="line"><span class="built_in">export</span> ZOOKEEPER_HOME=/usr/<span class="built_in">local</span>/bigdata/zookeeper</span><br><span class="line"><span class="comment"># SCALA</span></span><br><span class="line"><span class="built_in">export</span> SCALA_HOME=/usr/<span class="built_in">local</span>/bigdata/scala</span><br><span class="line"><span class="comment"># SPARK</span></span><br><span class="line"><span class="built_in">export</span> SPARK_HOME=/usr/<span class="built_in">local</span>/bigdata/spark</span><br><span class="line"><span class="comment"># CASSANDRA</span></span><br><span class="line"><span class="built_in">export</span> CASSANDRA_HOME=/usr/<span class="built_in">local</span>/bigdata/cassandra</span><br><span class="line"><span class="comment"># PATH</span></span><br><span class="line"><span class="built_in">export</span> PATH=<span class="variable">$PATH</span>:<span class="variable">$JAVA_HOME</span>:<span class="variable">$ZOOKEEPER_HOME</span>/bin:<span class="variable">$SPARK_HOME</span>/bin:<span class="variable">$CASSANDRA_HOME</span>/bin</span><br></pre></td></tr></table></figure>
+
+<p>iv. 配置Zookeeper</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 複製zoo.cfg</span></span><br><span class="line">cp <span class="variable">$ZOOKEEPER_HOME</span>/conf/zoo_sample.cfg <span class="variable">$ZOOKEEPER_HOME</span>/conf/zoo.cfg</span><br><span class="line"><span class="comment"># 傳入設定</span></span><br><span class="line">tee <span class="variable">$ZOOKEEPER_HOME</span>/conf/zoo.cfg &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">dataDir=/usr/<span class="built_in">local</span>/bigdata/zookeeper/data</span><br><span class="line">server.1=cassSpark1:2888:3888</span><br><span class="line">server.2=cassSpark2:2888:3888</span><br><span class="line">server.3=cassSpark3:2888:3888</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 接著創立需要的資料夾，並新增檔案</span></span><br><span class="line">mkdir <span class="variable">$ZOOKEEPER_HOME</span>/data</span><br><span class="line">tee <span class="variable">$ZOOKEEPER_HOME</span>/data/myid &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">1</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>在cassSpark2跟cassSpark3分別設定為2跟3。</p>
+<p>啟動zookeeper: </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 啟動zookeeper server</span></span><br><span class="line">zkServer.sh start</span><br><span class="line">ssh tester@cassSpark2 <span class="string">&quot;zkServer.sh start&quot;</span></span><br><span class="line">ssh tester@cassSpark3 <span class="string">&quot;zkServer.sh start&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>再來是測試看看是否有部署成功，先輸入<code>zkCli.sh -server cassSpark1:2181,cassSpark2:2181,cassSpark3:2181</code>可以登錄到zookeeper的server上，如果是正常運作會看到下面的訊息：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[zk: cassSpark1:2181,cassSpark2:2181,cassSpark3:2181(CONNECTED) 0]</span><br></pre></td></tr></table></figure>
+
+<p>此時試著輸入看看<code>create /test01 abcd</code>，然後輸入<code>ls /</code>看看是否會出現<code>[test01, zookeeper]</code></p>
+<p>如果是，zookeeper就是設定成功，如果中間有出現任何錯誤，則否</p>
+<p>最後用<code>delete /test01</code>做刪除即可，然後用<code>quit</code>離開。</p>
+<p>最後是設定開機自動啟動zookeeper server:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><span class="line">sudo tee /etc/init.d/zookeeper &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"><span class="comment">#</span></span><br><span class="line"><span class="comment"># ZooKeeper</span></span><br><span class="line"><span class="comment"># </span></span><br><span class="line"><span class="comment"># chkconfig: - 80 99</span></span><br><span class="line"><span class="comment"># description: zookeeper</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># ZooKeeper install path (where you extracted the tarball)</span></span><br><span class="line">ZOOKEEPER=/usr/<span class="built_in">local</span>/bigdata/zookeeper</span><br><span class="line"></span><br><span class="line"><span class="built_in">source</span> /etc/rc.d/init.d/<span class="built_in">functions</span></span><br><span class="line"><span class="built_in">source</span> <span class="variable">$ZOOKEEPER</span>/bin/zkEnv.sh</span><br><span class="line"></span><br><span class="line">RETVAL=0</span><br><span class="line">PIDFILE=/var/run/zookeeper_server.pid</span><br><span class="line">desc=<span class="string">&quot;ZooKeeper daemon&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">start</span></span>() &#123;</span><br><span class="line">  <span class="built_in">echo</span> -n $<span class="string">&quot;Starting <span class="variable">$desc</span> (zookeeper): &quot;</span></span><br><span class="line">  daemon <span class="variable">$ZOOKEEPER</span>/bin/zkServer.sh start</span><br><span class="line">  RETVAL=$?</span><br><span class="line">  <span class="built_in">echo</span></span><br><span class="line">  [ <span class="variable">$RETVAL</span> -eq 0 ] &amp;&amp; touch /var/lock/subsys/zookeeper</span><br><span class="line">  <span class="built_in">return</span> <span class="variable">$RETVAL</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">stop</span></span>() &#123;</span><br><span class="line">  <span class="built_in">echo</span> -n $<span class="string">&quot;Stopping <span class="variable">$desc</span> (zookeeper): &quot;</span></span><br><span class="line">  daemon <span class="variable">$ZOOKEEPER</span>/bin/zkServer.sh stop</span><br><span class="line">  RETVAL=$?</span><br><span class="line">  sleep 5</span><br><span class="line">  <span class="built_in">echo</span></span><br><span class="line">  [ <span class="variable">$RETVAL</span> -eq 0 ] &amp;&amp; rm -f /var/lock/subsys/zookeeper <span class="variable">$PIDFILE</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">restart</span></span>() &#123;</span><br><span class="line">  stop</span><br><span class="line">  start</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">get_pid</span></span>() &#123;</span><br><span class="line">  cat <span class="string">&quot;<span class="variable">$PIDFILE</span>&quot;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">checkstatus</span></span>()&#123;</span><br><span class="line">  status -p <span class="variable">$PIDFILE</span> <span class="variable">$&#123;JAVA_HOME&#125;</span>/bin/java</span><br><span class="line">  RETVAL=$?</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">condrestart</span></span>()&#123;</span><br><span class="line">  [ -e /var/lock/subsys/zookeeper ] &amp;&amp; restart || :</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">case</span> <span class="string">&quot;<span class="variable">$1</span>&quot;</span> <span class="keyword">in</span></span><br><span class="line">  start)</span><br><span class="line">    start</span><br><span class="line">    ;;</span><br><span class="line">  stop)</span><br><span class="line">    stop</span><br><span class="line">    ;;</span><br><span class="line">  status)</span><br><span class="line">    checkstatus</span><br><span class="line">    ;;</span><br><span class="line">  restart)</span><br><span class="line">    restart</span><br><span class="line">    ;;</span><br><span class="line">  condrestart)</span><br><span class="line">    condrestart</span><br><span class="line">    ;;</span><br><span class="line">  *)</span><br><span class="line">    <span class="built_in">echo</span> $<span class="string">&quot;Usage: <span class="variable">$0</span> &#123;start|stop|status|restart|condrestart&#125;&quot;</span></span><br><span class="line">    <span class="built_in">exit</span> 1</span><br><span class="line"><span class="keyword">esac</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">exit</span> <span class="variable">$RETVAL</span></span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 然後使用下面指令讓這個script能夠自動跑：</span></span><br><span class="line">sudo chmod +x /etc/init.d/zookeeper</span><br><span class="line">sudo chkconfig --add zookeeper</span><br><span class="line">sudo service zookeeper start</span><br></pre></td></tr></table></figure>
+
+<p>v. 配置mesos</p>
+<p>下面的動作在cassSpark1, cassSpark2, cassSpark3這三台都要配置</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 修改zookeeper</span></span><br><span class="line">sudo tee /etc/mesos/zk &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">zk://192.168.0.121:2181,192.168.0.122:2181,192.168.0.123:2181/mesos</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># 配置quorum</span></span><br><span class="line">sudo tee /etc/mesos-master/quorum &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">2</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>ssh-copy-id -i ~/.ssh/id_rsa.pub cassSpark3</p>
+<p>再來就是啟動了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 記得先啟動zookeeper server，再啟動mesos</span></span><br><span class="line"><span class="comment"># master要記得關掉slave (這裡的配置下不用關，指令供人參考用)</span></span><br><span class="line">sudo systemctl <span class="built_in">disable</span> mesos-master</span><br><span class="line">sudo systemctl stop mesos-master</span><br><span class="line">sudo service mesos-master restart</span><br><span class="line"><span class="comment"># 在cassSpark2,cassSpark3上啟動slave</span></span><br><span class="line"><span class="comment"># slave要記得關掉master (這裡的配置下不用關，指令供人參考用)</span></span><br><span class="line">sudo systemctl <span class="built_in">disable</span> mesos-slave</span><br><span class="line">sudo systemctl stop mesos-slave</span><br><span class="line">sudo service mesos-slave restart</span><br></pre></td></tr></table></figure>
+
+<p>iii. 配置scala and spark</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 複製檔案</span></span><br><span class="line">cp <span class="variable">$SPARK_HOME</span>/conf/spark-env.sh.template <span class="variable">$SPARK_HOME</span>/conf/spark-env.sh</span><br><span class="line">cp <span class="variable">$SPARK_HOME</span>/conf/log4j.properties.template <span class="variable">$SPARK_HOME</span>/conf/log4j.properties</span><br><span class="line">cp <span class="variable">$SPARK_HOME</span>/conf/spark-defaults.conf.template <span class="variable">$SPARK_HOME</span>/conf/spark-defaults.conf</span><br><span class="line"></span><br><span class="line"><span class="comment"># 傳入設定</span></span><br><span class="line">tee -a <span class="variable">$SPARK_HOME</span>/conf/spark-env.sh &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">SPARK_LOCAL_DIRS=/usr/<span class="built_in">local</span>/bigdata/spark</span><br><span class="line">SPARK_SCALA_VERSION=2.11</span><br><span class="line">EOF</span><br><span class="line"></span><br><span class="line"><span class="comment"># install sbt and git </span></span><br><span class="line">sudo yum install sbt git-core</span><br><span class="line"></span><br><span class="line"><span class="comment"># clone spark-cassandra-connector</span></span><br><span class="line">git <span class="built_in">clone</span> git@github.com:datastax/spark-cassandra-connector.git</span><br><span class="line"></span><br><span class="line"><span class="comment"># compile assembly jar</span></span><br><span class="line"><span class="built_in">cd</span> spark-cassandra-connector</span><br><span class="line">rm -r spark-cassandra-connector-perf</span><br><span class="line">sbt -Dscala-2.11=<span class="literal">true</span> assembly</span><br><span class="line"></span><br><span class="line"><span class="comment"># copy jar to spark</span></span><br><span class="line">mkdir <span class="variable">$SPARK_HOME</span>/extraClass</span><br><span class="line">cp spark-cassandra-connector/target/scala-2.11/spark-cassandra-connector-assembly-2.0.0-M1-2-g70018a6.jar <span class="variable">$SPARK_HOME</span>/extraClass</span><br><span class="line"></span><br><span class="line">tee -a <span class="variable">$SPARK_HOME</span>/conf/spark-defaults.conf &lt;&lt; <span class="string">&quot;EOF&quot;</span></span><br><span class="line">spark.driver.extraClassPath /usr/<span class="built_in">local</span>/bigdata/spark/extraClass/spark-cassandra-connector-assembly-2.0.0-M1.jar</span><br><span class="line">spark.driver.extraLibraryPath /usr/<span class="built_in">local</span>/bigdata/spark/extraClass</span><br><span class="line">spark.executor.extraClassPath /usr/<span class="built_in">local</span>/bigdata/spark/extraClass/spark-cassandra-connector-assembly-2.0.0-M1.jar</span><br><span class="line">spark.executor.extraLibraryPath /usr/<span class="built_in">local</span>/bigdata/spark/extraClass</span><br><span class="line">spark.jars /usr/<span class="built_in">local</span>/bigdata/spark/extraClass/spark-cassandra-connector-assembly-2.0.0-M1.jar</span><br><span class="line">spark.cores.max 3</span><br><span class="line">spark.driver.memory 4g</span><br><span class="line">spark.executor.memory 4g</span><br><span class="line">EOF</span><br></pre></td></tr></table></figure>
+
+<p>Spark的master, slave就不用啟動了，直接用Mesos即可</p>
+<p>如果之前用我的方式配置過自動啟動的話，請用下面的指令移除：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 移除master的服務</span></span><br><span class="line">sudo systemctl stop spark-master.service</span><br><span class="line">sudo rm /etc/systemd/system/multi-user.target.wants/spark-master.service</span><br><span class="line"><span class="comment"># 移除slave的服務</span></span><br><span class="line">sudo systemctl stop spark-slave.service</span><br><span class="line">sudo rm /etc/systemd/system/multi-user.target.wants/spark-slave.service</span><br><span class="line"><span class="comment"># 重新讀取開機的服務</span></span><br><span class="line">sudo systemctl daemon-reload</span><br></pre></td></tr></table></figure>
+
+<p>至於cassandra的設置就都一樣，此處就不贅述，直接進測試</p>
+<p>執行下面兩行，成功執行就是Mesos有裝成功</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MASTER=$(mesos-resolve `cat /etc/mesos/zk`)</span><br><span class="line">mesos-execute --master=<span class="variable">$MASTER</span> --name=<span class="string">&quot;cluster-test&quot;</span> --<span class="built_in">command</span>=<span class="string">&quot;sleep 5&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>Mesos也可以透過去連接5050 port到目前的master上去，有出現網頁就是正常</p>
+<p>再來測試Spark，用<code>spark-shell --master mesos://zk://192.168.0.121:2181,192.168.0.122:2181,192.168.0.123:2181/mesos</code>開啟spark-shell確定功能正常</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 單純測試spark</span></span><br><span class="line"><span class="keyword">val</span> <span class="type">NUM_SAMPLES</span> = <span class="number">1000000</span></span><br><span class="line"><span class="keyword">val</span> count = sc.parallelize(<span class="number">1</span> to <span class="type">NUM_SAMPLES</span>).map&#123;i =&gt;</span><br><span class="line">  <span class="keyword">val</span> x = <span class="type">Math</span>.random()</span><br><span class="line">  <span class="keyword">val</span> y = <span class="type">Math</span>.random()</span><br><span class="line">  <span class="keyword">if</span> (x*x + y*y &lt; <span class="number">1</span>) <span class="number">1</span> <span class="keyword">else</span> <span class="number">0</span></span><br><span class="line">&#125;.reduce(_ + _)</span><br><span class="line">println(<span class="string">&quot;Pi is roughly &quot;</span> + <span class="number">4.0</span> * count / <span class="type">NUM_SAMPLES</span>)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 測試與cassandra的connector</span></span><br><span class="line"><span class="comment">// 重啟sc</span></span><br><span class="line">sc.stop()</span><br><span class="line"><span class="comment">// imprt需要套件</span></span><br><span class="line"><span class="keyword">import</span> com.datastax.spark.connector._, org.apache.spark.<span class="type">SparkContext</span>, org.apache.spark.<span class="type">SparkContext</span>._, org.apache.spark.<span class="type">SparkConf</span>, com.datastax.spark.connector.cql.<span class="type">CassandraConnector</span></span><br><span class="line"><span class="comment">// 設定cassandra host</span></span><br><span class="line"><span class="keyword">val</span> conf = <span class="keyword">new</span> <span class="type">SparkConf</span>(<span class="literal">true</span>).set(<span class="string">&quot;spark.cassandra.connection.host&quot;</span>, <span class="string">&quot;192.168.0.121&quot;</span>)</span><br><span class="line"><span class="keyword">val</span> sc = <span class="keyword">new</span> <span class="type">SparkContext</span>(conf)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 創立keyspace, table，然後塞值</span></span><br><span class="line"><span class="type">CassandraConnector</span>(conf).withSessionDo &#123; session =&gt;</span><br><span class="line">  session.execute(<span class="string">&quot;CREATE KEYSPACE IF NOT EXISTS test WITH REPLICATION = &#123;&#x27;class&#x27;: &#x27;SimpleStrategy&#x27;, &#x27;replication_factor&#x27;: 2 &#125;&quot;</span>)</span><br><span class="line">  session.execute(<span class="string">&quot;DROP TABLE IF EXISTS test.kv&quot;</span>)</span><br><span class="line">  session.execute(<span class="string">&quot;CREATE TABLE test.kv (key text PRIMARY KEY, value DOUBLE)&quot;</span>)</span><br><span class="line">  session.execute(<span class="string">&quot;INSERT INTO test.kv(key, value) VALUES (&#x27;key1&#x27;, 1.0)&quot;</span>)</span><br><span class="line">  session.execute(<span class="string">&quot;INSERT INTO test.kv(key, value) VALUES (&#x27;key2&#x27;, 2.5)&quot;</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 印出cassandra的元素</span></span><br><span class="line"><span class="keyword">val</span> rdd = sc.cassandraTable(<span class="string">&quot;test&quot;</span>, <span class="string">&quot;kv&quot;</span>)</span><br><span class="line">println(rdd.first)</span><br><span class="line"><span class="comment">// 會出現CassandraRow&#123;key: key1, value: 1.0&#125;</span></span><br><span class="line"><span class="keyword">val</span> collection = sc.parallelize(<span class="type">Seq</span>((<span class="string">&quot;key3&quot;</span>, <span class="number">1.7</span>), (<span class="string">&quot;key4&quot;</span>, <span class="number">3.5</span>)))</span><br><span class="line"><span class="comment">// save new data into cassandra</span></span><br><span class="line">collection.saveToCassandra(<span class="string">&quot;test&quot;</span>, <span class="string">&quot;kv&quot;</span>, <span class="type">SomeColumns</span>(<span class="string">&quot;key&quot;</span>, <span class="string">&quot;value&quot;</span>))</span><br><span class="line"><span class="comment">// 印出塞完的結果</span></span><br><span class="line">rdd.collect().foreach(row =&gt; println(<span class="string">s&quot;Existing Data: <span class="subst">$row</span>&quot;</span>))</span><br><span class="line"><span class="comment">// Existing Data: CassandraRow&#123;key: key3, value: 1.7&#125;</span></span><br><span class="line"><span class="comment">// Existing Data: CassandraRow&#123;key: key1, value: 1.0&#125;</span></span><br><span class="line"><span class="comment">// Existing Data: CassandraRow&#123;key: key4, value: 3.5&#125;</span></span><br><span class="line"><span class="comment">// Existing Data: CassandraRow&#123;key: key2, value: 2.5&#125;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 停止spark-shell，然後離開</span></span><br><span class="line">sc.stop()</span><br><span class="line">:quit</span><br></pre></td></tr></table></figure>
+
+<p>備註：</p>
+<p>如果cluster不能對外連線的話，curl可以取得的檔案都先經由能夠連線的電腦取得</p>
+<p>至於Mesos的dependencies，先在能夠對外連線的centos電腦上下</p>
+<p><code>sudo yum install --downloadonly --downloaddir=pkgs mesos-1.0.0-2.0.89.centos701406.x86_64.rpm</code></p>
+<p>這樣就會把要下載rpm檔案全部都載下來到<code>pkgs</code>的資料夾，這些在打包傳到cluster上</p>
+<p>然後用<code>sudo yum install *.rpm</code>安裝，在安裝Mesos即可</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/BigData/" rel="tag"># BigData</a>
+              <a href="/tags/Cassandra/" rel="tag"># Cassandra</a>
+              <a href="/tags/Spark/" rel="tag"># Spark</a>
+              <a href="/tags/Mesos/" rel="tag"># Mesos</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/201608/2016-08-13-use-scala-migrate-oracle-data-to-cassandra-through-sparksql.html" rel="prev" title="使用scala透過sparkSQL去搬移Oracle DB的資料到Cassandra上">
+      <i class="fa fa-chevron-left"></i> 使用scala透過sparkSQL去搬移Oracle DB的資料到Cassandra上
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/201608/2016-08-26-spark-on-mesos-dynamic-resource-allocation.html" rel="next" title="Spark on Mesos: dynamic resource allocation">
+      Spark on Mesos: dynamic resource allocation <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ching-Chuan Chen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">156</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ChingChuan-Chen" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ChingChuan-Chen" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zw12356@gmail.com" title="E-Mail → mailto:zw12356@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/celestial0230/" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;celestial0230&#x2F;" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ching-Chuan Chen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://celestial0230.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://chingchuan-chen.github.io/posts/201608/2016-08-23-deployment-of-mesos-spark.html";
+    this.page.identifier = "posts/201608/2016-08-23-deployment-of-mesos-spark.html";
+    this.page.title = "部署Spark on Mesos and Cassandra環境";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://celestial0230.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>

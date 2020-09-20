@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="zh-tw,en,default">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Noto Sans TC:300,300italic,400,400italic,700,700italic|DM Mono:300,300italic,400,400italic,700,700italic&display=swap&subset=latin,latin-ext">
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"chingchuan-chen.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"buttons","active":"disqus","storage":true,"lazyload":false,"nav":null,"activeClass":"disqus"},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":-1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Hadoop is one of the most popular tool to deal with the big data. I construct the environment of Hadoop in mint 17. Mint 17 is based on the ubuntu 14.04. The following steps also works in ubuntu 14.04">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Build Hadoop environment in mint 17">
+<meta property="og:url" content="http://chingchuan-chen.github.io/posts/201504/2015-04-06-build-hadoop-environment-in-mint-17.html">
+<meta property="og:site_name" content="Ching-Chuan Chen&#39;s Blogger">
+<meta property="og:description" content="Hadoop is one of the most popular tool to deal with the big data. I construct the environment of Hadoop in mint 17. Mint 17 is based on the ubuntu 14.04. The following steps also works in ubuntu 14.04">
+<meta property="og:locale" content="zh_TW">
+<meta property="article:published_time" content="2015-04-05T16:00:00.000Z">
+<meta property="article:modified_time" content="2018-03-14T17:14:21.000Z">
+<meta property="article:author" content="Ching-Chuan Chen">
+<meta property="article:tag" content="Mint">
+<meta property="article:tag" content="BigData">
+<meta property="article:tag" content="Hadoop">
+<meta name="twitter:card" content="summary">
+
+<link rel="canonical" href="http://chingchuan-chen.github.io/posts/201504/2015-04-06-build-hadoop-environment-in-mint-17.html">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-tw'
+  };
+</script>
+
+  <title>Build Hadoop environment in mint 17 | Ching-Chuan Chen's Blogger</title>
+  
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-72564040-1"></script>
+    <script data-pjax>
+      if (CONFIG.hostname === location.hostname) {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'UA-72564040-1');
+      }
+    </script>
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Ching-Chuan Chen's Blogger</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">Statistics, Machine Learning and Programming</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>Tags</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+        <li class="menu-item menu-item-sitemap">
+
+    <a href="/sitemap.xml" rel="section"><i class="fa fa-sitemap fa-fw"></i>Sitemap</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/ChingChuan-Chen" class="github-corner" title="Follow me on GitHub" aria-label="Follow me on GitHub" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-tw">
+    <link itemprop="mainEntityOfPage" href="http://chingchuan-chen.github.io/posts/201504/2015-04-06-build-hadoop-environment-in-mint-17.html">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Ching-Chuan Chen">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Ching-Chuan Chen's Blogger">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Build Hadoop environment in mint 17
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2015-04-06 00:00:00" itemprop="dateCreated datePublished" datetime="2015-04-06T00:00:00+08:00">2015-04-06</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2018-03-15 01:14:21" itemprop="dateModified" datetime="2018-03-15T01:14:21+08:00">2018-03-15</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/BigData/" itemprop="url" rel="index"><span itemprop="name">BigData</span></a>
+                </span>
+            </span>
+
+          
+  
+  <span class="post-meta-item">
+    
+      <span class="post-meta-item-icon">
+        <i class="far fa-comment"></i>
+      </span>
+      <span class="post-meta-item-text">Disqus: </span>
+    
+    <a title="disqus" href="/posts/201504/2015-04-06-build-hadoop-environment-in-mint-17.html#disqus_thread" itemprop="discussionUrl">
+      <span class="post-comments-count disqus-comment-count" data-disqus-identifier="posts/201504/2015-04-06-build-hadoop-environment-in-mint-17.html" itemprop="commentCount"></span>
+    </a>
+  </span>
+  
+  
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <p>Hadoop is one of the most popular tool to deal with the big data. I construct the environment of Hadoop in mint 17. Mint 17 is based on the ubuntu 14.04. The following steps also works in ubuntu 14.04.</p>
+<a id="more"></a>
+
+<ol>
+<li>install java jdk 8</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install python-software-properties</span><br><span class="line">sudo add-apt-repository ppa:webupd8team/java</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install oracle-java8-installer</span><br><span class="line">javac -version <span class="comment"># check the version of java</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># remove openjdk java</span></span><br><span class="line">sudo apt-get purge openjdk-\*</span><br><span class="line"><span class="comment"># java version vs hadoop version</span></span><br><span class="line"><span class="comment"># refer: http://wiki.apache.org/hadoop/HadoopJavaVersions</span></span><br></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>install ssh</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install ssh rsync openssh-server</span><br><span class="line">ssh-keygen -t rsa -P <span class="string">&quot;&quot;</span> <span class="comment"># generate SSH key</span></span><br><span class="line"><span class="comment"># Enable SSH Key</span></span><br><span class="line">cat ~/.ssh/id_rsa.pub &gt;&gt; ~/.ssh/authorized_keys</span><br><span class="line"><span class="comment"># test whether it works, it should not need password if it works</span></span><br><span class="line">ssh localhost</span><br><span class="line"><span class="built_in">exit</span></span><br></pre></td></tr></table></figure>
+
+<ol start="3">
+<li>download hadoop</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">wget http://apache.stu.edu.tw/hadoop/common/stable2/hadoop-2.7.2.tar.gz</span><br><span class="line">tar zxvf hadoop-2.7.2.tar.gz</span><br><span class="line">sudo mv hadoop-2.7.2 /usr/<span class="built_in">local</span>/hadoop</span><br><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span></span><br><span class="line">sudo chown -R celest hadoop</span><br></pre></td></tr></table></figure>
+
+<ol start="4">
+<li>setting environment for java and hadoop</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">sudo subl /etc/bash.bashrc</span><br><span class="line"><span class="comment"># add following 9 lines into file</span></span><br><span class="line"><span class="comment"># export JAVA_HOME=/usr/lib/jvm/java-8-oracle/</span></span><br><span class="line"><span class="comment"># export HADOOP_PID_DIR=/usr/local/hadoop/pids/</span></span><br><span class="line"><span class="comment"># export HADOOP_INSTALL=/usr/local/hadoop</span></span><br><span class="line"><span class="comment"># export PATH=$PATH:$HADOOP_INSTALL/bin</span></span><br><span class="line"><span class="comment"># export PATH=$PATH:$HADOOP_INSTALL/sbin</span></span><br><span class="line"><span class="comment"># export HADOOP_MAPRED_HOME=$HADOOP_INSTALL</span></span><br><span class="line"><span class="comment"># export HADOOP_COMMON_HOME=$HADOOP_INSTALL</span></span><br><span class="line"><span class="comment"># export HADOOP_HDFS_HOME=$HADOOP_INSTALL</span></span><br><span class="line"><span class="comment"># export YARN_HOME=$HADOOP_INSTALL</span></span><br><span class="line"><span class="built_in">source</span> /etc/bash.bashrc</span><br><span class="line"><span class="comment"># in ubuntu, is &gt;&gt; etc/bash.bashrc</span></span><br></pre></td></tr></table></figure>
+
+<p>4-1. network environment (for multi-node hadoop)<br>If you use the VMware, you need to add another host-only network card. You can install hadoop successfully and clone it to be slaves. In following, <code>master</code> stands for the primary node and <code>slaveXX</code> for the other nodes.</p>
+<p>a. setting the network</p>
+<p>using <code>ifconfig</code> to check whether the network card is adding.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo subl /etc/network/interfaces</span><br></pre></td></tr></table></figure>
+
+<p>the content of file looks like this:<br>(there must be eth1. Put a address for it on the machines master and slaves.)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># The loopback network interface for master</span></span><br><span class="line">auto lo</span><br><span class="line">iface lo inet loopback</span><br><span class="line"></span><br><span class="line"><span class="comment"># The primary network interface</span></span><br><span class="line">auto eth0</span><br><span class="line">iface eth0 inet dhcp</span><br><span class="line"></span><br><span class="line"><span class="comment"># Host-Only</span></span><br><span class="line">auto eth1</span><br><span class="line">  iface eth1:0 inet static</span><br><span class="line">  address 192.168.29.130 <span class="comment"># (192.168.29.131 for slave01)</span></span><br><span class="line">  netmask 255.255.0.0</span><br></pre></td></tr></table></figure>
+
+<p>restart network by command <code>sudo /etc/init.d/networking restart</code><br>and check the network again by <code>ifconfig</code>.</p>
+<ol start="5">
+<li>setup for hadoop</li>
+</ol>
+<p>a. disabling IPv6 by editing <code>/etc/sysctl.conf</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">subl /etc/sysctl.conf</span><br></pre></td></tr></table></figure>
+
+<p>paste the following into <code>/etc/sysctl.conf</code></p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">net.ipv6.conf.all.disable_ipv6 = 1</span><br><span class="line">net.ipv6.conf.default.disable_ipv6 = 1</span><br><span class="line">net.ipv6.conf.lo.disable_ipv6 = 1</span><br></pre></td></tr></table></figure>
+
+<p>checking whether ipv6 is disable: <code>cat /proc/sys/net/ipv6/conf/all/disable_ipv6</code>. (retuen <code>1</code>)</p>
+<p>b. editing following files:</p>
+<p>create the folders for putting data.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/<span class="built_in">local</span>/hadoop</span><br><span class="line">sudo mkdir -p /usr/<span class="built_in">local</span>/hadoop/tmp</span><br><span class="line">sudo chown celest /usr/<span class="built_in">local</span>/hadoop/tmp</span><br><span class="line">subl /usr/<span class="built_in">local</span>/hadoop/etc/hadoop/hadoop-env.sh</span><br><span class="line">subl /usr/<span class="built_in">local</span>/hadoop/etc/hadoop/core-site.xml</span><br><span class="line">cp etc/hadoop/mapred-site.xml.template etc/hadoop/mapred-site.xml</span><br><span class="line">subl /usr/<span class="built_in">local</span>/hadoop/etc/hadoop/mapred-site.xml</span><br><span class="line">subl /usr/<span class="built_in">local</span>/hadoop/etc/hadoop/hdfs-site.xml</span><br><span class="line">subl /usr/<span class="built_in">local</span>/hadoop/etc/hadoop/yarn-site.xml</span><br></pre></td></tr></table></figure>
+
+<p>i. /usr/local/hadoop/etc/hadoop/hadoop-env.sh</p>
+<p>ii. /usr/local/hadoop/etc/hadoop/core-site.xml</p>
+<p>iii. /usr/local/hadoop/etc/hadoop/mapred-site.xml</p>
+<p>iv. /usr/local/hadoop/etc/hadoop/hdfs-site.xml</p>
+<p>v. /usr/local/hadoop/etc/hadoop/slaves # only need for multi-node hadoop</p>
+<p>a. hadoop-env.sh<br>replace the line <code>JAVA_HOME=&#123;JAVA_HOME&#125;</code> with your java root, in my case, it is<br><code>export JAVA_HOME=/usr/lib/jvm/java-8-oracle</code>.</p>
+<p>b. core-site.xml<br>put the following content to the file.</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>hadoop.tmp.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>/usr/local/hadoop/tmp<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">description</span>&gt;</span></span><br><span class="line">    A base for other temporary directories.</span><br><span class="line">  <span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>fs.default.name<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>hdfs://localhost:9000<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="comment">&lt;!-- &lt;value&gt;hdfs://master:9000&lt;/value&gt; for the multi-node case --&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">description</span>&gt;</span></span><br><span class="line">    The name of the default file system.  A URI whose</span><br><span class="line">    scheme and authority determine the FileSystem implementation.  The</span><br><span class="line">    uri&#x27;s scheme determines the config property (fs.SCHEME.impl) naming</span><br><span class="line">    the FileSystem implementation class.  The uri&#x27;s authority is used to</span><br><span class="line">    determine the host, port, etc. for a filesystem.</span><br><span class="line">  <span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>c. mapred-site.xml<br>There is no file <code>mapred-site.xml</code>, we get by copy the <code>mapred-site.xml.template</code>. This command would be helpful: <code>cp etc/hadoop/mapred-site.xml.template etc/hadoop/mapred-site.xml &amp;&amp; subl etc/hadoop/mapred-site.xml</code>. We set the specification of job tracker like this:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>mapreduce.framework.name<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>yarn<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>d. hdfs-site.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.replication<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>3<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">description</span>&gt;</span></span><br><span class="line">    Default block replication. The actual number of replications can be specified when the file is created.   The default is used if replication is not specified in create time.</span><br><span class="line">  <span class="tag">&lt;/<span class="name">description</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.datanode.data.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>/usr/local/hadoop/tmp/data<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">name</span>&gt;</span>dfs.namenode.name.dir<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">value</span>&gt;</span>/usr/local/hadoop/tmp/name<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>e. yarn-site.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- &lt;property&gt;</span></span><br><span class="line"><span class="comment">     &lt;name&gt;yarn.resourcemanager.hostname&lt;/name&gt;</span></span><br><span class="line"><span class="comment">     &lt;value&gt;master&lt;/value&gt;</span></span><br><span class="line"><span class="comment">&lt;/property&gt; --&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- for multi-node --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.aux-services<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">value</span>&gt;</span>mapreduce_shuffle<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">property</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">name</span>&gt;</span>yarn.nodemanager.aux-services.mapreduce.shuffle.class<span class="tag">&lt;/<span class="name">name</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="name">value</span>&gt;</span>org.apache.hadoop.mapred.ShuffleHandler<span class="tag">&lt;/<span class="name">value</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>f. slaves (for multi-node.)</p>
+<p>put names of your machines in the <code>hadoop/etc/hadoop/slaves</code>. Command: <code>subl etc/hadoop/slaves</code>. The file looks like:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">master</span><br><span class="line">slave01</span><br></pre></td></tr></table></figure>
+
+<ol start="6">
+<li>Starting hadoop</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># import environment variable</span></span><br><span class="line"><span class="comment"># ubuntu: source ~/.bashrc</span></span><br><span class="line"><span class="built_in">source</span> /etc/bash.bashrc</span><br><span class="line"><span class="comment"># format hadoop space</span></span><br><span class="line">hdfs namenode -format</span><br><span class="line"><span class="comment"># start the hadoop</span></span><br><span class="line">start-dfs.sh &amp;&amp; start-yarn.sh</span><br><span class="line"><span class="comment"># or start-all.sh</span></span><br></pre></td></tr></table></figure>
+
+<p>The output looks like this: (standalone)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">localhost: starting namenode, logging to /usr/<span class="built_in">local</span>/hadoop/logs/hadoop-master-namenode-master-virtual-machine.out</span><br><span class="line">localhost: starting datanode, logging to /usr/<span class="built_in">local</span>/hadoop/logs/hadoop-master-datanode-master-virtual-machine.out</span><br><span class="line">Starting secondary namenodes [0.0.0.0]</span><br><span class="line">0.0.0.0: starting secondarynamenode, logging to /usr/<span class="built_in">local</span>/hadoop/logs/hadoop-master-secondarynamenode-master-virtual-machine.out</span><br><span class="line">starting yarn daemons</span><br><span class="line">starting resourcemanager, logging to /usr/<span class="built_in">local</span>/hadoop/logs/yarn-master-resourcemanager-master-virtual-machine.out</span><br><span class="line">localhost: starting nodemanager, logging to /usr/<span class="built_in">local</span>/hadoop/logs/yarn-master-nodemanager-master-virtual-machine.out</span><br></pre></td></tr></table></figure>
+
+<p>The output looks like this: (standalone)</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">master: starting namenode, logging to /usr/<span class="built_in">local</span>/hadoop/logs/hadoop-master-namenode-master.out</span><br><span class="line">slave01: starting datanode, logging to /usr/<span class="built_in">local</span>/hadoop/logs/hadoop-master-datanode-slave01.out</span><br><span class="line">Starting secondary namenodes [0.0.0.0]</span><br><span class="line">0.0.0.0: starting secondarynamenode, logging to /usr/<span class="built_in">local</span>/hadoop/logs/hadoop-master-secondarynamenode-master.out</span><br><span class="line">starting yarn daemons</span><br><span class="line">starting resourcemanager, logging to /usr/<span class="built_in">local</span>/hadoop/logs/yarn-master-resourcemanager-master.out</span><br><span class="line">slave01: starting nodemanager, logging to /usr/<span class="built_in">local</span>/hadoop/logs/yarn-master-nodemanager-slave01.out</span><br></pre></td></tr></table></figure>
+
+<p>check whether the server starts by connecting the local server.</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># for standalone</span></span><br><span class="line">firefox http:\\localhost:50070</span><br><span class="line">firefox http:\\localhost:50090</span><br><span class="line"><span class="comment"># for multi-node hadoop</span></span><br><span class="line">hdfs dfsadmin -report</span><br></pre></td></tr></table></figure>
+
+<p>Run a example in the folder</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hadoop jar /usr/<span class="built_in">local</span>/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.2.jar pi 10 100</span><br></pre></td></tr></table></figure>
+
+<p>The last two line will show the following informations:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Job Finished <span class="keyword">in</span> 167.153 seconds</span><br><span class="line">Estimated value of Pi is 3.14800000000000000000</span><br></pre></td></tr></table></figure>
+
+<p>Run second example</p>
+<ol start="8">
+<li>run wordaccout</li>
+</ol>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> ~/Downloads &amp;&amp; mkdir testData &amp;&amp; <span class="built_in">cd</span> testData</span><br><span class="line"><span class="comment"># download data for test</span></span><br><span class="line">wget http://www.gutenberg.org/ebooks/5000.txt.utf-8</span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line"><span class="comment"># upload to the hadoop server</span></span><br><span class="line">hdfs dfs -copyFromLocal testData/ /user/celest/</span><br><span class="line"><span class="comment"># check that the file is in the hadoop server</span></span><br><span class="line">hdfs dfs -ls /user/celest/testData/</span><br><span class="line"><span class="comment"># run wordcount on hadoop</span></span><br><span class="line">hadoop jar /usr/<span class="built_in">local</span>/hadoop/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.7.2.jar wordcount /user/celest/testData /user/celest/testData-output</span><br><span class="line"><span class="comment"># check the whether it successes</span></span><br><span class="line">hdfs dfs -ls /user/celest/testData-output/</span><br><span class="line"><span class="comment"># view the result</span></span><br><span class="line">hdfs dfs -cat /user/celest/testData-output/part-r-00000</span><br><span class="line"></span><br><span class="line"><span class="comment"># clean the test file (optional)</span></span><br><span class="line">hdfs dfs -rm -r /user/celest/testData</span><br><span class="line">hdfs dfs -rm -r /user/celest/testData-output</span><br></pre></td></tr></table></figure>
+
+<ol start="8">
+<li>Stopping hadoop<br><code>stop-all.sh</code> or <code>stop-dfs.sh &amp;&amp; stop-yarn.sh</code></li>
+</ol>
+<ol start="9">
+<li>compiling hadoop library by yourself (optional)</li>
+</ol>
+<p>To avoid the warning <code>WARN util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable</code>, you can build the 64 bit hadoop lib by yourself.</p>
+<p>Here is the bash script to compile:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># install the necessary packages</span></span><br><span class="line">sudo apt-get -y install build-essential protobuf-compiler autoconf automake libtool cmake zlib1g-dev pkg-config libssl-dev git subversion</span><br><span class="line"><span class="built_in">cd</span> ~/Downloads</span><br><span class="line">wget https://protobuf.googlecode.com/files/protobuf-2.5.0.tar.gz</span><br><span class="line">tar zxvf protobuf-2.5.0.tar.gz</span><br><span class="line"><span class="built_in">cd</span> protobuf-2.5.0</span><br><span class="line">./configure</span><br><span class="line">make</span><br><span class="line">sudo make install</span><br><span class="line"><span class="comment"># get ant</span></span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">wget http://apache.stu.edu.tw/ant/binaries/apache-ant-1.9.4-bin.tar.gz</span><br><span class="line">tar zxvf apache-ant-1.9.4-bin.tar.gz</span><br><span class="line">sudo mv apache-ant-1.9.4 /usr/<span class="built_in">local</span>/ant</span><br><span class="line">sudo chown -R celest /usr/<span class="built_in">local</span>/ant</span><br><span class="line"><span class="comment"># get maven</span></span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">wget http://apache.stu.edu.tw/maven/maven-3/3.3.1/binaries/apache-maven-3.3.1-bin.tar.gz</span><br><span class="line">tar zxvf apache-maven-3.3.1-bin.tar.gz</span><br><span class="line">sudo mv apache-maven-3.3.1 /usr/<span class="built_in">local</span>/maven</span><br><span class="line">sudo chown -R celest /usr/<span class="built_in">local</span>/maven</span><br><span class="line">sudo subl /etc/bash.bashrc</span><br><span class="line"><span class="comment"># add following 5 lines into file</span></span><br><span class="line"><span class="comment"># export MAVEN_HOME=/usr/local/maven</span></span><br><span class="line"><span class="comment"># export PATH=$PATH:$MAVEN_HOME/bin</span></span><br><span class="line"><span class="comment"># export ANT_HOME=/usr/local/ant</span></span><br><span class="line"><span class="comment"># export PATH=$PATH:$ANT_HOME/bin</span></span><br><span class="line"><span class="comment"># export MAVEN_OPTS=&quot;-Xms256m -Xmx512m&quot;</span></span><br><span class="line"><span class="built_in">source</span> /etc/bash.bashrc</span><br><span class="line"></span><br><span class="line"><span class="comment"># get the source code of hadoop</span></span><br><span class="line"><span class="built_in">cd</span> ..</span><br><span class="line">wget http://apache.stu.edu.tw/hadoop/common/stable2/hadoop-2.7.2-src.tar.gz</span><br><span class="line">tar zxvf hadoop-2.7.2-src.tar.gz</span><br><span class="line"><span class="built_in">cd</span> hadoop-2.7.2-src</span><br><span class="line">mvn clean package -Pdist -Dtar -Dmaven.javadoc.skip=<span class="literal">true</span> -DskipTests -fail-at-end -Pnative</span><br><span class="line">sudo cp -r hadoop-2.7.2-src/hadoop-dist/target/hadoop-2.7.2 /usr/<span class="built_in">local</span>/hadoop</span><br><span class="line">sudo mv /usr/<span class="built_in">local</span>/hadoop-2.7.2 /usr/<span class="built_in">local</span>/hadoop</span><br><span class="line">sudo chown -R celest hadoop</span><br></pre></td></tr></table></figure>
+
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Mint/" rel="tag"># Mint</a>
+              <a href="/tags/BigData/" rel="tag"># BigData</a>
+              <a href="/tags/Hadoop/" rel="tag"># Hadoop</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/posts/201504/2015-04-06-installation-of-hbase-and-hive-in-mint-17.html" rel="prev" title="Installation of HBase and Hive in mint 17">
+      <i class="fa fa-chevron-left"></i> Installation of HBase and Hive in mint 17
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/posts/201504/2015-04-08-installations-of-rhdfs-rmr2-plyrmr-and-hbase.html" rel="next" title="Installations of rhdfs, rmr2, plyrmr and rhbase">
+      Installations of rhdfs, rmr2, plyrmr and rhbase <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+    
+  <div class="comments">
+    <div id="disqus_thread">
+      <noscript>Please enable JavaScript to view the comments powered by Disqus.</noscript>
+    </div>
+  </div>
+  
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Ching-Chuan Chen</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">147</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">19</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">156</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/ChingChuan-Chen" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;ChingChuan-Chen" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:zw12356@gmail.com" title="E-Mail → mailto:zw12356@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://www.facebook.com/celestial0230/" title="FB Page → https:&#x2F;&#x2F;www.facebook.com&#x2F;celestial0230&#x2F;" rel="noopener" target="_blank"><i class="fab fa-facebook fa-fw"></i>FB Page</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Ching-Chuan Chen</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://pisces.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Pisces</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/pjax/pjax.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+  <script>
+var pjax = new Pjax({
+  selectors: [
+    'head title',
+    '#page-configurations',
+    '.content-wrap',
+    '.post-toc-wrap',
+    '.languages',
+    '#pjax'
+  ],
+  switches: {
+    '.post-toc-wrap': Pjax.switches.innerHTML
+  },
+  analytics: false,
+  cacheBust: false,
+  scrollTo : !CONFIG.bookmark.enable
+});
+
+window.addEventListener('pjax:success', () => {
+  document.querySelectorAll('script[data-pjax], script#page-configurations, #pjax script').forEach(element => {
+    var code = element.text || element.textContent || element.innerHTML || '';
+    var parent = element.parentNode;
+    parent.removeChild(element);
+    var script = document.createElement('script');
+    if (element.id) {
+      script.id = element.id;
+    }
+    if (element.className) {
+      script.className = element.className;
+    }
+    if (element.type) {
+      script.type = element.type;
+    }
+    if (element.src) {
+      script.src = element.src;
+      // Force synchronous loading of peripheral JS.
+      script.async = false;
+    }
+    if (element.dataset.pjax !== undefined) {
+      script.dataset.pjax = '';
+    }
+    if (code !== '') {
+      script.appendChild(document.createTextNode(code));
+    }
+    parent.appendChild(script);
+  });
+  NexT.boot.refresh();
+  // Define Motion Sequence & Bootstrap Motion.
+  if (CONFIG.motion.enable) {
+    NexT.motion.integrator
+      .init()
+      .add(NexT.motion.middleWares.subMenu)
+      .add(NexT.motion.middleWares.postList)
+      .bootstrap();
+  }
+  NexT.utils.updateSidebarPosition();
+});
+</script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div id="pjax">
+  
+
+  
+
+<script>
+  function loadCount() {
+    var d = document, s = d.createElement('script');
+    s.src = 'https://celestial0230.disqus.com/count.js';
+    s.id = 'dsq-count-scr';
+    (d.head || d.body).appendChild(s);
+  }
+  // defer loading until the whole page loading is completed
+  window.addEventListener('load', loadCount, false);
+</script>
+<script>
+  var disqus_config = function() {
+    this.page.url = "http://chingchuan-chen.github.io/posts/201504/2015-04-06-build-hadoop-environment-in-mint-17.html";
+    this.page.identifier = "posts/201504/2015-04-06-build-hadoop-environment-in-mint-17.html";
+    this.page.title = "Build Hadoop environment in mint 17";
+    };
+  NexT.utils.loadComments(document.querySelector('#disqus_thread'), () => {
+    if (window.DISQUS) {
+      DISQUS.reset({
+        reload: true,
+        config: disqus_config
+      });
+    } else {
+      var d = document, s = d.createElement('script');
+      s.src = 'https://celestial0230.disqus.com/embed.js';
+      s.setAttribute('data-timestamp', '' + +new Date());
+      (d.head || d.body).appendChild(s);
+    }
+  });
+</script>
+
+    </div>
+</body>
+</html>
