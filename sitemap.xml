@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://chingchuan-chen.github.io/posts/202012/2020-12-16-installation-of-oracle-linux-8.html</loc>
+    
+    <lastmod>2020-12-16</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://chingchuan-chen.github.io/tags/index.html</loc>
     
     <lastmod>2020-09-04</lastmod>
@@ -1054,7 +1061,7 @@
 
   <url>
     <loc>http://chingchuan-chen.github.io/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
@@ -1062,1092 +1069,1099 @@
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/jekyll/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Linux/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Sublime-Text-3/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/R/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Rcpp/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/MKL/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Intel-C/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Python/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/numpy/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/scipy/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Jekyll/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Syntax-Highlight/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/RcppArmadillo/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/LASSO/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Ubuntu/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Mint/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Rcpp-Attributes/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/openmp/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/kernel-matrix/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/data-table/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Sparse-Matrix/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/GPU/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/ubuntu/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/cuda/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/HiPLARM/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/dplyr/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/reshape2/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/magrittr/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/MatLab/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/mex/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/unique-row/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Reduce/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/do-call/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/BLAS/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Revolution-R-Open/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/windows-bat/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/excel/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/copy/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/crawler/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/RSelenium/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/javascript/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/plyr/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Sublime-Text/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/split/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/regex/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/rJava/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/3D-plot/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Running-Length/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/BigData/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Hadoop/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/HBase/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Hive/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Spyder/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/rhdfs/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/rmr2/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/plyrmr/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/rhbase/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/MapReduce/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/parallel/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/snowfall/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/foreach/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/bsxfun/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/sweep/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/xelatex/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/shiny/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/ptt/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/RcppParallel/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Microsoft-R-Open/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/tidyr/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/CentOS/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Pipe-Operator/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/pipeR/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/raid/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/mongodb/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Oracle/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/ROracle/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/cx-Oracle/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Sqoop/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Cassandra/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Spark/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Maven/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/sbt/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/proxy/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Nexus/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Mesos/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Scala/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/sparkly/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/SparkR/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/File-Server/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/supervisor/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/monitor/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/assembly/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/ACID/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Drill/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/library/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/unnest/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/opencpu/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Web-Service/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/httpuv/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/GitLab/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Git/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/private/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/list/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/data-frame/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Locally-Quantile-Regression/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/RcppEigen/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/WLS/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Least-Square/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/LAPACK/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Kernel-Matrix/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Blaze/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Ambari/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/HDP/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/gcc/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/wrapr/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/MxNet/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Windows/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Deep-Learning/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Type-checking/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Grid-Search/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/RcppBlaze/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Rcpp-Types/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/variable-transformation/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/caret/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/parameters-tuning/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Data-Iterator/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/iterators/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/apply/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/NVBLAS/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/TexLive/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/inconsolata/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Keras/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Swish/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/PyCharm/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Kivy/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/PyTorch/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Tensorflow/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Intel/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/deep-learning/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Golang/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Cython/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Go/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/MongoDB/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/julia/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/nodejs/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/SLURM/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/LightGBM/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Liunx/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/ggplot2/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/docker/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/linux/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/NFS/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Phoenix/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Yarn/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/Zookeeper/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/tags/SQL/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/tags/OracleLinux/</loc>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
@@ -2156,133 +2170,140 @@
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/jekyll/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/Linux/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/R/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/Python/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/Jekyll/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/MatLab/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/windows-bat/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/Sublime-Text/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/BigData/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/Oracle/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/mongodb/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/MxNet/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/Go/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/MongoDB/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/julia/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/nodejs/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/SLURM/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/LightGBM/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   
   <url>
     <loc>http://chingchuan-chen.github.io/categories/CentOS/</loc>
-    <lastmod>2020-09-20</lastmod>
+    <lastmod>2020-12-16</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>http://chingchuan-chen.github.io/categories/OracleLinux/</loc>
+    <lastmod>2020-12-16</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
